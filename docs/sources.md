@@ -1,4 +1,6 @@
-# Packaging references
+# Technical references
+
+For the research behind the workflow, see [References and inspiration](../README.md#references-and-inspiration).
 
 Documentation checked on 2026-11-07. These references support file formats and
 setup instructions, not the reliability of this workflow. No provider endorsement

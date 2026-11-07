@@ -66,6 +66,19 @@ No dependency installation or paid service is needed for these structural tests.
 They check packaging consistency, not review correctness or live runtime behavior.
 Source references: [packaging documentation](docs/sources.md).
 
+## References and inspiration
+
+Surgical Dev grew out of a review of agent development workflows. These are
+conceptual references, not runtime dependencies or endorsements:
+
+- [Anthropic — When to fold subagents into your main agent loop](https://claude.com/resources/articles/building-agents-when-to-fold-subagents-into-your-main-agent-loop): the main architectural influence. Keep closely related work in one context, load Skills on demand, and retain subagents where independent verification or bounded parallel work adds value.
+- [Multica Best Practices](https://github.com/it235/multica-best-practices): a reference for explicit role boundaries, delivery handoffs, quality gates, and evidence-based acceptance. Surgical Dev uses a smaller standing team rather than adopting the full squad structure.
+- [Superpowers](https://github.com/obra/superpowers): a reference for reusable engineering Skills, independent review, and verification before declaring completion.
+
+The Engineer/Verifier split, four gates, and retry limits are Surgical Dev design
+choices, not requirements prescribed by these sources. See
+[technical references](docs/sources.md) for Skill formats and host setup documentation.
+
 ## Project
 
 Repository: https://github.com/daiyanze/surgical-dev
