@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "task_id": "EXAMPLE-001",
+  "repo": "example/repository",
+  "scope_revision": "brief-v1",
+  "scope_snapshot": null,
+  "approval_source": null,
+  "base_sha": null,
+  "head_sha": null,
+  "run_id": null,
+  "status": "BRIEF",
+  "acceptance_criteria": [
+    {
+      "id": "AC-1",
+      "condition": "Replace with the observable behavior from the real task."
+    }
+  ],
+  "non_goals": [
+    "No merging, publishing, or production deployment."
+  ],
+  "allowed_actions": [],
+  "required_checks": [],
+  "check_evidence": [],
+  "review_evidence": [],
+  "fix_cycles_used": 0,
+  "blocker": null,
+  "resume_from": null,
+  "next_action": "Identify the actual project, scope, authorization, required checks, and independent review route."
+}

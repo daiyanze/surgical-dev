@@ -1,0 +1,36 @@
+flowchart TD
+    U["User request"] --> B["Engineer: define scope and acceptance criteria"]
+    B --> G0{"Scope Ready?"}
+    G0 -->|No| H["Clarify or obtain scope approval"]
+    H --> B
+    G0 -->|Yes| E["Engineer: plan, implement, test, debug<br/>One continuous coding session"]
+
+    S["Skills loaded on demand"] -.-> E
+    E -.->|Optional bounded subtask| W["Temporary Worker<br/>Separate scope and workspace"]
+    W -.->|Evidence and change references| E
+
+    E --> C["Run required checks<br/>Open draft PR only if authorized"]
+    C --> G1{"Checks Passed?"}
+    G1 -->|Fail| RB{"Execution budget available?"}
+    RB -->|Yes| E
+    RB -->|No| X["Escalate to user"]
+    G1 -->|Evidence unavailable| BL["BLOCKED<br/>Save reason and resume point"]
+    G1 -->|Pass| V["Independent Verifier session<br/>Approved scope, diff, CI, exact SHAs"]
+
+    V --> G2{"Review verdict"}
+    G2 -->|BLOCKED| BL
+    G2 -->|CHANGES_REQUIRED| R{"Fewer than 2 fix-and-reverify cycles?"}
+    R -->|Yes| F["Engineer fixes findings<br/>Increment cycle and invalidate old review"]
+    F --> E
+    R -->|No| X
+    G2 -->|PASS| P["PR_READY<br/>Default delivery endpoint"]
+
+    P --> A{"Specific high-impact action authorized?"}
+    A -->|No| WAIT["Await user decision<br/>Do not merge or publish"]
+    A -->|Yes| Q{"Scope, code, checks and authorization still current?"}
+    Q -->|No| RE["Invalidate stale evidence<br/>Return to affected gate"]
+    RE --> B
+    Q -->|Yes| ACT["User or authorized executor performs that action"]
+    ACT --> OBS{"Actual outcome confirmed?"}
+    OBS -->|No| BL
+    OBS -->|Yes| DONE["Record observed result<br/>MERGED, RELEASED or DEPLOYED"]

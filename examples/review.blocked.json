@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "task_id": "EXAMPLE-001",
+  "repo": "example/repository",
+  "scope_revision": "brief-v1",
+  "base_sha": null,
+  "head_sha": null,
+  "verdict": "BLOCKED",
+  "reviewer_session_ref": null,
+  "required_check_status": "UNKNOWN",
+  "check_evidence": [],
+  "acceptance_results": [
+    {
+      "id": "AC-1",
+      "result": "UNKNOWN",
+      "evidence_refs": []
+    }
+  ],
+  "blocking_findings": [],
+  "non_blocking_suggestions": [],
+  "remaining_risks": [
+    "This is an illustrative record, not an observed review."
+  ],
+  "blocked_reason": "No real review request, authorized snapshot, check evidence, or independent reviewer session is available."
+}

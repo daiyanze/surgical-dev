@@ -1,0 +1,23 @@
+flowchart TB
+    SPEC["surgical-dev-v1.en.md<br/>Human-readable design"]
+    SPEC --> CONTENT["Portable content<br/>Engineer, Verifier, Skills and contracts"]
+    SPEC --> CORE["Small workflow core<br/>State, evidence freshness, retry budget"]
+
+    CONTENT --> PI["Pi adapter<br/>Package, extension, commands and sessions"]
+    CORE --> PI
+    CONTENT --> CC["Claude Code adapter<br/>Plugin skills, Verifier subagent and hooks"]
+    CORE --> CC
+    CONTENT --> GB["Grok Bot setup<br/>Two Bots and private Skills"]
+    CORE -.->|Optional controlled tool bridge| MCP["Authenticated MCP / API service<br/>Explicitly authorized operations only"]
+    MCP -.-> GB
+
+    PI --> ENG["Engineer session<br/>Default implementation owner"]
+    CC --> ENG
+    GB --> ENG
+    ENG -->|Bounded review request| VER["Independent Verifier session<br/>No implementation conversation history"]
+    VER -->|Version-bound verdict and evidence| CORE
+
+    CI["Repository CI and branch protection"] -->|Check current code and trusted results| CORE
+    HUMAN["User / trusted approval channel"] -->|Action-specific authorization| ACTION["Merge or release boundary"]
+    CORE -->|Readiness, not authorization| ACTION
+    CI -->|External enforcement| ACTION

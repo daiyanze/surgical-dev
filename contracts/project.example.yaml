@@ -1,0 +1,34 @@
+# Proposed project configuration; not a Grok/Pi native import format.
+# Fill from the real repository and original user authorization. Null means unknown.
+project_id: null
+repository: null
+default_branch: null
+project_rules_ref: null
+coding_runtime: null
+independent_review_route: null
+allowed_write_paths: []
+commands:
+  install: null
+  lint: null
+  typecheck: null
+  unit: null
+  build: null
+  e2e: null
+required_checks: []
+authorization:
+  source_ref: null
+  allowed_actions: []
+  # Empty means no mutation is authorized by this example.
+policy:
+  active_writing_tasks_per_repository: 1
+  workers_enabled: false
+  max_workers_after_pilot: 2
+  max_fix_and_reverify_cycles: 2
+  delivery_endpoint: PR_READY
+  scheduled_execution: false
+  auto_merge: false
+budget:
+  approved_execution_count: null
+  approved_usage_limit: null
+  cost_visibility: UNKNOWN
+# Do not put tokens, secrets, internal account data, or production credentials here.

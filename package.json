@@ -1,0 +1,35 @@
+{
+  "name": "surgical-dev",
+  "version": "0.1.0-content",
+  "private": true,
+  "description": "English Surgical Dev roles, skills, contracts and manual host setup; content-only pilot.",
+  "type": "module",
+  "keywords": [
+    "pi-package",
+    "agent-skills",
+    "software-development"
+  ],
+  "pi": {
+    "skills": [
+      "./skills"
+    ]
+  },
+  "files": [
+    "README.md",
+    "QUICKSTART.zh-CN.md",
+    "VALIDATION.md",
+    "roles",
+    "skills",
+    "references",
+    "templates",
+    "contracts",
+    "examples",
+    "adapters",
+    "docs",
+    "tests",
+    "scripts"
+  ],
+  "scripts": {
+    "test": "node --test tests/package.test.mjs"
+  }
+}
