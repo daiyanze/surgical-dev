@@ -1,8 +1,8 @@
 {
   "name": "surgical-dev",
-  "version": "0.1.0-content",
+  "version": "0.2.0-content",
   "private": true,
-  "description": "English Surgical Dev roles, skills, contracts and manual host setup; content-only pilot.",
+  "description": "Surgical Dev v2: four persistent roles, ten Skills and bounded temporary subagents; content-only pilot.",
   "type": "module",
   "keywords": [
     "pi-package",
@@ -27,7 +27,11 @@
     "adapters",
     "docs",
     "tests",
-    "scripts"
+    "scripts",
+    "ARCHITECTURE.en.md",
+    "ARCHITECTURE.zh-CN.md",
+    "MIGRATION.md",
+    "workflows"
   ],
   "scripts": {
     "test": "node --test tests/package.test.mjs"

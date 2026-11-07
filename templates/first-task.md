@@ -1,15 +1,19 @@
-Handle the following task using the Surgical Dev workflow.
+# First pilot task message
 
-Project: <repository or project identifier>
-Objective: <the problem to solve>
-Acceptance: <observable behavior or a clearly defined failure scenario>
-Out of scope: <explicitly excluded work>
+Use the Surgeon Agent Team v2 design for this explicitly authorized task.
 
-Read the project rules and existing implementation first. Use one continuous coding session for the approach, implementation, testing, and debugging. Do not create Workers unless there is a clearly independent subtask.
+Project/repository: <identifier>
+Objective: <bounded problem>
+Acceptance criteria: <observable behavior>
+Out of scope: <exclusions>
+Authorized actions: <explicit list; distinguish edit/test/push/PR/merge/deploy>
+Resource limits and delivery target: <limits; normally PR_READY for the pilot>
 
-Actions authorized for this task: <list explicitly, such as reading, editing on a task branch, and running tests; separately include pushing and opening a draft PR when applicable>
-Do not merge, publish, deploy, or change permissions unless included in authorization.
+Keep implementation and tests in one Engineer coding session. Use an independent
+Verifier, fix in-scope findings automatically within the configured repair budget,
+and preserve current source/scope/check evidence. Do not invoke Scout or helpers
+unless their distinct work is needed. Do not create permanent Bots or routines.
 
-Within the approved scope, you may hand the current specification and change to Verifier for independent acceptance. Confirm the current code version and check evidence before sending the review request. After findings, allow at most two fix-and-reverify cycles; if the change still does not pass, explain the blocker to me.
-
-Return the actual status, PR/code version, acceptance-criteria mapping, CI and independent acceptance evidence, remaining risks, and the specific actions awaiting my approval. Do not describe PR_READY as already live in production.
+Only hand delivery to Operator if authorized for this task. Return actual status,
+evidence, risks and the specific decision needed if blocked. Do not call PR_READY
+merged or released, or a deployment request a successful deployment.

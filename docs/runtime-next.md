@@ -1,29 +1,15 @@
-# Runtime implementation not included
+# Runtime work still needed
 
-This release is the split content layer. It contains no mock execution wrappers or
-empty extensions pretending to provide a runtime. Do not register a missing file
-in a plugin manifest.
+The v2 content migration provides four charters, ten methods, setup drafts and
+record/state specifications. It does not implement an autonomous runtime.
 
-A future adapter must implement and test independent reviewer sessions, observed
-session provenance, version-bound evidence, controlled checks, state transitions,
-rework accounting, duplicate suppression, and interrupted-run recovery. Keep
-normal implementation in the existing main session.
+Use one workflow owner: Grok-native for the first capability pilot, or a future
+runtime-owned loop, never two competing planners/review loops. Reuse existing
+host/CI facilities; the controller is ordinary code, not a fifth Bot.
 
-The planned `surgeon_start_task`, `surgeon_check`, `surgeon_review`, and
-`surgeon_status` interfaces are design names, not tools installed by this package.
-One adapter is enough initially. Do not add multiple runtimes, a broker, or a
-database merely because the content is portable.
-
-Schemas validate record shape; they do not fetch CI, compare actual snapshots,
-authenticate users, identify a real separate session, or enforce permissions.
-A JSON PASS or approval reference is not proof. Runtime hooks only cover actions
-routed through them; unrestricted shell or alternate credentials can bypass them.
-
-Retain repository checks, branch protection, trusted approvals, least privilege,
-and isolated environments as external controls. Passing a human-readable procedure
-or static test never establishes production readiness.
-
-Implement against tests that reject stale commits, dirty/untracked changes,
-changed scope/check policy, unknown CI, self-authored reviewer identity, duplicate
-runs, exhausted repair budgets, and unauthorized merge/release actions. Run real
-with/without-Skill tasks before claiming behavioral effectiveness.
+Remaining work: authenticated role addressing; independent review context;
+version/check/artifact gate enforcement; persisted task/event/action IDs and
+locks; deduplication; finite total budgets; cancellation and restart reconciliation;
+trusted action executor and operational observation. Validate the
+[acceptance scenarios](../tests/acceptance-scenarios.md) before activation.
+No runtime scenario is claimed as passed by the package structural tests.

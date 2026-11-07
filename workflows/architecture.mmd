@@ -1,0 +1,34 @@
+flowchart TB
+    U["User or trusted policy<br/>Goals, priority and action authority"]
+    S["Product Scout<br/>Discover problems and assess outcomes"]
+    E["Engineer<br/>One continuous implementation loop"]
+    V["Verifier<br/>Independent acceptance"]
+    O["Operator<br/>Authorized delivery and operational observation"]
+    W["Temporary subagents<br/>Optional, bounded and isolated"]
+    P["PR_READY<br/>Default engineering endpoint"]
+    R["Observed feedback and incidents"]
+    C["Controller - ordinary code, not another Bot<br/>Routing, versions, deduplication, budgets and recovery"]
+    G["CI, protected branches and scoped action executors<br/>External enforcement"]
+
+    S -->|"Proposal, not authorization"| U
+    U -->|"Accepted scope or direct task"| E
+    E -->|"Pinned change and evidence"| V
+    V -->|"CHANGES_REQUIRED within budget"| E
+    V -->|"PASS for current snapshot"| P
+    P -->|"Delivery requested"| O
+    P -->|"No delivery requested"| U
+    E -.->|"Optional independent subtask"| W
+    W -.->|"Evidence for Engineer to integrate"| E
+    U -->|"Action-specific grants"| O
+    O -->|"Observed version and effects"| R
+    R -->|"Product feedback"| S
+    R -->|"Incident intake"| O
+    O -->|"Bounded source repair"| E
+    O -->|"Completion, approval need or escalation"| U
+
+    C -.-> E
+    C -.-> V
+    C -.-> O
+    C -.-> S
+    G -.->|"Required checks"| V
+    G -.->|"Authorization and deployment controls"| O

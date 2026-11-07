@@ -1,3 +1,8 @@
+# Historical v1 design — superseded
+
+Current rules are in [v2 architecture](../ARCHITECTURE.en.md). Do not load this
+historical design as active policy. Original body is retained below.
+
 # Surgeon Agent Team v1
 
 Target platform: Grok Bot  

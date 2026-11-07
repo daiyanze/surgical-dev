@@ -1,16 +1,12 @@
-# Checkpoint
+# Task or operation checkpoint
+Record / current owner / real execution reference:
+Scope, source, policy and artifact versions relevant now:
+Last observed state and evidence:
+Known remote jobs/actions still running or uncertain:
+Important decisions and prior failed attempts:
+Budget and review cycles consumed:
+Blocker, original stage and exact resumption condition:
+Next permitted action:
 
-Task / scope / run: <ids>
-Current stage: <BRIEF / IMPLEMENTING / VERIFYING / PR_READY / BLOCKED>
-Resume from: <original stage if blocked>
-Coding session / process: <observed reference and last confirmed state>
-Code / relevant base / artifact snapshot: <references>
-Verified facts and evidence: <short references; raw logs stay outside the chat>
-Important decisions: <approved decisions, not private reasoning>
-Failed attempts: <what actually happened>
-Fix-and-reverify cycles used: <0..2>
-Blocker / owner / resumption condition: <details or none>
-Next action: <smallest authorized step>
-
-Before resuming, confirm the prior process status and current repository/CI state.
-Do not redispatch an unknown active run or reuse stale review results.
+Before resuming, reconcile the real process, Git, CI and deployment state. Do
+not blindly redispatch a side-effectful action after a timeout or lost context.

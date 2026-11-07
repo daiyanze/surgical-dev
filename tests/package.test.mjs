@@ -5,7 +5,7 @@ import { dirname, resolve, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const skills = ['surgical-dev', 'ship-feature', 'fix-bug', 'delegate-bounded-task', 'verify-change', 'prepare-release'];
+const skills = ['surgical-dev', 'ship-feature', 'fix-bug', 'delegate-bounded-task', 'verify-change', 'prepare-release', 'discover-opportunity', 'evaluate-outcome', 'release-and-observe', 'handle-incident'];
 const read = path => readFileSync(resolve(root, path), 'utf8');
 const json = path => JSON.parse(read(path));
 
@@ -62,8 +62,8 @@ for (const name of skills) {
   });
 }
 
-test('three role assets exist without one-time setup instructions', () => {
-  for (const role of ['engineer', 'verifier', 'worker']) {
+test('four persistent roles and temporary helper assets exist without one-time setup instructions', () => {
+  for (const role of ['product-scout', 'engineer', 'verifier', 'operator', 'temporary-subagent']) {
     const path = `roles/${role}.md`;
     assert.ok(existsSync(resolve(root, path)), `Missing ${path}`);
     assert.ok(!read(path).includes('For now, only confirm'));
@@ -96,12 +96,12 @@ test('schemas parse and declare JSON Schema 2020-12', () => {
 });
 
 test('Grok setup copies match canonical roles', () => {
-  for (const role of ['engineer', 'verifier']) {
-    const path = `adapters/grok-bot/${role.toUpperCase()}_SETUP.md`;
+  for (const role of ['product-scout', 'engineer', 'verifier', 'operator']) {
+    const path = `adapters/grok-bot/${role.toUpperCase().replaceAll('-', '_')}_SETUP.md`;
     assert.ok(existsSync(resolve(root, path)), `Missing ${path}`);
     const content = read(path);
     assert.ok(content.includes(read(`roles/${role}.md`).trim()));
-    assert.ok(content.includes('For now, only confirm'));
+    assert.ok(content.includes('## Setup-only response'));
   }
 });
 

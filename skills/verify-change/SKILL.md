@@ -1,11 +1,11 @@
 ---
 name: verify-change
-description: Use when a separate Verifier session receives a version-bound Surgeon review request or a request to recheck review fixes.
+description: Use when a separate Verifier session receives a version-bound Surgical Dev review request or a request to recheck review fixes.
 ---
 
 # verify-change
 
-For authorized Surgeon tasks only. Read the [Verifier role](../../roles/verifier.md)
+For authorized Surgical Dev tasks only. Read the [Verifier role](../../roles/verifier.md)
 and [workflow rules](../../references/workflow.md) as needed. Host capabilities
 and real approvals, not this file, determine what can execute.
 
@@ -31,3 +31,6 @@ Only a separate reviewer may use this Skill for independent acceptance. The
 implementer must not switch personas and self-approve. If identity, scope,
 access, or a pinned snapshot cannot be established, return BLOCKED.
 Read the [review request](../../templates/review-request.md) before evaluating.
+
+Read the [shared team boundaries](../../roles/team-boundaries.md). Preserve parent
+repair/resource budgets and original authorization across handoffs and resumes.
