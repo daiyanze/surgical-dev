@@ -1,91 +1,88 @@
 # Surgical Dev
 
-**English content pack, version 0.1.0-content.** One Engineer owns implementation;
-one independent Verifier evaluates delivery. Skills are loaded on demand.
+**v2 content pack · 0.2.0-content.** Four persistent responsibilities: Product Scout,
+Engineer, Verifier and Operator. Engineer keeps implementation in one continuous
+context; temporary subagents are optional, never a fifth permanent Worker Bot.
 
-This is the actual split resource package, not just a directory blueprint. It is
-packaged for Pi Skill discovery and provides manual Grok Bot setup materials.
-It is **not** an autonomous team runtime: no scheduler, independent-session
-launcher, enforced state machine, authenticated approval service, or merge tool
-is implemented. No end-to-end agent behavior has been validated in this delivery.
+This repository provides role instructions, ten on-demand Skills, handoff templates,
+design contracts and manual host setup. It does **not** implement a scheduler,
+authenticated controller, enforced gates or autonomous deployment. No Bots, Skills,
+monitoring routines or production permissions are activated by this update.
 
-[中文快速开始](QUICKSTART.zh-CN.md) · [Validation report](VALIDATION.md)
+[中文快速开始](QUICKSTART.zh-CN.md) · [English architecture](ARCHITECTURE.en.md) ·
+[中文架构](ARCHITECTURE.zh-CN.md) · [Migration](MIGRATION.md) · [Validation](VALIDATION.md)
 
 ## How it works
 
-**One lead agent. Independent review. You control delivery.**
-
 ```mermaid
 flowchart TD
-    U["You define the goal and scope"] --> E["Engineer: plan, code, test and fix"]
-    E --> C{"Required checks pass?"}
-    C -->|No: fix| E
-    C -->|Yes| V["Verifier: independently review the change"]
-    V -->|Changes required| E
-    V -->|Missing evidence| B["Blocked: report what is needed"]
-    V -->|Pass| P["PR ready for your approval"]
-    P --> A["You authorize merge or release"]
+    S["Scout: evidence-backed opportunity"] --> A{"Scope admitted?"}
+    A -->|Yes| E["Engineer: implement and check"]
+    U["Direct task or incident repair"] --> E
+    E --> V["Verifier: independent acceptance"]
+    V -->|Changes required, bounded repair| E
+    V -->|Missing evidence| B["BLOCKED with resume condition"]
+    V -->|PASS| P["PR_READY"]
+    P --> O["Operator: release gates and authorized actions"]
+    O --> H["Observe actual operational outcome"]
+    H --> S
 ```
 
-Engineer keeps implementation in one continuous context, loading Skills and using
-bounded Workers only when needed. Verifier reviews independently; fixes return to
-Engineer. Repeated failures escalate to you. This diagram describes the workflow:
-independent sessions and hard gates still require host capabilities and CI.
+These are conditional handoffs, not mandatory stages for every task. Ordinary bugs
+go straight to Engineer. PR-only work stops at PR_READY. Product proposals need
+admission, review PASS never grants release permission, and deployment health does
+not prove product value. The feedback loop requires verified host capabilities.
+
+| Responsibility | Methods |
+|---|---|
+| Product Scout | discover-opportunity, evaluate-outcome |
+| Engineer / entry | surgical-dev, ship-feature, fix-bug, delegate-bounded-task |
+| Verifier | verify-change |
+| Operator | prepare-release, release-and-observe, handle-incident |
 
 ## Start with one host
 
-| Host | Start here | What is provided |
+| Host | Guide | Included resources |
 |---|---|---|
-| Grok Bot | [Setup](adapters/grok-bot/SETUP.md) | Two first-message files and six self-contained private-Skill texts |
-| Pi | [Setup](adapters/pi/SETUP.md) | Skills-only `package.json`; keep the full directory intact |
-| Another runtime | [Source map](docs/source-map.md) | Portable Markdown; its native adapter remains your responsibility |
-
-No Grok account has been changed, no Skill saved to an account, and no Pi settings
-changed on your machine. Review resources before installation. Loading instructions
-does not grant permission or automatically create a reviewer.
-
-## Main resources
-
-- [Engineer](roles/engineer.md), [Verifier](roles/verifier.md), [Worker](roles/worker.md).
-- [Entry Skill](skills/surgical-dev/SKILL.md) and five method Skills in `skills/`.
-- [Workflow](references/workflow.md), reusable [handoffs](templates), and [record contracts](contracts/README.md).
-- [Original design](docs/design.en.md), [Mermaid workflow](docs/workflow.mmd), and [architecture diagram](docs/plugin-architecture.mmd).
-- [First task](templates/first-task.md), [pilot scenarios](tests/acceptance-scenarios.md), and [runtime work still needed](docs/runtime-next.md).
-
-The architecture Mermaid shows future adapters as well as portable content; it is
-not an inventory of implemented capabilities. See the validation report for the
-exact checked scope.
-
-## Pi quick start
-
-From the directory containing the unpacked folder:
+| Grok Bot | [Setup](adapters/grok-bot/SETUP.md) | Four self-contained role setup messages; ten flattened private-Skill texts |
+| Pi | [Setup](adapters/pi/SETUP.md) | Skills-only package metadata; no automatic session launcher |
+| Other runtime | [Source map](docs/source-map.md) | Portable content; verified native integration is still required |
 
 ```bash
 pi install ./surgical-dev
 ```
 
-Then, in a new Pi session for the target project:
+Then invoke `/skill:surgical-dev <authorized task>` in the appropriate project.
+Keep the full package directory intact. Installation is a user action; it has not
+been performed here. Independent acceptance requires a separate reviewer context.
 
-```text
-/skill:surgical-dev <your authorized task>
-```
+## Boundaries and resources
 
-Local installation records the path without copying files. Keep the folder in a
-stable location. Use the project-local instructions in the Pi setup guide to avoid
-changing global settings. Independent review requires a real separate session or
-human-routed handoff; without one, report BLOCKED rather than simulate it.
+- [Four roles and temporary helper](roles/README.md), [shared boundaries](roles/team-boundaries.md).
+- [Workflow](references/workflow.md): Scope Ready, Checks Passed, Review Passed,
+  Release Ready, Action Authorized and Outcome Observed.
+- [V2 record contracts](contracts/record-contracts.md), [states](contracts/state-transitions.md),
+  [disabled policy example](contracts/project-policy.example.yaml), [handoffs](templates).
+- [Delivery](workflows/delivery.mmd), [incident](workflows/incident.mmd),
+  [architecture](workflows/architecture.mmd), [pilot scenarios](tests/acceptance-scenarios.md).
+- [Remaining runtime work](docs/runtime-next.md). Existing JSON schemas/examples
+  validate legacy v1 records only; they are not v2 gate enforcement.
+
+Default: automation disabled, one active parent write task per repository, helpers
+disabled (maximum two when enabled), two repair/reverify cycles after initial review.
+Unattended execution also requires finite total budgets and explicit project policy.
 
 ## Structural checks
 
-With Node.js 18 or later:
-
 ```bash
 npm test
+python3 tests/contracts_test.py
 ```
 
-No dependency installation or paid service is needed for these structural tests.
-They check packaging consistency, not review correctness or live runtime behavior.
-Source references: [packaging documentation](docs/sources.md).
+Node.js 18+ is sufficient for the package tests. Python contract tests require
+`tests/requirements.txt`; they exercise legacy v1 schemas. These checks do not prove
+live handoffs or production automation. Regenerate Grok copies after canonical edits
+with `python3 scripts/export_grok_skills.py`.
 
 ## References and inspiration
 
@@ -96,12 +93,12 @@ conceptual references, not runtime dependencies or endorsements:
 - [Multica Best Practices](https://github.com/it235/multica-best-practices): a reference for explicit role boundaries, delivery handoffs, quality gates, and evidence-based acceptance. Surgical Dev uses a smaller standing team rather than adopting the full squad structure.
 - [Superpowers](https://github.com/obra/superpowers): a reference for reusable engineering Skills, independent review, and verification before declaring completion.
 
-The Engineer/Verifier split, four gates, and retry limits are Surgical Dev design
+The four-role architecture, six gates, and retry limits are Surgical Dev design
 choices, not requirements prescribed by these sources. See
 [technical references](docs/sources.md) for Skill formats and host setup documentation.
 
 ## Project
 
-Repository: https://github.com/daiyanze/surgical-dev
+https://github.com/daiyanze/surgical-dev
 
-Surgical Dev adapts the Surgeon Team development model: one implementation owner, independent review, and evidence-based delivery. The original design is retained in `docs/design.en.md`; the package and entry Skill use the new project name.
+The entry name stays `surgical-dev`; Surgeon Team v2 supplies the adopted architecture.

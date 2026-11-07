@@ -1,28 +1,23 @@
 ---
 name: prepare-release
-description: Use when the user explicitly requests release preparation for a specified version and target environment.
+description: Use when release preparation is requested for a specified candidate and environment.
 ---
 
 # prepare-release
 
-For authorized Surgeon tasks only. Read the [Engineer role](../../roles/engineer.md)
-and [workflow rules](../../references/workflow.md) as needed. Host capabilities
-and real approvals, not this file, determine what can execute.
+Owner: operator. Read the [role](../../roles/operator.md),
+[shared boundaries](../../roles/team-boundaries.md) and
+[workflow](../../references/workflow.md). Use only existing capabilities and
+original task/action authorization; these instructions grant no permissions.
 
-**When to use:** The user explicitly requests release preparation. Do not load this Skill by default for every feature task.
+## Procedure
 
-**Inputs and access:** Approved version, target environment, release method, current CI results, changelog, and rollback plan.
+Inspect current independent review and required checks. Identify each necessary action and its original grant. Verify actual release source, trusted build/provenance, artifact digest, environment/configuration, observation checks/window and applicable recovery runbook. If the artifact is built after merge, record that dependency and wait for the authorized protected merge/build before declaring Release Ready. Assess irreversible effects; never assume rollback. Return source or pipeline changes to Engineer and Verifier. Preparation performs no merge, tag, publication or deployment.
 
-**Procedure:** Confirm the version to release → check compatibility and configuration → inspect the changelog and version number → organize release steps, risks, and rollback → request authorization for the relevant actions.
-
-**Verification:** The preparation report and artifacts refer to the same version; necessary runtime checks and rollback prerequisites are actionable.
-
-**Return:** A release checklist and risks. If execution has not occurred, report `PREPARED`, not `RELEASED`.
-
-**Approval:** Tagging, creating a Release, publishing a package, and deploying to production each follow their specific authorization. Do not infer “publish now” from “prepare a release.”
+Preserve IDs, source/policy versions and finite budgets. On missing required access,
+authority or evidence, preserve prior phase, reason, owner and resume condition.
 
 ## Return
 
-Use the [task brief](../../templates/task-brief.md) where appropriate,
-then return the evidence and outcome specified above. Unknown required evidence
-remains unknown. Do not claim a missing tool, session, or Skill was executed.
+Use the [handoff template](../../templates/release-handoff.md).
+PLANNED, PRECHECKING or READY release plan with exact candidate, missing gates, risks and separately authorized actions. Never claim execution.

@@ -1,3 +1,12 @@
+# Legacy v1 JSON schemas and v2 design contracts
+
+Existing task/review JSON schemas and examples are retained for v1 compatibility only.
+They do not validate v2 records and must not gate v2 acceptance.
+Use [v2 records](record-contracts.md), [states](state-transitions.md) and the
+[disabled policy](project-policy.example.yaml). No executable v2 validator is provided.
+
+## Historical v1 documentation
+
 # Task and review contracts
 
 These are proposed JSON Schema 2020-12 shapes, not a native Grok/Pi API or an

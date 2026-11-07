@@ -1,65 +1,55 @@
 # Validation report
 
-Package: `surgical-dev`, `0.1.0-content`  
-Date: 2026-11-07  
-Scope: split content and packaging, not a working multi-agent runtime.
+Package: `surgical-dev`, `0.2.0-content` · 2026-11-07
+Scope: v2 content migration, not an autonomous runtime.
 
 ## Observed checks
 
-The package was imported as `surgical-dev`; the entry Skill and setup paths were renamed, and Grok exports regenerated. The original design remains unchanged.
+- `npm test`: 18 structural tests passed: ten Skill definitions, role/setup
+  consistency, local Markdown links, legacy schema metadata, defaults and Grok hashes.
+- `python3 tests/contracts_test.py` with `tests/requirements.txt` installed in an
+  isolated dependency directory: 12 legacy v1 JSON Schema shape tests passed.
+- Ten Skill YAML frontmatters and both disabled policy examples parsed successfully.
+- `npm pack --dry-run --ignore-scripts --json`: package content inspected; no runtime
+  dependencies, installation hooks or generated runtime tools.
+- Grok exports regenerated from canonical content; repeated generation is byte-identical.
+- Independent read-only content review found no blocking role/permission/workflow
+  contradictions. Cosmetic quick-start markers were corrected after review.
+- `SHA256SUMS` covers repository content except itself; verify with `sha256sum -c
+  SHA256SUMS` (or `shasum -a 256 -c SHA256SUMS` on macOS).
 
-| Check | Observed result |
-|---|---|
-| `npm test` | 14 structural tests passed |
-| `python3 tests/contracts_test.py` | 12 JSON Schema tests passed |
-| Skill YAML metadata and project YAML parsing | Parsed successfully |
-| Local Markdown references | All referenced local files/directories exist inside the package |
-| Generated Grok source hashes | Match their canonical role, Skill, workflow, and template files |
-| Grok export regeneration | Byte-identical output before/after a repeated export |
-| `npm pack --dry-run --ignore-scripts --json` | Declared content included; no install hooks or runtime dependencies |
-| Preserved original English design | Byte-identical to the supplied source |
+During migration, the first structural run exposed a missing role index and
+package-relative links in flattened copies. Both were corrected; all 18 checks
+then passed. Legacy schemas remain unchanged and are explicitly v1-only.
 
-Schema tests use synthetic references only. Their acceptance proves record shape,
-not the existence or authenticity of an approval, check, or independent review.
-The initial structural baseline failed because split files did not yet exist;
-it was not an agent-behavior baseline.
-
-## Reproduce static checks
-
-With Node.js 18 or later, no npm dependency installation is needed:
+## Reproduce
 
 ```bash
 npm test
-```
-
-For optional Python contract tests, use a separate test environment with Python
-3.9+ and the development-only dependency listed in `tests/requirements.txt`:
-
-```bash
 python3 -m pip install -r tests/requirements.txt
 python3 tests/contracts_test.py
-```
-
-Regenerate self-contained Grok texts after editing canonical resources:
-
-```bash
 python3 scripts/export_grok_skills.py
-npm test
+npm pack --dry-run --ignore-scripts --json
 ```
 
-These commands do not install the content into Grok/Pi or authorize real work.
+Use a separate Python test environment. Regenerating text does not install Skills
+or authorize account/production actions. JSON validation checks shape, not identity,
+original authorization, current evidence, or substantive acceptance.
 
 ## Not performed
 
-No actual Pi installation, Grok Bot creation, private-Skill saving, paid model invocation,
-independent-agent execution, pressure/baseline behavioral evaluations, real
-repository task, CI change, merge, release, or deployment was performed during package validation. Repository import and push are separate delivery actions.
-Mermaid source files were preserved; diagrams were not rendered in this build.
-See `tests/acceptance-scenarios.md` for behavioral work still marked NOT RUN.
+No Pi installation, Grok Bot setup, account Skill installation, event subscription,
+live multi-agent handoff/repair loop, CI integration, release, deployment, rollback,
+or operational/product outcome evaluation. The behavioral acceptance scenarios
+remain NOT RUN. Mermaid sources are included but were not visually rendered.
+The independent content review is not an end-to-end runtime acceptance test.
 
-## Delivery boundaries
+## Source provenance
 
-This is a Skills-only Pi package plus manual Grok setup material. There are no
-runtime extensions, hooks, automatic verifier launchers, authenticated approval
-mechanisms, or `/surgeon` commands. Role instructions and JSON Schemas do not
-provide security isolation or force workflow compliance.
+- Approved v2 design archive `surgeon-agent-team-v2-design.zip`:
+  `031fa6d2e924c9b2eaa6cd97a16fae50b96e1926c06ed9ebdbbbe5417bb24995`.
+- Original v1 archive `surgeon-agent-team-split.zip`:
+  `7f2bb81aef8a54140f7d937778d2e19b59869f535e0c4b9b0ed73a6c1be52df2`.
+- V1 design body is retained under an explicit historical notice. V2 design links,
+  entry naming and adoption status are adapted to this repository. Neither source
+  archive was modified. Runtime enforcement remains in `docs/runtime-next.md`.

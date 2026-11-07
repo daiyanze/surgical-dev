@@ -1,11 +1,11 @@
 ---
 name: fix-bug
-description: Use when an authorized Surgeon task concerns a reproducible defect, regression, failing test, or unexpected behavior.
+description: Use when an authorized Surgical Dev task concerns a reproducible defect, regression, failing test, or unexpected behavior.
 ---
 
 # fix-bug
 
-For authorized Surgeon tasks only. Read the [Engineer role](../../roles/engineer.md)
+For authorized Surgical Dev tasks only. Read the [Engineer role](../../roles/engineer.md)
 and [workflow rules](../../references/workflow.md) as needed. Host capabilities
 and real approvals, not this file, determine what can execute.
 
@@ -23,6 +23,9 @@ and real approvals, not this file, determine what can execute.
 
 ## Return
 
-Use the [task brief](../../templates/task-brief.md) where appropriate,
+Use the [work item](../../templates/work-item.md) where appropriate,
 then return the evidence and outcome specified above. Unknown required evidence
 remains unknown. Do not claim a missing tool, session, or Skill was executed.
+
+Read the [shared team boundaries](../../roles/team-boundaries.md). Preserve parent
+repair/resource budgets and original authorization across handoffs and resumes.

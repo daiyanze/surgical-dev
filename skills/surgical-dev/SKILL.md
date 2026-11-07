@@ -1,41 +1,41 @@
 ---
 name: surgical-dev
-description: Use when the user requests Surgical Dev development or resumes a task explicitly using its Engineer and independent Verifier workflow.
+description: Use when the user invokes Surgical Dev or resumes its four-role workflow for discovery, implementation, independent review, delivery or incidents.
 ---
 
-# Surgeon Team
+# Surgical Dev v2
 
-The current implementation session is Engineer, not a new dispatch-only manager.
-Activate this workflow only for the requested task. It does not override unrelated
-workflows or higher-priority host instructions.
+Read actual project instructions, the [shared boundaries](../../roles/team-boundaries.md)
+and [workflow](../../references/workflow.md). This is a content-only package; no
+role dispatcher, scheduler, authorization service or enforced state machine is installed.
 
-Read the [Engineer role](../../roles/engineer.md),
-[workflow rules](../../references/workflow.md), and actual project instructions.
-This is a content pack: it does not install a scheduler, trusted approval service,
-or the proposed surgeon_* tools. Use only capabilities actually available.
+## Route only the responsibility needed
 
-## Procedure
+- Research/opportunity: Product Scout uses discover-opportunity. A proposal cannot
+  admit itself; retain original user or trusted-policy authorization before coding.
+- Clear feature/bug: Engineer uses ship-feature or fix-bug directly. Keep reading,
+  planning, implementation and debugging in the same conversation and coding session.
+- Optional bounded work: Engineer uses delegate-bounded-task only if enabled, with
+  at most two temporary subagents, isolated workspaces and no recursive delegation.
+- Acceptance: a genuinely separate Verifier uses verify-change. Never switch persona
+  to approve your own work. Missing independent review is BLOCKED; a documented human
+  alternative is allowed. PASS does not authorize delivery.
+- Delivery: Operator uses prepare-release, then release-and-observe only for authorized
+  actions. Preparation does not grant merge, tag, package or deployment permission.
+- Incident: Operator uses handle-incident; send bounded repairs directly to Engineer.
+- Product results: Scout uses evaluate-outcome; new follow-ups need separate admission.
 
-1. Establish scope, original authorization, required checks, and permitted actions
-   using the [task brief](../../templates/task-brief.md). Defaults are one writing
-   task per repository and no Workers.
-2. Load `ship-feature` or `fix-bug` when relevant. Keep planning, coding, tests,
-   and debugging in the continuing coding session.
-3. Load `delegate-bounded-task` only for work worth separating. A missing Worker
-   runtime is not a reason to pretend delegation occurred.
-4. Collect current snapshot and check evidence. Open a draft PR to trigger CI only
-   when authorized. Freeze the version being submitted.
-5. Send the [review request](../../templates/review-request.md) to an actual
-   independent Verifier using `verify-change`. If no separate reviewer is
-   available, return BLOCKED and provide the handoff for a human to route.
-   Changing persona in the same conversation is not independent verification.
-6. Handle PASS, CHANGES_REQUIRED, or BLOCKED. Permit at most two fix-and-reverify
-   cycles after the initial review. Recheck stale versions and save checkpoints.
-7. Stop at PR_READY or the actual blocker. Load `prepare-release` only on an
-   explicit request; readiness never grants merge or publishing permission.
+## Continue the engineering loop
+
+Bind scope, original authority, exact source snapshot and check policy. Collect real
+check evidence, then request independent review. CHANGES_REQUIRED returns to the
+original Engineer session automatically when a verified handoff exists. Permit at
+most two repair/reverify cycles after initial review; preserve total budgets across
+new IDs/restarts. BLOCKED retains owner, reason, prior phase and resume condition.
+Stop at PR_READY unless delivery is in scope. No mandatory Scout or Operator pass.
 
 ## Return
 
-Actual state; task and scope version; code/PR and exact snapshot; AC results;
-check evidence; independent review verdict or its absence; risks; next authorized
-action. Never invent an agent run, test result, approval, or deployment outcome.
+Actual state and responsible role; linked task/review/release/incident IDs as relevant;
+current scope/source/check evidence; verdict or absence; unresolved risks and next
+authorized action. Never invent agent runs, approvals, telemetry or product impact.
