@@ -11,6 +11,27 @@ is implemented. No end-to-end agent behavior has been validated in this delivery
 
 [中文快速开始](QUICKSTART.zh-CN.md) · [Validation report](VALIDATION.md)
 
+## How it works
+
+**One lead agent. Independent review. You control delivery.**
+
+```mermaid
+flowchart TD
+    U["You define the goal and scope"] --> E["Engineer: plan, code, test and fix"]
+    E --> C{"Required checks pass?"}
+    C -->|No: fix| E
+    C -->|Yes| V["Verifier: independently review the change"]
+    V -->|Changes required| E
+    V -->|Missing evidence| B["Blocked: report what is needed"]
+    V -->|Pass| P["PR ready for your approval"]
+    P --> A["You authorize merge or release"]
+```
+
+Engineer keeps implementation in one continuous context, loading Skills and using
+bounded Workers only when needed. Verifier reviews independently; fixes return to
+Engineer. Repeated failures escalate to you. This diagram describes the workflow:
+independent sessions and hard gates still require host capabilities and CI.
+
 ## Start with one host
 
 | Host | Start here | What is provided |
