@@ -7,9 +7,12 @@ guarantee that autonomous handoffs work in this account. Read [sources](../../re
 
 Use Grok-native role ownership for the initial deployment. A runtime-owned loop
 is a later alternative, not a second planner/review loop. Record this choice
-in the approved project policy and keep one active parent writing task per repo.
+in the approved project policy. The user provides goal/constraints/budget/permissions;
+Engineer owns technical partitioning and assignment requests. Choose one Engineer
+integration owner. A verified host/controller schedules non-conflicting ready work
+within project/global caps, or uses serial execution when unavailable or unsafe.
 
-## 2. Create/select only four persistent identities
+## 2. Configure four role types
 
 With explicit setup authorization, create/select Product Scout, Engineer, Verifier,
 and Operator. Send each its corresponding self-contained first-message file:
@@ -18,6 +21,11 @@ and Operator. Send each its corresponding self-contained first-message file:
 - [ENGINEER_SETUP.md](ENGINEER_SETUP.md)
 - [VERIFIER_SETUP.md](VERIFIER_SETUP.md)
 - [OPERATOR_SETUP.md](OPERATOR_SETUP.md)
+
+Role types are not a fixed count of execution sessions. Independent workstreams
+may use additional peer Engineer sessions and an independent review pool within
+authorized capacity. Reuse real existing instances or permitted task sessions;
+creation of new persistent Bots still needs its own setup authorization.
 
 Do not create a Temp Worker Bot. A temporary subagent is an execution capability,
 not a persistent roster member. Read back role understanding and capability gaps.
@@ -38,7 +46,7 @@ Use [project-policy.example.yaml](../../contracts/project-policy.example.yaml)
 as a questionnaire. The example is disabled/DRAFT_ONLY and is not a native import.
 Confirm current repository commands, required checks, original authorization,
 allowed paths/actions, budgets, role destinations and the desired delivery target.
-Ten canonical Skills and flattened private-Skill texts are included in this content
+Twelve canonical Skills and flattened private-Skill texts are included in this content
 pack. They are not installed in any account; no event subscriptions are provided.
 
 ## 5. Keep actual boundaries
@@ -56,8 +64,10 @@ read-only/preparatory where appropriate, and test failure paths. Add methods and
 triggers only after actual verification. Do not automatically schedule monitoring,
 create Bot accounts, enable production access, or start paid runs from these files.
 
-Use the ten files in `private-skills/`, generated from canonical `skills/` sources.
+Use the twelve files in `private-skills/`, generated from canonical `skills/` sources.
 Assign discover-opportunity/evaluate-outcome to Scout; surgical-dev/ship-feature/
-fix-bug/delegate-bounded-task to Engineer; verify-change to Verifier; and
+fix-bug/delegate-bounded-task/decompose-project/integrate-workstreams to Engineer;
+verify-change to Verifier for stream and project integration acceptance; and
 prepare-release/release-and-observe/handle-incident to Operator.
-Follow [MIGRATION.md](../../MIGRATION.md); do not retain conflicting active v1 rules.
+Start from the [goal prompt](../../templates/project-goal.md). Routine technical
+decomposition and assignments do not require the user to become a project manager.

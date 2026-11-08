@@ -1,31 +1,38 @@
 # Surgical Dev
 
-**v2 content pack · 0.2.0-content.** Four persistent responsibilities: Product Scout,
-Engineer, Verifier and Operator. Engineer keeps implementation in one continuous
-context; temporary subagents are optional, never a fifth permanent Worker Bot.
+**Goal-driven content pack · 0.3.0-content.** Give the team a goal, constraints,
+budget and permissions—not a manually split backlog or staff assignments. Engineer
+organizes independently testable workstreams, keeps one continuous implementation
+context per stream, and owns integration. Product Scout, Engineer, Verifier and
+Operator are four role types; execution instances scale within explicit limits.
+Temporary subagents are optional helpers, never a fifth permanent Worker Bot.
 
-This repository provides role instructions, ten on-demand Skills, handoff templates,
+This repository provides role instructions, twelve on-demand Skills, handoff templates,
 design contracts and manual host setup. It does **not** implement a scheduler,
 authenticated controller, enforced gates or autonomous deployment. No Bots, Skills,
 monitoring routines or production permissions are activated by this update.
 
 [中文快速开始](QUICKSTART.zh-CN.md) · [English architecture](ARCHITECTURE.en.md) ·
-[中文架构](ARCHITECTURE.zh-CN.md) · [Migration](MIGRATION.md) · [Validation](VALIDATION.md)
+[中文架构](ARCHITECTURE.zh-CN.md) · [Goal prompt](templates/project-goal.md) · [Validation](VALIDATION.md)
 
 ## How it works
 
 ```mermaid
 flowchart TD
-    S["Scout: evidence-backed opportunity"] --> A{"Scope admitted?"}
-    A -->|Yes| E["Engineer: implement and check"]
-    U["Direct task or incident repair"] --> E
-    E --> V["Verifier: independent acceptance"]
-    V -->|Changes required, bounded repair| E
-    V -->|Missing evidence| B["BLOCKED with resume condition"]
-    V -->|PASS| P["PR_READY"]
-    P --> O["Operator: release gates and authorized actions"]
-    O --> H["Observe actual operational outcome"]
-    H --> S
+    U["User: goal, constraints, budget and permissions"] --> P["Engineer integration owner: plan workstreams"]
+    S["Scout: evidence-backed proposals"] -->|Scope admission| U
+    P --> C["Verified controller: dependencies, conflicts and capacity"]
+    C --> E1["Engineer A: implement, test, repair"]
+    C --> E2["Engineer B: independent workstream when useful"]
+    E1 --> V["Independent stream review"]
+    E2 --> V
+    V -->|Findings| C
+    V -->|INTEGRATION_READY| I["Integration owner: combined candidate and project checks"]
+    I --> IV["Independent integration acceptance"]
+    IV -->|Findings| C
+    IV -->|PASS| R["Project PR_READY"]
+    R -->|Delivery in scope and authorized| O["Operator: deliver and observe"]
+    O --> S
 ```
 
 These are conditional handoffs, not mandatory stages for every task. Ordinary bugs
@@ -36,7 +43,7 @@ not prove product value. The feedback loop requires verified host capabilities.
 | Responsibility | Methods |
 |---|---|
 | Product Scout | discover-opportunity, evaluate-outcome |
-| Engineer / entry | surgical-dev, ship-feature, fix-bug, delegate-bounded-task |
+| Engineer / entry | surgical-dev, decompose-project, ship-feature, fix-bug, delegate-bounded-task, integrate-workstreams |
 | Verifier | verify-change |
 | Operator | prepare-release, release-and-observe, handle-incident |
 
@@ -44,7 +51,7 @@ not prove product value. The feedback loop requires verified host capabilities.
 
 | Host | Guide | Included resources |
 |---|---|---|
-| Grok Bot | [Setup](adapters/grok-bot/SETUP.md) | Four self-contained role setup messages; ten flattened private-Skill texts |
+| Grok Bot | [Setup](adapters/grok-bot/SETUP.md) | Four self-contained role setup messages; twelve flattened private-Skill texts |
 | Pi | [Setup](adapters/pi/SETUP.md) | Skills-only package metadata; no automatic session launcher |
 | Other runtime | [Source map](docs/source-map.md) | Portable content; verified native integration is still required |
 
@@ -60,17 +67,27 @@ been performed here. Independent acceptance requires a separate reviewer context
 
 - [Four roles and temporary helper](roles/README.md), [shared boundaries](roles/team-boundaries.md).
 - [Workflow](references/workflow.md): Scope Ready, Checks Passed, Review Passed,
-  Release Ready, Action Authorized and Outcome Observed.
-- [V2 record contracts](contracts/record-contracts.md), [states](contracts/state-transitions.md),
+  Integration Passed, Release Ready, Action Authorized and Outcome Observed.
+- [Project planning contract](contracts/project-plan.md), [team-owned plan](templates/project-plan.md),
+  [integration review](templates/integration-review.md).
+- [Record contracts](contracts/record-contracts.md), [states](contracts/state-transitions.md),
   [disabled policy example](contracts/project-policy.example.yaml), [handoffs](templates).
 - [Delivery](workflows/delivery.mmd), [incident](workflows/incident.mmd),
   [architecture](workflows/architecture.mmd), [pilot scenarios](tests/acceptance-scenarios.md).
-- [Remaining runtime work](docs/runtime-next.md). Existing JSON schemas/examples
-  validate legacy v1 records only; they are not v2 gate enforcement.
+- [Remaining runtime work](docs/runtime-next.md). Basic JSON schemas validate task/review
+  shapes only; they cannot establish dependency readiness, authority or integration success.
 
-Default: automation disabled, one active parent write task per repository, helpers
-disabled (maximum two when enabled), two repair/reverify cycles after initial review.
-Unattended execution also requires finite total budgets and explicit project policy.
+Default: automation and helpers disabled. The enabled-pilot policy example caps
+active Engineers at two, Verifiers at one, helpers at two across the project, and
+all active executions at four total. All caps apply together. Keep one integration
+per shared target and two repair/reverify cycles per review target under a finite
+aggregate project budget. Routine technical planning and assignment are automatic;
+new scope, budget or authority require a decision. Missing safe parallel capability
+falls back to serial execution, not a weaker acceptance gate.
+
+A stream's INTEGRATION_READY is not project PR_READY. The combined candidate must
+satisfy project ACs and independent integration acceptance before delivery. For one
+stream, one review can cover both levels on the same snapshot without duplicate ceremony.
 
 ## Structural checks
 
@@ -80,7 +97,7 @@ python3 tests/contracts_test.py
 ```
 
 Node.js 18+ is sufficient for the package tests. Python contract tests require
-`tests/requirements.txt`; they exercise legacy v1 schemas. These checks do not prove
+`tests/requirements.txt`; they exercise basic task/review schemas. These checks do not prove
 live handoffs or production automation. Regenerate Grok copies after canonical edits
 with `python3 scripts/export_grok_skills.py`.
 
@@ -93,12 +110,10 @@ conceptual references, not runtime dependencies or endorsements:
 - [Multica Best Practices](https://github.com/it235/multica-best-practices): a reference for explicit role boundaries, delivery handoffs, quality gates, and evidence-based acceptance. Surgical Dev uses a smaller standing team rather than adopting the full squad structure.
 - [Superpowers](https://github.com/obra/superpowers): a reference for reusable engineering Skills, independent review, and verification before declaring completion.
 
-The four-role architecture, six gates, and retry limits are Surgical Dev design
+The four-role architecture, gate definitions, and retry limits are Surgical Dev design
 choices, not requirements prescribed by these sources. See
 [technical references](docs/sources.md) for Skill formats and host setup documentation.
 
 ## Project
 
 https://github.com/daiyanze/surgical-dev
-
-The entry name stays `surgical-dev`; Surgeon Team v2 supplies the adopted architecture.

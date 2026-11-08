@@ -1,8 +1,8 @@
 {
   "name": "surgical-dev",
-  "version": "0.2.0-content",
+  "version": "0.3.0-content",
   "private": true,
-  "description": "Surgical Dev v2: four persistent roles, ten Skills and bounded temporary subagents; content-only pilot.",
+  "description": "Goal-driven software teams: four role types, autonomous workstream planning, independent integration acceptance; content-only pilot.",
   "type": "module",
   "keywords": [
     "pi-package",
@@ -30,7 +30,6 @@
     "scripts",
     "ARCHITECTURE.en.md",
     "ARCHITECTURE.zh-CN.md",
-    "MIGRATION.md",
     "workflows"
   ],
   "scripts": {

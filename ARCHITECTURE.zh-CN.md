@@ -1,15 +1,16 @@
-# Surgeon Agent Team v2：4 个长期角色＋弹性 subagent
+# Surgical Dev：目标驱动、四种长期角色与弹性执行
 
-日期：2026-11-07  
-状态：已采用到 Surgical Dev v2 内容包。仓库内容已更新，但自动化运行时尚未实现，未在账号或生产环境安装、运行或验证。主体角色文件与完整设计为英文。
+日期：2026-11-08
+
+状态：当前 Surgical Dev 架构与内容包。仓库内容已更新，但自动化运行时尚未实现，未在账号或生产环境安装、运行或验证。主体角色文件与完整设计为英文。
 
 ## 1. 设计结论
 
-固定四个长期身份：**Product Scout、Engineer、Verifier、Operator**。临时 subagent 是 Engineer 按需调用的执行能力，不创建第五个长期 Worker Bot。流程控制器是普通代码或现有运行时能力，不是管理 Agent。
+固定四种长期角色，不限制为四个执行实例：**Product Scout、Engineer、Verifier、Operator**。临时 subagent 是 Engineer 按需调用的执行能力，不创建第五个长期 Worker Bot。流程控制器是普通代码或现有运行时能力，不是管理 Agent。
 
 长期身份保留职责和经过核实的项目知识，不代表全天运行、也不代表永远使用一个越积越长的聊天。每项实现有自己的连续上下文，验收有独立上下文。
 
-**新增的是开发之前和交付之后的责任，不把一次实现拆成更多岗位。**
+**用户给目标，团队在既定范围内自行拆分、分配与集成；一个工作流一个主刀，一个项目一个集成负责人。**
 
 | 角色 | 解决的问题 | 主要产出 | 不能越过的边界 |
 |---|---|---|---|
@@ -20,6 +21,32 @@
 | 临时 subagent | 哪一小块可独立完成？ | 调研证据或边界明确的变更 | 不递归派活，不批准父任务，不发布，不创建长期 Bot |
 
 完整英文设计见 [ARCHITECTURE.en.md](ARCHITECTURE.en.md)，四角色配置稿见 [Grok 设置说明](adapters/grok-bot/SETUP.md)。
+
+## 自动组织项目与扩容
+
+用户只提供**目标、约束、预算和操作权限**，不需要拆分项目或选择执行者。Engineer 阅读实际仓库后，选择一个 Engineer 兼任集成负责人，建立最小技术计划；普通的技术拆分、任务分配、顺序调整和范围内重规划不再逐项找用户批准。业务目标含糊、改变需求、超预算、扩大权限或持续失败才升级。
+
+集成负责人负责共享契约、关键实现和整体集成，不是新增 Manager Bot，也不接管所有成员的完整聊天。各工作流 Engineer 独立完成一项可验收成果的设计、实现、测试和返工；临时 subagent 仅为某个 Engineer 做辅助任务。
+
+### 工作如何拆、如何派
+
+按可独立验收的业务能力拆分，不机械按前端／后端／测试拆分。计划记录项目验收标准、工作流目标、依赖、已验收的输入快照、共享接口版本、文件与环境资源边界、检查和预算。先稳定当前批次需要的最小公共契约，再并行，不要求一次设计完整个系统。
+
+运行时只对依赖已满足、输入版本明确、没有写入或资源冲突、容量和预算允许的工作流进行原子认领与派发。工程会话和审查会话按负载分配；新增长期 Bot 仍需单独权限。缺少并行执行或隔离能力时自动串行，不把执行者不足当成让用户手动拆任务的理由。
+
+建议启用后的试点上限：2 个活跃 Engineer、1 个 Verifier、全项目最多 2 个可选助手、所有角色与助手合计最多 4 个活跃执行。各上限同时成立，不因增加 Engineer 就复制一份无限预算。集成负责人编码时占 Engineer 名额；配置示例仍保持自动化和助手关闭。
+
+写任务使用独立工作目录，并协调共享接口、数据库、端口和预览环境。锁或租约到期不表示旧进程已经结束，重派前必须核实。审查、CI 或集成排队时减少新开工，不能只扩开发人数。相关契约变化使下游证据过期，重新规划不得重置用量和修复历史。
+
+### 整体通过不是局部 PASS 的加总
+
+每个工作流先通过自身检查与独立审查，得到 **INTEGRATION_READY**。集成负责人将已验收快照串行组装到指定候选分支／环境，运行契约、跨模块与项目端到端检查，再交独立 Verifier 判断 **Integration Passed**。只有项目全部必需验收标准被当前证据覆盖，项目才是 **PR_READY**。
+
+集成失败退回对应 Engineer；跨工作流问题由集成负责人修复，但它不能批准自己参与的代码。修复后重新验证受影响部分及组合结果。单工作流可在同一快照的一次独立审查中同时覆盖两级标准，不制造重复审批。
+
+集成分支不代表主分支合并权限。跨仓库任务保存仓库—提交／制品映射、兼容性与发布顺序，不假设跨仓库原子发布。未完成的必需工作不能静默省略；部分交付需既定策略或用户授权。
+
+详见[项目契约](contracts/project-plan.md)、[目标入口](templates/project-goal.md)、[团队填写的计划](templates/project-plan.md)和[集成审查包](templates/integration-review.md)。这些是当前规范，不是已实现的自动调度器。
 
 ## 2. 三条闭环，而不是五道必经工序
 
@@ -53,13 +80,14 @@ Verifier 固定返回：
 
 Operator 可以先止损，再等待永久修复；**CONTAINED（已控制影响）不等于永久问题已经解决**。不经过 Scout 排队处理明确故障。若故障暴露更大的产品问题，再由 Scout 提出单独机会。
 
-## 3. 六个明确门禁
+## 3. 明确门禁
 
 | 门禁 | 负责人／证据来源 | 通过条件 |
 |---|---|---|
 | Scope Ready | Engineer 整理；用户／可信策略准入 | 范围、AC、非目标、操作边界和原始授权明确 |
 | Checks Passed | 工具／CI 产出，控制层核验 | 当前变更对应的必需检查真正满足策略 |
 | Review Passed | Verifier | 独立、当前版本的验收，无阻断项 |
+| Integration Passed | 独立 Verifier；集成负责人准备候选 | 项目全部 AC、实际组合快照和整体检查成立，不能只汇总局部 PASS |
 | Release Ready | Operator＋可信构建证据 | 正确制品、环境和配置，观察与恢复条件明确 |
 | Action Authorized | 用户或可信策略，由操作执行端核验 | 此时允许对此版本、目标环境执行此动作 |
 | Outcome Observed | Operator 记录技术效果，Scout 评估产品效果 | 声称的结果确实在规定检查和窗口内被观察到 |
@@ -86,13 +114,13 @@ Squash、rebase 或 merge queue 产生新的提交身份，不意味着所有审
 
 ## 5. 弹性 subagent 的规则
 
-默认不启动，启用后同一个父任务最多两个并发；不能递归派活。只由 Engineer 发起实现助手。
+默认不启动，启用后全项目最多两个助手并发，且受总执行上限约束；不是每个 Engineer 各两个。不能递归派活。只由 Engineer 发起辅助任务，完整独立工作流使用同级 Engineer 会话。
 
 适合独立调查、大量资料整理、接口稳定且文件范围明确的组件。紧密相连的设计、实现与测试仍留在 Engineer 主循环。
 
 委派包需要：父任务与规格版本、输入快照、单一目标、可改文件／接口、完成标准、独立工作目录、资源与停止条件、回报目标。
 
-一个仓库默认只有一个在途父级写任务；这不妨碍该任务内部使用文件不重叠的子任务。Engineer 的集成串行执行，集成后跑整体检查。只换 Git 分支但共用同一 checkout 不等于隔离。
+允许一个项目内多个经过依赖与冲突检查的工作流并行。各工作流保持单一实现负责人，共享目标的集成串行执行；验收不能跳过组合行为。只换 Git 分支但共用同一 checkout 不等于隔离。
 
 没有 subagent 能力时自行串行实现；没有独立验收能力则阻塞或使用明确记录的人类替代验收。不要为了弥补能力缺口偷偷创建长期 Bot。
 
@@ -124,7 +152,8 @@ Squash、rebase 或 merge queue 产生新的提交身份，不意味着所有审
 | 记录 | 主要状态 |
 |---|---|
 | Opportunity | DRAFT → PROPOSED → ACCEPTED／DEFERRED／REJECTED |
-| Work item | BRIEF → IMPLEMENTING → CHECKING → VERIFYING → PR_READY |
+| Project | GOAL → PLANNING → EXECUTING → INTEGRATING → INTEGRATION_VERIFYING → PR_READY |
+| Workstream | BRIEF → IMPLEMENTING → CHECKING → VERIFYING → INTEGRATION_READY |
 | Release | PLANNED → PRECHECKING → READY → EXECUTING → OBSERVING → VERIFIED |
 | Incident | OPEN → TRIAGED → MITIGATING → CONTAINED → RESOLVED |
 | Outcome | PENDING → SUPPORTED／INCONCLUSIVE／REGRESSED |
@@ -137,17 +166,17 @@ BLOCKED、ESCALATED、CANCELLED 等保存原阶段、原因、责任人与恢复
 
 ## 8. Skills 和记忆分配
 
-方法清单为 **10 个**，仓库已提供 canonical Skills 和 Grok 文本副本；尚未安装到账号，也未完成真实运行时验证：
+方法清单为 **12 个**，仓库已提供 canonical Skills 和 Grok 文本副本；尚未安装到账号，也未完成真实运行时验证：
 
 | 角色 | 方法 |
 |---|---|
 | 通用入口／Engineer | surgical-dev |
 | Product Scout | discover-opportunity、evaluate-outcome |
-| Engineer | ship-feature、fix-bug、delegate-bounded-task |
+| Engineer | decompose-project、ship-feature、fix-bug、delegate-bounded-task、integrate-workstreams |
 | Verifier | verify-change |
 | Operator | prepare-release、release-and-observe、handle-incident |
 
-相比 v1，prepare-release 主责从 Engineer 移到 Operator；Engineer 仍在受审变更中准备版本兼容信息、迁移信息和必要的 release notes。
+prepare-release 由 Operator 负责；Engineer 提供经过验收的集成候选、兼容信息和必要的 release notes。
 
 共享项目记录只保存当前事实与明确决策。Scout 保留用户问题及假设证据；Engineer 保留本次实现和 checkpoint；Verifier 保留当前受审材料及相关发现；Operator 保留环境、版本、故障和恢复记录。完整日志在外部记录中，敏感数据最小化传递。
 
@@ -161,9 +190,9 @@ BLOCKED、ESCALATED、CANCELLED 等保存原阶段、原因、责任人与恢复
 
 这份设计没有建立任何 Bot、Skill、例行任务、事件监听或生产监控。
 
-## 10. 迁移与验收
+## 10. 试点与验收
 
-保留旧 v1 中的单主刀、独立验收、证据、修复上限。新增角色和外围闭环，避免同时加载两套相互矛盾的活跃规则。进行中的任务按旧策略完成，或者显式暂停后带着预算和版本迁移；不能默认放大旧批准。
+以一个明确的小目标验证串行闭环，再用具有真实独立性的目标验证最多两个工作流并行。检查用户不需要拆任务和分配人员，同时任务依赖、资源隔离与独立整体验收确实生效。
 
 实施分四步：内容及能力试点 → 自动开发／验收闭环 → 非生产交付与故障恢复 → 需求发现与窄范围生产自动化。
 
@@ -171,6 +200,6 @@ BLOCKED、ESCALATED、CANCELLED 等保存原阶段、原因、责任人与恢复
 
 完整测试规格见 [acceptance-scenarios.md](tests/acceptance-scenarios.md)。它们不是已通过的测试；本包只进行文档与文件完整性的静态核验。
 
-**最终目标：四种责任长期存在，每次只调用需要的责任；一次实现仍由一个 Engineer 连续负责，验收与实际操作权限保持独立。**
+**最终目标：用户给目标和边界，团队自己决定怎么拆、谁来做、何时并行、如何合起来交付；四种角色不变，执行实例按需要分配，实际权限和独立验收不放宽。**
 
 参考资料及检索限制见 [sources.md](references/sources.md)。

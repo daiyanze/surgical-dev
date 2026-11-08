@@ -1,6 +1,6 @@
 # Pi setup — Skills-only package
 
-This archive has `pi.skills` metadata and ten discoverable Skills. It has no
+This archive has `pi.skills` metadata and twelve discoverable Skills. It has no
 extensions, hooks, custom tools, subagent scheduler, or automatic session launcher.
 Package structure follows the official [Pi package documentation](https://pi.dev/docs/latest/packages)
 and [Skill documentation](https://pi.dev/docs/latest/skills), checked 2026-11-07.
@@ -30,7 +30,12 @@ discoverable, use the documented Skill command:
 /skill:surgical-dev Fix the selected bug within the approved scope.
 ```
 
-For implementation the current session remains Engineer. Scout, Verifier and
+For implementation the current session remains Engineer. A goal spanning several
+outcomes can use decompose-project; the same Engineer may act as integration owner.
+The host must actually supply independent sessions, safe isolation, resource limits
+and automatic handoffs before parallel work is claimed. Without them, stay serial
+and still obtain independent acceptance. integrate-workstreams covers the final
+candidate, not an additional manager role. Scout, Verifier and
 Operator methods must run in their appropriate contexts with verified handoffs.
 Pi metadata does not create four Bots or enforce role routing. Referenced files are resolved from the
 loaded Skill's directory, not from the target repository. Keep the entire package

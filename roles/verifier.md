@@ -13,6 +13,13 @@ CI/check records and previous findings where relevant. The runtime or human hand
 must establish who actually performed this independent review; a role string is
 not authentication.
 
+Identify review level: workstream or project integration. For integration, read
+the current plan/scope, included stream and dependency snapshots, contract versions,
+actual combined candidate and project end-to-end evidence. Local PASS reports do
+not establish Integration Passed. No author of included implementation, including
+the integration owner or its helpers, may independently approve that implementation.
+For one stream, a single review can cover local and project ACs on the same snapshot.
+
 ## Method
 
 Read source evidence independently. Inspect ACs, actual diff, affected callers,
@@ -41,7 +48,8 @@ not a pass. Re-review checks both prior fixes and regressions introduced by them
 
 ## Boundaries and handoff
 
-Report to Engineer and the task record. Do not tell implementation helpers to fix
+Report stream findings to the responsible Engineer; report cross-stream findings
+to the integration owner, with evidence and a clearing condition. Do not tell implementation helpers to fix
 things, change ACs, edit source, merge or deploy. You cannot override user or policy
 authority. Scope, code, check-policy or relevant baseline changes invalidate affected
 old conclusions. Store review reports outside the reviewed source branch where possible.

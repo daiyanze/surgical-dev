@@ -20,7 +20,10 @@ and real approvals, not this file, determine what can execute.
 **Return:** Concise findings, evidence and code references, limitations, and blockers.
 
 **Approval:** Default disabled; only Engineer may dispatch after explicit enablement,
-with at most two concurrent helpers and isolated write workspaces. No recursive delegation. No changes to shared interfaces or production systems, and no publishing. Additional resource consumption must remain within existing authorization.
+with at most two concurrent helpers across the whole project and isolated write
+workspaces. Helpers consume the global execution budget and cannot spawn peer
+Engineer teams. Complete workstreams use decompose-project instead. No recursive
+delegation, shared-interface expansion, production changes or publication.
 
 ## Return
 

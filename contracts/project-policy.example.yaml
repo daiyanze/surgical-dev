@@ -1,6 +1,6 @@
 # Design example, NOT a Grok/Pi import format or an enforcing policy.
 # Configure all null fields and approve a protected policy before autonomous use.
-schema_version: surgeon-design-v2
+schema_version: surgical-dev-goal-driven
 project_id: UNCONFIGURED
 policy_revision: draft-v1
 automation_enabled: false
@@ -8,7 +8,7 @@ profile: DRAFT_ONLY
 policy_authority_reference: null
 repository: null
 coding_runtime: null
-workflow_owner: grok_native  # v2 Grok pilot; runtime_owned is a later alternative.
+workflow_owner: grok_native  # Or runtime_owned, never two competing controllers.
 
 role_destinations:
   product_scout: null
@@ -17,11 +17,28 @@ role_destinations:
   operator: null
 
 concurrency:
-  max_active_parent_write_tasks_per_repo: 1
+  max_active_projects_per_repo: 1
+  max_active_engineers: 2  # Includes an integration owner while implementing.
+  max_active_verifiers: 1
+  max_total_active_executions: 4  # All active role/helper executions combined.
+  max_active_integrations_per_target: 1
   max_active_releases_per_environment: 1
   temporary_subagents_enabled: false
-  max_concurrent_subagents_when_enabled: 2
+  max_active_subagents_project: 2  # Not multiplied by the Engineer count.
   recursive_delegation: false
+  serial_fallback: true
+
+organization:
+  decomposition_owner: engineer
+  assignment_owner: verified_controller
+  integration_owner: engineer_assignment
+  routine_technical_plan_approval: false
+  require_acyclic_dependencies: true
+  require_dependency_snapshots: true
+  require_isolated_write_workspaces: true
+  require_write_and_resource_claims: true
+  require_independent_project_acceptance: true
+  allow_scope_or_budget_expansion: false
 
 budgets:
   max_review_repair_cycles: 2
@@ -39,6 +56,7 @@ scope:
 
 permissions:
   internal_handoffs: false
+  launch_task_sessions: false  # Requires a real supported host and explicit activation.
   paid_execution: false
   push_task_branch: false
   create_draft_pr: false

@@ -1,38 +1,42 @@
 flowchart TD
-    I["Accepted opportunity or direct request"] --> B["Engineer: bounded brief and original authorization"]
-    B --> Q{"Scope Ready?"}
-    Q -->|"No"| H["Clarify or seek admission"]
-    H --> B
-    Q -->|"Yes"| E["Implement, test, debug<br/>Same coding session"]
-    E -.->|"Optional"| W["Bounded temporary subagent"]
+    U["User goal, constraints, budget and permissions"] --> Q{"Scope Ready?"}
+    Q -->|"Missing material decision"| ASK["Ask for scope or authority, not manual task assignment"]
+    ASK --> Q
+    Q -->|"Yes"| PLAN["Engineer integration owner<br/>Minimal workstreams, dependencies, contracts and checks"]
+    PLAN --> SCHED["Verified controller claims ready work<br/>Safe parallel capacity or serial fallback"]
+    SCHED --> E["Assigned Engineer<br/>Implement, test and debug in one continuing stream session"]
+    E -.->|"Optional bounded helper"| W["Temporary subagent under project limits"]
     W -.->|"Return evidence"| E
-    E --> C["Actual local checks and authorized draft-PR CI"]
+    E --> C["Actual checks and authorized draft-PR CI"]
     C --> G{"Checks Passed?"}
-    G -->|"Failed, budget remains"| E
-    G -->|"Unknown or exhausted"| X["BLOCKED or ESCALATED<br/>Save prior stage and recovery condition"]
-    G -->|"Yes"| V["Independent Verifier on pinned snapshot"]
+    G -->|"Failure within budget"| E
+    G -->|"Unknown or exhausted"| X["BLOCKED or ESCALATED<br/>Keep owner, evidence and resume condition"]
+    G -->|"Yes"| V["Independent stream Verifier"]
     V --> D{"Verdict"}
     D -->|"BLOCKED"| X
-    D -->|"CHANGES_REQUIRED"| R{"Repair budget remains?"}
-    R -->|"Yes"| F["Invalidate old evidence<br/>Repair and recheck"]
-    F --> E
+    D -->|"CHANGES_REQUIRED"| R{"Repair and project budgets remain?"}
+    R -->|"Yes: invalidate old evidence"| E
     R -->|"No"| X
-    D -->|"PASS"| P["PR_READY"]
-    P --> T{"Delivery requested and authorized path available?"}
-    T -->|"No"| STOP["Return PR and evidence<br/>No publication"]
-    T -->|"Yes"| O["Operator: reconcile current review and delivery target"]
-    O --> M{"Merge or build required first?"}
-    M -->|"Yes"| MB["Authorized protected merge or build<br/>Observe actual result and provenance"]
-    M -->|"No"| A["Pin candidate artifact, environment and configuration"]
-    MB --> A
-    A --> RR{"Release Ready and action authorized?"}
+    D -->|"PASS"| SR["Stream INTEGRATION_READY"]
+    SR --> ALL{"All required stream versions ready?"}
+    ALL -->|"No: dependencies still valid"| SCHED
+    ALL -->|"Yes"| I["Integration owner serially assembles candidate<br/>Contract and project end-to-end checks"]
+    I --> IV["Independent combined acceptance<br/>One same-snapshot review may cover a single-stream project"]
+    IV --> IG{"Integration Passed?"}
+    IG -->|"Findings within budget: route to owners"| SCHED
+    IG -->|"Unknown or exhausted"| X
+    IG -->|"Yes"| PR["Project PR_READY"]
+    PR --> DEL{"Delivery in scope?"}
+    DEL -->|"No"| STOP["Return PR and evidence"]
+    DEL -->|"Yes"| O["Operator checks current candidate and grants"]
+    O --> MB["If needed: authorized protected merge and trusted build<br/>Observe actual source-to-artifact mapping"]
+    MB --> RR{"Release Ready and action authorized?"}
     RR -->|"No"| X
-    RR -->|"Source change required"| B
-    RR -->|"Yes"| RUN["Record intent and run approved operation"]
-    RUN --> OBS["Read actual job, deployed version and observation checks"]
+    RR -->|"Source change required"| PLAN
+    RR -->|"Yes"| RUN["Record intent; execute exact permitted action"]
+    RUN --> OBS["Reconcile platform job and actual version<br/>Observe configured checks and window"]
     OBS --> OK{"Outcome established?"}
-    OK -->|"Unknown"| X
-    OK -->|"Failed"| INC["Operator: incident handling and authorized containment"]
-    OK -->|"Checks satisfied"| DONE["Record VERIFIED for stated checks and window"]
-    INC -->|"Source repair required"| B
-    DONE --> S["Scout: optional outcome assessment<br/>SUPPORTED, INCONCLUSIVE or REGRESSED"]
+    OK -->|"Unknown: reconcile before retry"| X
+    OK -->|"Failed"| INC["Operator contains under runbook<br/>Source repair goes to Engineer"]
+    INC --> PLAN
+    OK -->|"Checks satisfied"| DONE["Record actual result; optional Scout outcome assessment"]

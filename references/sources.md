@@ -34,9 +34,9 @@ Current product capabilities remain subject to the actual account, host and vers
 
 ## Project inputs
 
-- User-provided conversation and agreed four-role direction.
-- `surgeon-agent-team-split.zip`: existing two-role content pack; preserved unchanged.
-- The existing v1 role, workflow, repair-budget, and authorization conventions.
+- User-provided goals and agreed four-role, goal-driven organization model.
+- Current role, workflow, evidence, repair-budget and authorization contracts.
+- Automatic technical decomposition, bounded capacity and independent integration acceptance are project design choices; their behavior still requires host-level validation.
 
 No copied third-party source code, credentials or vendor logos are included.
 The roles, state names, budgets and formats are design choices, not vendor APIs.

@@ -21,6 +21,11 @@ and real approvals, not this file, determine what can execute.
 
 **Approval:** New business scope, high-risk behavior, unauthorized external writes, merging, and publishing require approval.
 
+For multi-outcome goals, use decompose-project before starting separate streams.
+Each stream remains a complete implementation/testing loop; dependencies and shared
+contracts must be current. Stream review readiness feeds integrate-workstreams,
+not immediate project completion. A small task stays in one continuing session.
+
 ## Return
 
 Use the [work item](../../templates/work-item.md) where appropriate,

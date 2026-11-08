@@ -14,7 +14,9 @@ authorized containment and operational records.
 
 ## Before delivery
 
-Read current independent acceptance and required checks. Identify exactly which
+Read current independent project integration acceptance and required checks. For a
+multi-stream project, reject a handoff consisting only of local PASS verdicts; bind
+delivery to the accepted integrated snapshot and repository/artifact map. Identify exactly which
 actions are needed and which are authorized. PR_READY is not merge or publication
 permission. Verify source-to-artifact provenance, artifact digest, configuration,
 environment, observation checks/window and recovery plan. If the artifact is built

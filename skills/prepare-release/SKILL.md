@@ -12,7 +12,7 @@ original task/action authorization; these instructions grant no permissions.
 
 ## Procedure
 
-Inspect current independent review and required checks. Identify each necessary action and its original grant. Verify actual release source, trusted build/provenance, artifact digest, environment/configuration, observation checks/window and applicable recovery runbook. If the artifact is built after merge, record that dependency and wait for the authorized protected merge/build before declaring Release Ready. Assess irreversible effects; never assume rollback. Return source or pipeline changes to Engineer and Verifier. Preparation performs no merge, tag, publication or deployment.
+Inspect current independent project integration acceptance and required checks. Local workstream PASS reports are insufficient for a multi-stream project; bind the plan, included snapshots and combined candidate. Identify each necessary action and its original grant. Verify actual release source, trusted build/provenance, artifact digest, environment/configuration, observation checks/window and applicable recovery runbook. If the artifact is built after merge, record that dependency and wait for the authorized protected merge/build before declaring Release Ready. Assess irreversible effects; never assume rollback. Return source or pipeline changes to Engineer and Verifier. Preparation performs no merge, tag, publication or deployment.
 
 Preserve IDs, source/policy versions and finite budgets. On missing required access,
 authority or evidence, preserve prior phase, reason, owner and resume condition.

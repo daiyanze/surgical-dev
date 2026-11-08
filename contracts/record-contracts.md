@@ -19,12 +19,24 @@ hypothesis, proposed outcome/metric, baseline availability, ACs, non-goals,
 confidence, risk, priority recommendation, decision source, linked task IDs.
 Scout may propose; acceptance must refer to original user or trusted-policy authority.
 
+## Project plan and workstreams
+
+The user provides goal/constraints/budget/permissions. Engineer supplies the plan,
+workstream boundaries and assignments, following `contracts/project-plan.md`.
+Keep plan_id/revision, project ACs, integration owner, acyclic dependency graph,
+accepted dependency snapshots, versioned shared contracts, resource/write claims,
+per-role and global capacity, aggregate budget, candidate and integration evidence.
+Technical in-scope replanning is not a new product approval or budget grant.
+
 ## Work item
 
 `task_id`, originating request/opportunity/incident, scope revision and snapshot,
 original authority reference, ACs, non-goals, allowed actions, repository,
 base/head/source snapshot, required-check policy, Engineer execution ID,
 active subtask IDs, repair-cycle count, budgets, current evidence and next action.
+For a workstream also bind plan_id/revision, workstream_id, dependencies/snapshots,
+contract versions, explicit write/resource ownership, assigned execution/claim,
+integration target and mapped project ACs. Preserve usage on reassignment.
 Store clean-source identity or explicitly enumerate staged/unstaged/untracked inputs;
 do not equate an unchanged HEAD with unchanged source.
 
@@ -33,6 +45,9 @@ do not equate an unchanged HEAD with unchanged source.
 `review_id`, task/scope/snapshot/check-policy identifiers, verified Verifier session
 binding, attempt and repair-cycle number, prior-finding references, observed checks,
 AC-by-AC PASS/FAIL/UNKNOWN, verdict, findings, remaining risks, report location.
+Name review_level (workstream or project_integration). Project integration binds
+all included stream snapshots, the candidate repository/commit map and project ACs.
+Schema-valid task/review records alone do not validate these project-level guards.
 Every blocker includes ID, location, evidence, impact and clearance condition.
 A model-supplied reviewer name is not identity verification. A well-formed PASS
 must still be substantively supported by current evidence.

@@ -1,13 +1,14 @@
-# Surgeon Agent Team v2
-## Four persistent roles + elastic subagents
+# Surgical Dev architecture
+## Goal-driven organization, four role types and elastic execution
 
-**Design version:** 2.0 — 2026-11-07  
+**Design date:** 2026-11-08
+
 **Primary deployment target:** Grok Bot, with one verified coding runtime  
-**Status:** Adopted as the Surgical Dev v2 content pack. Not an installed plugin, enforced workflow engine, or demonstrated autonomous service. Repository content is updated; no Bots, accounts, routines, CI policies or production systems are activated.
+**Status:** Current Surgical Dev content and architecture package. Not an installed plugin, enforced workflow engine, or demonstrated autonomous service. Repository content is updated; no Bots, accounts, routines, CI policies or production systems are activated.
 
 ## 1. Decision and scope
 
-Use four persistent role identities—**Product Scout, Engineer, Verifier, and Operator**—and an optional pool of temporary subagents. Do not create a permanent Worker Bot or a fifth manager Bot. “Persistent” means durable responsibility and curated project knowledge, not a process that must run continuously or one conversation that grows forever.
+Use four persistent role types—**Product Scout, Engineer, Verifier, and Operator**—and an optional pool of temporary subagents. Do not create a permanent Worker Bot or a fifth manager Bot. “Persistent” means durable responsibility and curated project knowledge, not a process that must run continuously or one conversation that grows forever.
 
 Engineer remains the accountable owner of a software change. Reading code, technical planning, implementation, tests, and debugging stay in the same continuing coding session whenever possible. The other roles contribute an opportunity before implementation, independent judgment at acceptance, or operational responsibility after delivery. They do not take turns owning pieces of one tightly coupled implementation.
 
@@ -84,7 +85,7 @@ Use the same coding session through implementation and repairs. If a session is 
 
 Engineer remains the user's main development contact. It can perform a small amount of requirements clarification or technical research itself; Scout is not a prerequisite. Engineer never becomes a dispatcher that outsources every meaningful implementation step.
 
-After review, Engineer hands an accepted change and release-relevant notes to Operator. In v2, **prepare-release is primarily Operator's method**. Engineer supplies compatibility notes, migration information, build instructions, and proposed changelog edits as part of the reviewed change. Later source edits require refreshed checks/review.
+After review, Engineer hands an accepted change and release-relevant notes to Operator. **prepare-release is primarily Operator's method**. Engineer supplies compatibility notes, data-safety constraints, build instructions, and proposed changelog edits as part of the reviewed change. Later source edits require refreshed checks/review.
 
 ### 3.4 Verifier: independent acceptance, not another developer
 
@@ -125,17 +126,91 @@ An incident may be CONTAINED while a permanent repair is still pending. “Resol
 
 No route requires every role to speak. Scout and Operator may observe relevant facts while development proceeds, but must not change the active implementation scope. There is one current owner for each record, not one universal owner for every record in the system.
 
+## Automatic project organization and scaling
+
+The user supplies **goal, constraints, budget and permissions**, not a task graph or
+staff assignments. Engineer owns the technical organization. Record the plan as
+an observable working artifact; routine in-scope partitioning, assignment and
+replanning do not require another human confirmation. Ask only for material
+business ambiguity, scope changes, additional authority/budget or persistent failure.
+
+### One workstream, one lead implementer
+
+Choose one Engineer as the project's **integration owner**. This is an assignment
+within the Engineer role, not a fifth manager Bot. It owns shared contracts, key
+implementation, the dependency map and overall integration; it does not absorb all
+peer implementation transcripts or independently approve code it authored.
+
+Split large goals into independently testable outcomes. A peer Engineer owns a
+complete workstream through planning, implementation, tests, review and repair.
+A temporary subagent only assists its parent with a bounded result. Do not split
+one tightly coupled feature into frontend, backend and test job titles merely to
+create parallelism. Small/coupled work uses one stream and one continuing Engineer.
+
+The plan includes project ACs, stable workstream IDs, per-stream AC mapping,
+acyclic dependencies, accepted input snapshots, shared-contract owners/versions,
+write boundaries, shared databases/ports/environments, checks, candidate target
+and finite aggregate capacity/budgets. See [project-plan.md](contracts/project-plan.md)
+and [project goal](templates/project-goal.md). The team fills technical fields.
+
+### Automatic assignment is conditional, not speculative
+
+A verified host/controller atomically claims only work whose dependencies and
+accepted artifact versions are available, whose writes/resources do not conflict,
+and whose global/project execution limits permit dispatch. Actual session IDs,
+workspaces and leases bind ownership; display names are insufficient. Leases or
+local timeouts do not establish that old jobs stopped: reconcile before reassignment.
+
+A conservative enabled pilot allows two active Engineers, one independent Verifier,
+up to two optional helpers across the project and a hard ceiling of four active
+executions overall. These are policy examples, not guaranteed host capacity. The
+integration owner counts toward Engineer capacity while implementing; helper and
+review use count toward the total. Scout/Operator active executions also consume
+that total. Automation and helper execution remain disabled in the distributed
+example. Users may authorize different caps; agents may not increase them.
+
+Keep one integration operation per shared target and one relevant release per
+environment. Slow new implementation when review, integration, CI or shared
+resources are the bottleneck. If parallel sessions or safe isolation are unavailable,
+fall back to serial execution, never a weaker acceptance or permission policy.
+Do not create new persistent Bots without their separate setup grant.
+
+### Integration Passed is a separate fact
+
+Local checks and independent review make a stream **INTEGRATION_READY**. They do
+not make the project PR_READY. The integration owner serially assembles accepted
+changes into an authorized pinned candidate and runs contract, cross-component
+and project end-to-end checks. An independent Verifier reviews the actual combined
+behavior against all required project ACs and binds its verdict to the plan,
+stream snapshots, contract versions and integrated/merge-test source.
+
+Several local PASS reports cannot substitute for this result. Send defects to the
+responsible Engineer; cross-stream defects belong to the integration owner for
+repair, not self-approval. Refresh the repaired stream and combined evidence.
+For one stream, one independent review may cover both local and project ACs on
+an identical snapshot; do not require redundant reviewers merely to tick a stage.
+
+Relevant contract/source changes invalidate dependent evidence. Preserve aggregate
+usage and review history through replanning and changed IDs. Cycles, conflicting
+ownership or excessive coordination require combining/serializing work. Reduced
+scope or partial delivery needs existing policy or a user decision.
+
+PR_READY belongs to the accepted project candidate. An integration branch does not
+authorize merging main or publishing. Across repositories, pin a repository/commit
+and artifact map, compatibility constraints and release order; do not assume atomic
+cross-repository delivery. Source changes during integration are reviewed too.
+
 ## 5. Development and review loop
 
 ### 5.1 Admission and scope
 
 Accept work only from an original user request or trusted policy decision. The approved task includes outcome, numbered ACs, non-goals, affected contracts, required checks, allowed actions, resource limits, and delivery target. A clear low-risk request may be its own scope authorization; avoid redundant product bureaucracy.
 
-New behavior, unclear requirements, or sensitive changes require an explicit decision. Only questions that affect the current task block it. Record the approval source and policy revision outside a model's ability to self-authorize.
+Behavior outside the already authorized goal, material requirement ambiguity, or sensitive changes not covered by policy require an explicit decision. Routine technical decomposition, assignment and replanning within approved boundaries do not. Only questions that affect the current task block it. Record the approval source and policy revision outside a model's ability to self-authorize.
 
 ### 5.2 Implementation and checks
 
-Use one active parent code-writing work item per repository by default. Within that item, optional child subagents may own disjoint file scopes in separate worktrees; Engineer remains integration owner. This is not permission to run several unrelated writing tasks in one checkout.
+Admit workstreams under the current Engineer-owned project plan and policy caps. Each has a continuing Engineer session, accepted dependency versions and an isolated workspace. Conflicting write scopes or shared resources serialize. Temporary helpers only assist their parent; the project integration owner assembles accepted stream results. Multiple branches in one checkout are not isolation.
 
 Engineer performs implementation and tests continuously. It may push a feature branch and open a draft PR only when authorized. A draft PR can precede PR-triggered CI; do not create a circular “CI before opening the PR” rule.
 
@@ -147,14 +222,14 @@ Submit one snapshot-bound review request. The current implementation conversatio
 
 | Event | Automatic next step |
 |---|---|
-| PASS and evidence current | Mark the work item PR_READY; hand off only to the authorized delivery path |
+| PASS and evidence current | Mark the stream INTEGRATION_READY; project PR_READY additionally requires current independent integration acceptance |
 | CHANGES_REQUIRED within scope and budget | Resume Engineer's implementation session with findings; fix, rerun affected checks, and request review of the new snapshot |
 | BLOCKED with a known pending CI run | Wait/reconcile the existing run within the configured timeout; do not start a new implementation or count a repair |
 | BLOCKED by missing access/decision | Preserve state and notify the appropriate owner/user |
 | Scope change needed | Return to scope/admission; preserve the previous version and review history |
 | Repair budget exhausted or repeated unresolved finding | Escalate with evidence; never weaken the requirement or reset counters by silently creating a new task |
 
-Default: **two fix-and-reverify cycles after the initial review**. A blocked report with no code change does not consume a repair cycle; waits and transport retries consume their separate time/retry budgets. Repeated identical checks without new evidence are not progress. Reopening after escalation requires an explicit new decision or budget revision with history retained.
+Default: **two fix-and-reverify cycles after the initial review per review target** (stream or project candidate), also bounded by a finite aggregate project execution budget. A blocked report with no code change does not consume a repair cycle; waits and transport retries consume their separate time/retry budgets. Repeated identical checks without new evidence are not progress. Reopening after escalation requires an explicit new decision or budget revision with history retained.
 
 Review reports live outside the reviewed source branch where possible. Saving a report should not create an extra unreviewed source commit.
 
@@ -201,11 +276,12 @@ These are the canonical gate names. Do not reuse ambiguous G2/G3 numbering.
 | Scope Ready | Engineer prepares; user/trusted policy admits | Current bounded scope and permitted actions | Return for clarification/admission |
 | Checks Passed | CI/tools produce; controller validates provenance | Required checks genuinely satisfied for the submitted snapshot | Fix, wait, or block according to cause |
 | Review Passed | Verifier | Independent, current acceptance with no unresolved blockers | Repair loop or blocker |
+| Integration Passed | Independent Verifier; Engineer integration owner prepares candidate | Project ACs, actual combined snapshot, contract versions and integration checks | Repair affected streams/candidate and reverify; never sum local PASS reports |
 | Release Ready | Operator assesses candidate using trusted build/CI evidence | Correct deployable candidate, environment, observation and recovery readiness | Block delivery; source changes go back to Engineer |
 | Action Authorized | User/trusted policy; external executor verifies | This actor may perform this action on this target now | Wait or deny; no role can invent approval |
 | Outcome Observed | Operator for technical effects; Scout for later value assessment | The claimed effect was actually observed | Record unknown/failure and route appropriately |
 
-Scope/Checks/Review govern engineering. Release Ready applies only to delivery. Action Authorized is checked at **each** relevant external operation, not just once at the end. Outcome Observed is a truthfulness requirement; product value may remain INCONCLUSIVE without invalidating a technically successful release.
+Scope/Checks/Review/Integration govern engineering. Release Ready applies only to delivery. Action Authorized is checked at **each** relevant external operation, not just once at the end. Outcome Observed is a truthfulness requirement; product value may remain INCONCLUSIVE without invalidating a technically successful release.
 
 Operator's release-readiness judgment is not a substitute for Verifier's code review. If a release requires source/configuration changes that were not reviewed, reopen the engineering loop.
 
@@ -223,9 +299,9 @@ Delegate only when the subtask has a compact input contract, a checkable result,
 
 Each invocation records parent task/scope, subtask ID, real runtime execution ID, pinned inputs, allowed files/interfaces, output contract, resource limit, deadline, and return destination. The runtime allocates an isolated workspace for writing and checks overlap before launch. If the parent changes relevant scope or source, pending child results must be revalidated or cancelled.
 
-Default settings: zero helpers until delegation is enabled; at most two concurrent helpers within an active parent task after enablement; no recursive delegation. Engineer integrates changes serially and runs integration checks. A subagent that becomes too interdependent returns its evidence and remaining work to the main loop.
+Default settings: zero helpers until delegation is enabled; at most two concurrent helpers across a project after enablement, also subject to the total execution cap; no recursive delegation. Peer workstream Engineers are not helpers and have separate capacity limits. Engineer checks helper results; the integration owner assembles stream results serially and runs project checks. An inseparable helper returns remaining work to its parent.
 
-Only Engineer initiates implementation helpers in this version. Scout and Operator do their own bounded analysis; additional read-only helper patterns are not required to adopt v2. Verifier may use host tooling for verification but cannot recruit the implementer's helpers to supply an independent approval.
+Only Engineer initiates implementation helpers in this version. Scout and Operator do their own bounded analysis; additional read-only helper patterns are not required for the current design. Verifier may use host tooling for verification but cannot recruit the implementer's helpers to supply an independent approval.
 
 Cancellation stops new child dispatch, requests cancellation of active jobs, and reconciles what actually stopped. Retain useful evidence; cleanup must not delete user work or erase audit records. Unsupported optional helper capability causes sequential execution, not a fictitious successful delegation.
 
@@ -266,7 +342,8 @@ Grok's documented approval layer can independently ask for permission or deny an
 | Record | Owner | Key states |
 |---|---|---|
 | Opportunity | Product Scout | DRAFT, PROPOSED, ACCEPTED, DEFERRED, REJECTED |
-| Work item | Engineer; review conclusion authored by Verifier | BRIEF, IMPLEMENTING, CHECKING, VERIFYING, PR_READY |
+| Project | Engineer integration owner; independent acceptance by Verifier | GOAL, PLANNING, EXECUTING, INTEGRATING, INTEGRATION_VERIFYING, PR_READY |
+| Workstream | Assigned Engineer; review conclusion authored by Verifier | BRIEF, IMPLEMENTING, CHECKING, VERIFYING, INTEGRATION_READY |
 | Release/action run | Operator | PLANNED, PRECHECKING, READY, EXECUTING, OBSERVING, VERIFIED, FAILED, ROLLED_BACK |
 | Incident | Operator | OPEN, TRIAGED, MITIGATING, CONTAINED, RESOLVED |
 | Outcome assessment | Product Scout | PENDING, SUPPORTED, INCONCLUSIVE, REGRESSED |
@@ -281,7 +358,7 @@ Link the records by IDs instead of copying every conversation: `opportunity_id �
 Use the selected host's existing execution and storage capabilities first. Add a thin adapter only for missing deterministic behavior:
 
 1. Resolve real role destinations and current capability/approval context.
-2. Admit a task; serialize active writing work per repository and releases per environment.
+2. Validate the current plan; claim ready dependency-satisfied, conflict-free streams within project/global caps. Serialize integration per target and releases per environment; apply backpressure and serial fallback.
 3. Dispatch identified work and route return events to the existing owner/session.
 4. Collect/check actual evidence; reject mismatched source, scope, policy, or artifact versions.
 5. Maintain time/retry/repair limits, pending-job references, cancellation and recovery.
@@ -329,11 +406,13 @@ Internal handoff permission is not permission to copy secrets or customer data i
 
 ## 12. Skill allocation — included content, not installed capabilities
 
-The ten methods below are now included as canonical Skill instructions and generated Grok copies. Structural validation does not prove runtime behavior; no method is installed in an account.
+The twelve methods below are now included as canonical Skill instructions and generated Grok copies. Structural validation does not prove runtime behavior; no method is installed in an account.
 
 | Skill name | Primary role | Purpose |
 |---|---|---|
 | surgical-dev | Engineer / common workflow entry | Admit and route a Surgeon work item without creating another manager |
+| decompose-project | Engineer / integration owner | Build bounded workstreams, dependency contracts and automatic assignment requests |
+| integrate-workstreams | Engineer / integration owner | Assemble an accepted candidate and obtain independent whole-project acceptance |
 | discover-opportunity | Product Scout | Turn source evidence into a bounded, prioritized proposal |
 | evaluate-outcome | Product Scout | Compare a delivered change with the agreed outcome measure |
 | ship-feature | Engineer | Implement an authorized feature in one continuing context |
@@ -350,7 +429,7 @@ The future runtime has to supply session creation, trusted evidence collection, 
 
 ## 13. Grok Bot deployment model
 
-Create or select four persistent role identities only when the user authorizes setup. The supplied [Grok setup guide](adapters/grok-bot/SETUP.md) and role setup messages are design/configuration text, not an automatic installer. Do not create a fifth Worker Bot.
+Configure four role types only when the user authorizes setup. Reuse supported task sessions or existing instances for peer workstreams; four types do not impose a four-session limit. The supplied [Grok setup guide](adapters/grok-bot/SETUP.md) and role setup messages are design/configuration text, not an automatic installer. Do not create a fifth Worker Bot.
 
 Before enabling autonomous handoffs, probe actual account capability: role addressing, receipt/reply correlation, coding executor launch/resume/status/cancel, independent review, CI access, and deployment actions. The documented collaboration surface supports Bot communication [S4]; that does not establish reliable delivery or authorization semantics for this project's adapters.
 
@@ -363,17 +442,7 @@ Do not present a Pi manifest as a Grok import file. Do not assume assigning diff
 
 The setup pack instructs each role to acknowledge responsibilities and capability gaps first. It does not authorize installing tools, saving Skills, creating Bots/routines, running paid tasks, changing repositories, or starting production monitoring. These actions need their actual grants.
 
-## 14. Migration from the existing v1 content pack
-
-See [MIGRATION.md](MIGRATION.md) for file-by-file changes. Do not load the entire v1 and v2 workflows simultaneously.
-
-Preserve: one Engineer implementation loop, independent Verifier, current-evidence rules, bounded repair cycles, default no helpers, and action-specific authorization.
-
-Change: add Product Scout and Operator; rename the concept Worker to Temporary Subagent; move prepare-release ownership from Engineer to Operator; add release/incident/outcome records; separate work-item readiness from observed operational success; allow policy-authorized continuation without repeated human relaying.
-
-For in-flight v1 tasks, finish under the frozen v1 policy or explicitly pause and migrate at a recorded checkpoint. Do not silently upgrade permissions, reset repair counters, or reuse old approvals for new actions. Read back updated role instructions and check actual Skill availability before a real pilot. Historical v1 documents remain historical, not active duplicate instructions.
-
-## 15. Implementation roadmap and acceptance
+## 14. Implementation roadmap and acceptance
 
 No implementation is executed by this document. A later implementation can proceed in four increments without changing the target architecture:
 
@@ -411,11 +480,9 @@ The detailed checklist is in [acceptance-scenarios.md](tests/acceptance-scenario
 
 Compare Engineer + Verifier with the four-role topology on comparable tasks; use original baselines and fixed checks, and repeat representative cases. Measure valid completion, false passes, false-positive review findings, manual interventions, end-to-end duration, duplicate work, incident recovery, and available resource usage. Do not invent unavailable cost metrics or claim that a small pilot proves general reliability.
 
-## 16. Design status and references
+## 15. Design status and references
 
 This architecture and its supporting templates are complete as a **design draft for adoption and implementation**. Runtime enforcement, behavior evaluations, platform installation, and actual production delivery remain unperformed. The accompanying static checks validate document links, examples and archive consistency only.
-
-The original v1 input is the supplied `surgeon-agent-team-split.zip`; the package records its SHA-256 in [VALIDATION.md](VALIDATION.md). This design does not modify that archive.
 
 Official sources consulted on 2026-11-07 are listed in [references/sources.md](references/sources.md):
 

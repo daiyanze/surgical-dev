@@ -4,7 +4,22 @@ This table describes future guards; it is not an implemented state machine.
 An execution condition BLOCKED/ESCALATED/CANCELLED/TIMED_OUT preserves the prior
 stage. Only observed, authorized events can resume or advance it.
 
-## Work item
+## Project
+
+GOAL -> PLANNING -> EXECUTING -> INTEGRATING -> INTEGRATION_VERIFYING -> PR_READY.
+User scope/authority admission precedes execution. Engineer automatically supplies
+technical partitions and assignments under that scope. PLANNING admission checks
+an acyclic dependency graph, accepted input versions, conflicts and budget.
+
+Project PR_READY requires required streams INTEGRATION_READY, a current combined
+candidate, actual project-level checks and independent Integration Passed. A failed
+integration returns affected work to its Engineer without resetting project usage.
+Scope changes require applicable admission; routine in-scope technical replanning
+only records a new plan revision and invalidates affected downstream evidence.
+One stream may use the same review for local and integrated ACs on an identical
+snapshot; independent acceptance cannot be bypassed by selecting serial mode.
+
+## Work item / workstream
 
 | From | Event / guard | To / effect |
 |---|---|---|
@@ -13,13 +28,13 @@ stage. Only observed, authorized events can resume or advance it.
 | CHECKING | Mandatory checks satisfied for current snapshot | VERIFYING; dispatch one identified independent review |
 | CHECKING | Failed check, repair authorized and budget remains | IMPLEMENTING |
 | CHECKING | Evidence pending or unavailable | BLOCKED condition; save known job and wait/recovery rule |
-| VERIFYING | Authenticated independent PASS, evidence still current | PR_READY |
+| VERIFYING | Authenticated independent PASS, evidence still current | INTEGRATION_READY; single-stream project may reach PR_READY only if project ACs are covered |
 | VERIFYING | CHANGES_REQUIRED within scope and cycle budget | IMPLEMENTING; invalidate affected evidence |
 | VERIFYING | Missing required evidence or authority | BLOCKED condition |
 | VERIFYING | Repair limit exhausted or repeated unresolved failure | ESCALATED condition |
 | Any active stage | Accepted scope changes | BRIEF; new revision, preserve history and budget accounting |
-| PR_READY | Relevant source/check-policy/baseline changes | Reopen affected check/review stages; not still ready |
-| PR_READY | Delivery requested | Create/link Operator release record; PR_READY is not an action grant |
+| INTEGRATION_READY | Relevant source/check-policy/baseline/dependency changes | Reopen affected checks/review; invalidate downstream acceptance |
+| Project PR_READY | Delivery requested and integrated evidence current | Create/link Operator release record; PR_READY is not an action grant |
 
 Increment a repair cycle when review-driven fixes are made and resubmitted, not
 for a pending-CI wait or duplicate review message. Persist the increment atomically.

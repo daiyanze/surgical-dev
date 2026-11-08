@@ -1,34 +1,38 @@
 flowchart TB
-    U["User or trusted policy<br/>Goals, priority and action authority"]
-    S["Product Scout<br/>Discover problems and assess outcomes"]
-    E["Engineer<br/>One continuous implementation loop"]
-    V["Verifier<br/>Independent acceptance"]
-    O["Operator<br/>Authorized delivery and operational observation"]
-    W["Temporary subagents<br/>Optional, bounded and isolated"]
-    P["PR_READY<br/>Default engineering endpoint"]
-    R["Observed feedback and incidents"]
-    C["Controller - ordinary code, not another Bot<br/>Routing, versions, deduplication, budgets and recovery"]
-    G["CI, protected branches and scoped action executors<br/>External enforcement"]
+    U["User or trusted policy<br/>Goal, constraints, budget and permissions"]
+    S["Product Scout<br/>Evidence-backed opportunities and outcomes"]
+    L["Engineer integration owner<br/>Technical plan, shared contracts and key implementation"]
+    C["Verified controller - ordinary code<br/>Dependencies, claims, limits, recovery and backpressure"]
+    E1["Engineer A<br/>One continuing workstream context"]
+    E2["Engineer B<br/>Only when independent parallel work is useful"]
+    W["Optional temporary subagent<br/>Auxiliary task, no recursive teams"]
+    V["Verifier pool<br/>Independent workstream acceptance"]
+    I["Integration owner<br/>Pinned combined candidate and project checks"]
+    IV["Independent Verifier<br/>Integration Passed for all project ACs"]
+    P["Project PR_READY<br/>Not merge or release permission"]
+    O["Operator<br/>Authorized delivery and actual observation"]
+    G["CI, protected branches and scoped executors<br/>External enforcement"]
 
     S -->|"Proposal, not authorization"| U
-    U -->|"Accepted scope or direct task"| E
-    E -->|"Pinned change and evidence"| V
-    V -->|"CHANGES_REQUIRED within budget"| E
-    V -->|"PASS for current snapshot"| P
-    P -->|"Delivery requested"| O
-    P -->|"No delivery requested"| U
-    E -.->|"Optional independent subtask"| W
-    W -.->|"Evidence for Engineer to integrate"| E
-    U -->|"Action-specific grants"| O
-    O -->|"Observed version and effects"| R
-    R -->|"Product feedback"| S
-    R -->|"Incident intake"| O
-    O -->|"Bounded source repair"| E
-    O -->|"Completion, approval need or escalation"| U
-
-    C -.-> E
-    C -.-> V
-    C -.-> O
-    C -.-> S
-    G -.->|"Required checks"| V
-    G -.->|"Authorization and deployment controls"| O
+    U -->|"Goal and bounds"| L
+    L -->|"Minimal plan; serial when coupled"| C
+    C --> E1
+    C --> E2
+    E1 -.->|"Bounded assistance"| W
+    W -.->|"Evidence and changes"| E1
+    E1 -->|"Pinned stream and checks"| V
+    E2 -->|"Pinned stream and checks"| V
+    V -->|"Findings to original owner; budget applies"| C
+    V -->|"INTEGRATION_READY"| I
+    I --> IV
+    IV -->|"Cross-stream repairs"| L
+    IV -->|"Current PASS"| P
+    P -->|"PR-only endpoint"| U
+    P -->|"Delivery in scope"| O
+    U -.->|"Action-specific grants"| O
+    O -->|"Observed outcome"| S
+    O -->|"Bounded incident repair"| L
+    O -->|"Result or escalation"| U
+    G -.->|"Actual check evidence"| V
+    G -.->|"Combined checks"| IV
+    G -.->|"Enforced actions"| O

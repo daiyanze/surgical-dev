@@ -1,9 +1,9 @@
 ---
 name: surgical-dev
-description: Use when the user invokes Surgical Dev or resumes its four-role workflow for discovery, implementation, independent review, delivery or incidents.
+description: Use when the user invokes Surgical Dev with a goal or resumes its four-role workflow for project organization, implementation, independent acceptance, delivery or incidents.
 ---
 
-# Surgical Dev v2
+# Surgical Dev
 
 Read actual project instructions, the [shared boundaries](../../roles/team-boundaries.md)
 and [workflow](../../references/workflow.md). This is a content-only package; no
@@ -15,8 +15,14 @@ role dispatcher, scheduler, authorization service or enforced state machine is i
   admit itself; retain original user or trusted-policy authorization before coding.
 - Clear feature/bug: Engineer uses ship-feature or fix-bug directly. Keep reading,
   planning, implementation and debugging in the same conversation and coding session.
+- Multi-outcome goal: Engineer uses decompose-project. The user supplies goal,
+  constraints, budget and permissions, not assignments. An Engineer integration
+  owner establishes minimal workstreams, dependencies, shared contracts and project
+  ACs. A verified host/controller assigns ready work to peer Engineer sessions within
+  policy caps. Small/coupled work and unsupported parallelism stay sequential.
 - Optional bounded work: Engineer uses delegate-bounded-task only if enabled, with
-  at most two temporary subagents, isolated workspaces and no recursive delegation.
+  at most two temporary subagents across the project, isolated workspaces and no
+  recursive delegation. Helpers are not peer workstream owners.
 - Acceptance: a genuinely separate Verifier uses verify-change. Never switch persona
   to approve your own work. Missing independent review is BLOCKED; a documented human
   alternative is allowed. PASS does not authorize delivery.
@@ -32,10 +38,16 @@ check evidence, then request independent review. CHANGES_REQUIRED returns to the
 original Engineer session automatically when a verified handoff exists. Permit at
 most two repair/reverify cycles after initial review; preserve total budgets across
 new IDs/restarts. BLOCKED retains owner, reason, prior phase and resume condition.
-Stop at PR_READY unless delivery is in scope. No mandatory Scout or Operator pass.
+Use integrate-workstreams for the combined candidate. Local stream acceptance is
+INTEGRATION_READY, not project completion. Project PR_READY needs current project
+checks and independent Integration Passed. One stream may reuse one review covering
+all project ACs on the same snapshot. Stop at PR_READY unless delivery is in scope.
+No mandatory Scout or Operator pass, no Manager Bot and no automatic permanent-Bot creation.
+In-scope technical replanning/allocation is automatic; new scope, authority or budget
+requires a decision. Unsupported runtime operations must not be presented as executed.
 
 ## Return
 
-Actual state and responsible role; linked task/review/release/incident IDs as relevant;
+Actual project/workstream state and responsible role; plan/task/review/release/incident IDs;
 current scope/source/check evidence; verdict or absence; unresolved risks and next
 authorized action. Never invent agent runs, approvals, telemetry or product impact.

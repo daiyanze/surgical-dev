@@ -16,4 +16,4 @@ The two Grok pages were checked via indexed official documentation; direct page
 retrieval was not consistently available. No undocumented ZIP importer, CLI plugin
 manifest, or automatic Bot provisioning interface is assumed.
 
-The original architecture's references remain in [design.en.md](design.en.md).
+Architecture references are collected in [sources.md](../references/sources.md).
