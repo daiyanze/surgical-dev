@@ -138,6 +138,7 @@ Surgical Dev grew out of a review of agent development workflows. These are
 conceptual references, not runtime dependencies or endorsements:
 
 - [Anthropic — When to fold subagents into your main agent loop](https://claude.com/resources/articles/building-agents-when-to-fold-subagents-into-your-main-agent-loop): the main architectural influence. Keep closely related work in one context, load Skills on demand, and retain subagents where independent verification or bounded parallel work adds value.
+- [Beyond Division of Labor (Yang et al., 2026)](https://arxiv.org/abs/2611.03931): a study of how reviewer-controlled submission affects corrective feedback and failure recovery. Informs evaluation of feedback access; it does not validate bypassing independent acceptance or delivery authorization.
 - [Multica Best Practices](https://github.com/it235/multica-best-practices): a reference for explicit role boundaries, delivery handoffs, quality gates, and evidence-based acceptance. Surgical Dev uses a smaller standing team rather than adopting the full squad structure.
 - [Andrej Karpathy's coding observations](https://x.com/karpathy/status/2015883857489522876) and [community guidelines](https://github.com/multica-ai/andrej-karpathy-skills): assumptions, simplicity, scoped edits and verifiable goals.
 - [Superpowers](https://github.com/obra/superpowers): a reference for reusable engineering Skills, independent review, and verification before declaring completion.

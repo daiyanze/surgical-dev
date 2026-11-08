@@ -1,6 +1,7 @@
 # Sources and verification scope
 
-Consulted on 2026-11-07. This is a design, not a measured performance claim.
+Sources S1-S6 consulted on 2026-11-07; S7 on 2026-11-08.
+This is a design, not a measured performance claim.
 Current product capabilities remain subject to the actual account, host and version.
 
 - **S1. Anthropic — Building agents: When to fold subagents into your main agent loop.**
@@ -31,6 +32,22 @@ Current product capabilities remain subject to the actual account, host and vers
   https://docs.x.ai/grok-bot/skills-routines-and-automations
   Official indexed text distinguishes reusable methods from schedule/event triggers
   and recommends proving a one-off workflow before automating it.
+
+- **S7. Chih-Hsuan Yang, Xinyang Li, Rajeev Thakur and Feng Yan (2026) — Beyond Division of Labor: How Roles Shape Feedback and Recovery in Multi-Agent Systems.**
+  https://arxiv.org/abs/2611.03931
+  [PDF](https://arxiv.org/pdf/2611.03931) · [HTML](https://arxiv.org/html/2611.03931v1)
+  Full paper and relevant supplementary experiments consulted on 2026-11-08.
+  In a fixed Planner–Executor–Reviewer team, reviewer-controlled submission can
+  limit access to external corrective feedback. In a single exploratory run with
+  gemma-4 on 400 Omni-MATH problems, submitting every cycle improved recovery
+  while preserving the role prompts.
+  Design relevance for Surgical Dev: assess feedback access, routing and recovery
+  separately from role fidelity. As an engineering implication, distinguish
+  permission to run authorized diagnostics from acceptance and delivery gates.
+  Scope: text-based mathematical/scientific reasoning with a ground-truth-informed
+  evaluator; not a software-development benchmark or proof that removing roles or
+  release authorization improves engineering outcomes. The findings do not
+  establish an optimal checking frequency or cost advantage.
 
 ## Project inputs
 
