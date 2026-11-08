@@ -484,7 +484,7 @@ Compare Engineer + Verifier with the four-role topology on comparable tasks; use
 
 This architecture and its supporting templates are complete as a **design draft for adoption and implementation**. Runtime enforcement, behavior evaluations, platform installation, and actual production delivery remain unperformed. The accompanying static checks validate document links, examples and archive consistency only.
 
-Official sources consulted on 2026-11-07 are listed in [references/sources.md](references/sources.md):
+Sources and consultation dates are listed in [references/sources.md](references/sources.md):
 
 - [S1] Anthropic, *Building agents: When to fold subagents into your main agent loop* — context boundaries and progressive disclosure. Indexed official excerpts were available; full-page retrieval was not available during this update.
 - [S2] Grok Bot FAQ / computer documentation — shared account computer and credentials.
@@ -492,5 +492,6 @@ Official sources consulted on 2026-11-07 are listed in [references/sources.md](r
 - [S4] Grok Bot messaging/collaboration — available collaboration surface; no claim of end-to-end reliability of this design.
 - [S5] GitHub protected branches — checks, reviews, source restrictions and stale approvals.
 - [S6] Grok Bot Skills/routines — method instructions versus execution triggers.
+- [S7] Yang et al. (2026), arXiv:2611.03931 — submission gates, corrective feedback and failure recovery; exploratory reasoning experiments with a ground-truth-informed evaluator, not validation of software delivery gates.
 
 Role count, state names, default budgets, record formats and autonomy profiles are our design, not vendor-defined standards or undocumented API payloads. Verify actual host/version/account capabilities before implementing an adapter.
