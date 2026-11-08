@@ -5,8 +5,8 @@ description: Use when a separate Verifier session receives a version-bound Surgi
 
 # verify-change
 
-For authorized Surgical Dev tasks only. Read the [Verifier role](../../roles/verifier.md)
-and [workflow rules](../../references/workflow.md) as needed. Host capabilities
+For authorized Surgical Dev tasks only. Read the [Verifier role](references/roles/verifier.md)
+and [workflow rules](references/references/workflow.md) as needed. Host capabilities
 and real approvals, not this file, determine what can execute.
 
 **When to use:** Engineer submits a change for review or requests re-verification after fixes.
@@ -23,7 +23,7 @@ and real approvals, not this file, determine what can execute.
 
 Determine the review level first. A workstream PASS only supports INTEGRATION_READY.
 For whole-project acceptance use the
-[integration packet](../../templates/integration-review.md): verify the actual
+[integration packet](references/templates/integration-review.md): verify the actual
 combined snapshot, included stream versions and all project ACs. Never combine
 local PASS reports into Integration Passed without evaluating integration evidence.
 The integration owner cannot self-approve code it wrote. One same-snapshot review
@@ -31,14 +31,14 @@ may cover both levels for a single-stream project.
 
 ## Return
 
-Use the [review report](../../templates/review-report.md) where appropriate,
+Use the [review report](references/templates/review-report.md) where appropriate,
 then return the evidence and outcome specified above. Unknown required evidence
 remains unknown. Do not claim a missing tool, session, or Skill was executed.
 
 Only a separate reviewer may use this Skill for independent acceptance. The
 implementer must not switch personas and self-approve. If identity, scope,
 access, or a pinned snapshot cannot be established, return BLOCKED.
-Read the [review request](../../templates/review-request.md) before evaluating.
+Read the [review request](references/templates/review-request.md) before evaluating.
 
-Read the [shared team boundaries](../../roles/team-boundaries.md). Preserve parent
+Read the [shared team boundaries](references/roles/team-boundaries.md). Preserve parent
 repair/resource budgets and original authorization across handoffs and resumes.

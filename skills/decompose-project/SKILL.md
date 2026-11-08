@@ -5,9 +5,9 @@ description: Use when an authorized Surgical Dev goal spans several independentl
 
 # Decompose a project
 
-Use the [Engineer role](../../roles/engineer.md),
-[project contract](../../contracts/project-plan.md) and
-[plan template](../../templates/project-plan.md).
+Use the [Engineer role](references/roles/engineer.md),
+[project contract](references/contracts/project-plan.md) and
+[plan template](references/templates/project-plan.md).
 This is a planning method; it does not install a scheduler or grant execution.
 
 ## Procedure

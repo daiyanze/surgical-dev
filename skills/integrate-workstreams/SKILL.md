@@ -5,9 +5,9 @@ description: Use when independently reviewed Surgical Dev workstreams must be as
 
 # Integrate workstreams
 
-Use the [Engineer role](../../roles/engineer.md),
-[project contract](../../contracts/project-plan.md) and
-[integration review template](../../templates/integration-review.md).
+Use the [Engineer role](references/roles/engineer.md),
+[project contract](references/contracts/project-plan.md) and
+[integration review template](references/templates/integration-review.md).
 The integration owner prepares the candidate; independent Verifier judges it.
 
 ## Procedure

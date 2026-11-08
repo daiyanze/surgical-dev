@@ -5,8 +5,8 @@ description: Use when an authorized Surgical Dev task introduces a feature or ch
 
 # ship-feature
 
-For authorized Surgical Dev tasks only. Read the [Engineer role](../../roles/engineer.md)
-and [workflow rules](../../references/workflow.md) as needed. Host capabilities
+For authorized Surgical Dev tasks only. Read the [Engineer role](references/roles/engineer.md)
+and [workflow rules](references/references/workflow.md) as needed. Host capabilities
 and real approvals, not this file, determine what can execute.
 
 **When to use:** Feature development or behavior changes with a clear user benefit.
@@ -28,9 +28,9 @@ not immediate project completion. A small task stays in one continuing session.
 
 ## Return
 
-Use the [work item](../../templates/work-item.md) where appropriate,
+Use the [work item](references/templates/work-item.md) where appropriate,
 then return the evidence and outcome specified above. Unknown required evidence
 remains unknown. Do not claim a missing tool, session, or Skill was executed.
 
-Read the [shared team boundaries](../../roles/team-boundaries.md). Preserve parent
+Read the [shared team boundaries](references/roles/team-boundaries.md). Preserve parent
 repair/resource budgets and original authorization across handoffs and resumes.

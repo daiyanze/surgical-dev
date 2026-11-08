@@ -8,6 +8,15 @@ The local installation itself has not been exercised in this delivery environmen
 
 ## Install locally
 
+For the easiest installation from the public repository, run:
+
+```bash
+pi install git:github.com/daiyanze/surgical-dev
+```
+
+This preserves the full package layout without an npm publication. See
+[distribution options](../../docs/distribution.md) for other Skill hosts.
+
 Extract the archive to a stable folder and inspect its contents first. Pi records
 local package paths without copying the directory, so do not delete or move it
 while it is installed. From the folder containing `surgical-dev/`, run:

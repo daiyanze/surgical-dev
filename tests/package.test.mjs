@@ -150,6 +150,24 @@ test('all local Markdown file links resolve inside the package', () => {
   }
 });
 
+test('standalone Skills include their canonical Markdown references', () => {
+  for (const name of skills) {
+    const skillDir = resolve(root, 'skills', name);
+    const skill = read(`skills/${name}/SKILL.md`);
+    const localLinks = [...withoutCode(skill).matchAll(/\[[^\]]*\]\(([^)]+)\)/g)]
+      .map(match => match[1].split('#')[0])
+      .filter(target => target && !/^[a-z][a-z0-9+.-]*:/i.test(target));
+    for (const target of localLinks) {
+      assert.ok(target.startsWith('references/'), `${name}: out-of-skill link ${target}`);
+      const bundled = resolve(skillDir, target);
+      const canonical = resolve(root, target.slice('references/'.length));
+      assert.ok(existsSync(bundled), `${name}: missing reference ${target}`);
+      assert.equal(readFileSync(bundled, 'utf8'), readFileSync(canonical, 'utf8'),
+        `${name}: stale reference ${target}`);
+    }
+  }
+});
+
 test('schemas parse and declare JSON Schema 2020-12', () => {
   for (const path of ['contracts/task.schema.json', 'contracts/review.schema.json']) {
     assert.ok(existsSync(resolve(root, path)), `Missing ${path}`);

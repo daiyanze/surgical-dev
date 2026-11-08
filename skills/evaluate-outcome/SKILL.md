@@ -5,9 +5,9 @@ description: Use when a delivered change has an agreed measurement window and ne
 
 # evaluate-outcome
 
-Owner: product-scout. Read the [role](../../roles/product-scout.md),
-[shared boundaries](../../roles/team-boundaries.md) and
-[workflow](../../references/workflow.md). Use only existing capabilities and
+Owner: product-scout. Read the [role](references/roles/product-scout.md),
+[shared boundaries](references/roles/team-boundaries.md) and
+[workflow](references/references/workflow.md). Use only existing capabilities and
 original task/action authorization; these instructions grant no permissions.
 
 ## Procedure
@@ -19,5 +19,5 @@ authority or evidence, preserve prior phase, reason, owner and resume condition.
 
 ## Return
 
-Use the [handoff template](../../templates/outcome-assessment.md).
+Use the [handoff template](references/templates/outcome-assessment.md).
 SUPPORTED, INCONCLUSIVE or REGRESSED with measurements and limitations. Missing data means INCONCLUSIVE, not success.

@@ -5,9 +5,9 @@ description: Use when an operational alert or incident requires triage, authoriz
 
 # handle-incident
 
-Owner: operator. Read the [role](../../roles/operator.md),
-[shared boundaries](../../roles/team-boundaries.md) and
-[workflow](../../references/workflow.md). Use only existing capabilities and
+Owner: operator. Read the [role](references/roles/operator.md),
+[shared boundaries](references/roles/team-boundaries.md) and
+[workflow](references/references/workflow.md). Use only existing capabilities and
 original task/action authorization; these instructions grant no permissions.
 
 ## Procedure
@@ -19,5 +19,5 @@ authority or evidence, preserve prior phase, reason, owner and resume condition.
 
 ## Return
 
-Use the [handoff template](../../templates/incident-packet.md).
+Use the [handoff template](references/templates/incident-packet.md).
 Incident state, impact, confirmed facts, containment results, linked repair, recovery criteria and residual risks. CONTAINED is not RESOLVED; resolution needs observed recovery.

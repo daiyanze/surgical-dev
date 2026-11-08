@@ -47,15 +47,15 @@ Unknown execution/evidence is BLOCKED. Only a user or existing policy can author
 reduced scope or partial delivery. No workflow enforcement is implemented here.
 
 <!-- Generated copy. Canonical source hashes:
-skills/integrate-workstreams/SKILL.md 0b5342696c6a3d0a31e912f0983196bd7a63acc647983f286e0266c814520b40
-roles/engineer.md e528a71784f6ec4ab22951ec88f648312854b092a4868e7a9b9f0655a6996220
-contracts/project-plan.md de68f28f2864598f39f573ac0e81752411d7a43022d576819578c632ed0ee20c
-templates/integration-review.md d311d32c1b9c17177c66614cc3c720e389cbf1c4d918c7b669abfe551542c90a
+skills/integrate-workstreams/SKILL.md 0f125fef9e2cf72a1a47a907c978e5e2366408d73bca167a7154e5d207d62682
+skills/integrate-workstreams/references/roles/engineer.md e528a71784f6ec4ab22951ec88f648312854b092a4868e7a9b9f0655a6996220
+skills/integrate-workstreams/references/contracts/project-plan.md de68f28f2864598f39f573ac0e81752411d7a43022d576819578c632ed0ee20c
+skills/integrate-workstreams/references/templates/integration-review.md d311d32c1b9c17177c66614cc3c720e389cbf1c4d918c7b669abfe551542c90a
 -->
 
 <a id="reference-1"></a>
 
-## Embedded reference 1: roles/engineer.md
+## Embedded reference 1: skills/integrate-workstreams/references/roles/engineer.md
 
 # Engineer
 
@@ -135,7 +135,7 @@ overwrite unrelated work; create a new permanent Bot without authorization.
 
 <a id="reference-2"></a>
 
-## Embedded reference 2: contracts/project-plan.md
+## Embedded reference 2: skills/integrate-workstreams/references/contracts/project-plan.md
 
 # Project and workstream contracts
 
@@ -254,7 +254,7 @@ No runtime capacity is created by installing these documents.
 
 <a id="reference-3"></a>
 
-## Embedded reference 3: templates/integration-review.md
+## Embedded reference 3: skills/integrate-workstreams/references/templates/integration-review.md
 
 # Independent integration review
 

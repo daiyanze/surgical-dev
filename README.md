@@ -15,6 +15,32 @@ monitoring routines or production permissions are activated by this update.
 [中文快速开始](QUICKSTART.zh-CN.md) · [English architecture](ARCHITECTURE.en.md) ·
 [中文架构](ARCHITECTURE.zh-CN.md) · [Goal prompt](templates/project-goal.md) · [Validation](VALIDATION.md)
 
+## Install
+
+**Pi agent** — install directly from GitHub (no npm publication needed):
+
+```bash
+pi install git:github.com/daiyanze/surgical-dev
+```
+
+**Claude Code, Codex, OpenCode and other supported Skills CLI hosts** —
+run from your project directory and choose an agent:
+
+```bash
+npx skills add daiyanze/surgical-dev --skill surgical-dev
+```
+
+To install all twelve methods for a selected agent:
+
+```bash
+npx skills add daiyanze/surgical-dev --skill '*' -a codex -y
+```
+
+See [distribution guide](docs/distribution.md) for GitHub Releases, global
+installation, verification and host limitations. Skills are portable instructions,
+**not** an autonomous multi-agent runtime. Individual Skills bundle the local
+role/workflow/template references needed by skills.sh-style installers.
+
 ## How it works
 
 ```mermaid
@@ -55,13 +81,9 @@ not prove product value. The feedback loop requires verified host capabilities.
 | Pi | [Setup](adapters/pi/SETUP.md) | Skills-only package metadata; no automatic session launcher |
 | Other runtime | [Source map](docs/source-map.md) | Portable content; verified native integration is still required |
 
-```bash
-pi install ./surgical-dev
-```
-
-Then invoke `/skill:surgical-dev <authorized task>` in the appropriate project.
-Keep the full package directory intact. Installation is a user action; it has not
-been performed here. Independent acceptance requires a separate reviewer context.
+With Pi, invoke `/skill:surgical-dev <authorized task>` in the appropriate project.
+Independent acceptance still requires a separate reviewer context. Installing
+Skills does not create Bots or enable automated handoffs.
 
 ## Boundaries and resources
 
@@ -98,8 +120,9 @@ python3 tests/contracts_test.py
 
 Node.js 18+ is sufficient for the package tests. Python contract tests require
 `tests/requirements.txt`; they exercise basic task/review schemas. These checks do not prove
-live handoffs or production automation. Regenerate Grok copies after canonical edits
-with `python3 scripts/export_grok_skills.py`.
+live handoffs or production automation. After editing canonical references, sync
+standalone Skill resources with `python3 scripts/sync_skill_references.py`, then
+regenerate Grok copies with `python3 scripts/export_grok_skills.py`.
 
 ## References and inspiration
 

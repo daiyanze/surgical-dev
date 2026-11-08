@@ -5,9 +5,9 @@ description: Use when authorized feedback or research needs to become an evidenc
 
 # discover-opportunity
 
-Owner: product-scout. Read the [role](../../roles/product-scout.md),
-[shared boundaries](../../roles/team-boundaries.md) and
-[workflow](../../references/workflow.md). Use only existing capabilities and
+Owner: product-scout. Read the [role](references/roles/product-scout.md),
+[shared boundaries](references/roles/team-boundaries.md) and
+[workflow](references/references/workflow.md). Use only existing capabilities and
 original task/action authorization; these instructions grant no permissions.
 
 ## Procedure
@@ -19,5 +19,5 @@ authority or evidence, preserve prior phase, reason, owner and resume condition.
 
 ## Return
 
-Use the [handoff template](../../templates/opportunity-brief.md).
+Use the [handoff template](references/templates/opportunity-brief.md).
 DRAFT or PROPOSED opportunity with sources, evidence gaps and decision needed; never a self-admitted task.

@@ -23,16 +23,16 @@ Use the [handoff template](#reference-4).
 PLANNED, PRECHECKING or READY release plan with exact candidate, missing gates, risks and separately authorized actions. Never claim execution.
 
 <!-- Generated copy. Canonical source hashes:
-skills/prepare-release/SKILL.md 775e064dff2d08519c062e88292d4b125f70f8816bba46e62094024c9b9c0bf2
-roles/operator.md 8eb79dfa65b2091d4d702d115f5901ecc1a6a50e20e65047dddd4a808c122923
-roles/team-boundaries.md 80f45861ab06317b9e8f7d737b1308efc7b9bec778a9b35729d2700d89f8a6d9
-references/workflow.md 84dcb8a7c760b7239d0b8e7d86123f09cc972b9e183889c397c3ecef01df4d1b
-templates/release-handoff.md e84081f9f776fb01b0ff2ebdb586389698eeac5aca0adc2d3b040912a9198009
+skills/prepare-release/SKILL.md dba09b57372340129f864a78b5ae12f11ae0bdd394beda8e4e6fbdf8c377ffea
+skills/prepare-release/references/roles/operator.md 8eb79dfa65b2091d4d702d115f5901ecc1a6a50e20e65047dddd4a808c122923
+skills/prepare-release/references/roles/team-boundaries.md 80f45861ab06317b9e8f7d737b1308efc7b9bec778a9b35729d2700d89f8a6d9
+skills/prepare-release/references/references/workflow.md 84dcb8a7c760b7239d0b8e7d86123f09cc972b9e183889c397c3ecef01df4d1b
+skills/prepare-release/references/templates/release-handoff.md e84081f9f776fb01b0ff2ebdb586389698eeac5aca0adc2d3b040912a9198009
 -->
 
 <a id="reference-1"></a>
 
-## Embedded reference 1: roles/operator.md
+## Embedded reference 1: skills/prepare-release/references/roles/operator.md
 
 # Operator
 
@@ -93,7 +93,7 @@ background monitoring without an authorized trigger and budget.
 
 <a id="reference-2"></a>
 
-## Embedded reference 2: roles/team-boundaries.md
+## Embedded reference 2: skills/prepare-release/references/roles/team-boundaries.md
 
 # Shared team boundaries
 
@@ -138,7 +138,7 @@ They do not grant access, create tools, or provide a security sandbox.
 
 <a id="reference-3"></a>
 
-## Embedded reference 3: references/workflow.md
+## Embedded reference 3: skills/prepare-release/references/references/workflow.md
 
 # Workflow, evidence, and action boundaries
 
@@ -295,7 +295,7 @@ Further design detail: `ARCHITECTURE.en.md`, `contracts/record-contracts.md` and
 
 <a id="reference-4"></a>
 
-## Embedded reference 4: templates/release-handoff.md
+## Embedded reference 4: skills/prepare-release/references/templates/release-handoff.md
 
 # Release handoff and action plan
 Release / task / independent review references:

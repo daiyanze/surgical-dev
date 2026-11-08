@@ -23,16 +23,16 @@ Use the [handoff template](#reference-4).
 SUPPORTED, INCONCLUSIVE or REGRESSED with measurements and limitations. Missing data means INCONCLUSIVE, not success.
 
 <!-- Generated copy. Canonical source hashes:
-skills/evaluate-outcome/SKILL.md 1379a2834cde6a513a445dc2c44dc5ace76512abf7c1e31d65c7dcb37929d2ad
-roles/product-scout.md 412d45fb556bc2d830b3a5b2fce03d76a317db87d3023d2789f34b4530da2640
-roles/team-boundaries.md 80f45861ab06317b9e8f7d737b1308efc7b9bec778a9b35729d2700d89f8a6d9
-references/workflow.md 84dcb8a7c760b7239d0b8e7d86123f09cc972b9e183889c397c3ecef01df4d1b
-templates/outcome-assessment.md a1906cb928f9aa1e2d900e8e77d5c5a6969ff0bc446eb69b3b537d6b8931b63e
+skills/evaluate-outcome/SKILL.md 4b0170528beed5757aa89c2730bcd071a100d88150412598ff9a25fbd02645f3
+skills/evaluate-outcome/references/roles/product-scout.md 412d45fb556bc2d830b3a5b2fce03d76a317db87d3023d2789f34b4530da2640
+skills/evaluate-outcome/references/roles/team-boundaries.md 80f45861ab06317b9e8f7d737b1308efc7b9bec778a9b35729d2700d89f8a6d9
+skills/evaluate-outcome/references/references/workflow.md 84dcb8a7c760b7239d0b8e7d86123f09cc972b9e183889c397c3ecef01df4d1b
+skills/evaluate-outcome/references/templates/outcome-assessment.md a1906cb928f9aa1e2d900e8e77d5c5a6969ff0bc446eb69b3b537d6b8931b63e
 -->
 
 <a id="reference-1"></a>
 
-## Embedded reference 1: roles/product-scout.md
+## Embedded reference 1: skills/evaluate-outcome/references/roles/product-scout.md
 
 # Product Scout
 
@@ -85,7 +85,7 @@ or a deferred proposal with the decision needed. Do not create more tasks to eva
 
 <a id="reference-2"></a>
 
-## Embedded reference 2: roles/team-boundaries.md
+## Embedded reference 2: skills/evaluate-outcome/references/roles/team-boundaries.md
 
 # Shared team boundaries
 
@@ -130,7 +130,7 @@ They do not grant access, create tools, or provide a security sandbox.
 
 <a id="reference-3"></a>
 
-## Embedded reference 3: references/workflow.md
+## Embedded reference 3: skills/evaluate-outcome/references/references/workflow.md
 
 # Workflow, evidence, and action boundaries
 
@@ -287,7 +287,7 @@ Further design detail: `ARCHITECTURE.en.md`, `contracts/record-contracts.md` and
 
 <a id="reference-4"></a>
 
-## Embedded reference 4: templates/outcome-assessment.md
+## Embedded reference 4: skills/evaluate-outcome/references/templates/outcome-assessment.md
 
 # Outcome assessment
 Opportunity / release / assessment revision:

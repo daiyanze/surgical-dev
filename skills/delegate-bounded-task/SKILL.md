@@ -5,8 +5,8 @@ description: Use when an active Surgical Dev task contains an independent invest
 
 # delegate-bounded-task
 
-For authorized Surgical Dev tasks only. Read the [Engineer role](../../roles/engineer.md)
-and [workflow rules](../../references/workflow.md) as needed. Host capabilities
+For authorized Surgical Dev tasks only. Read the [Engineer role](references/roles/engineer.md)
+and [workflow rules](references/references/workflow.md) as needed. Host capabilities
 and real approvals, not this file, determine what can execute.
 
 **When to use:** Independent research, processing source material that would consume substantial context, or parallel implementation with stable interface and file boundaries.
@@ -27,13 +27,13 @@ delegation, shared-interface expansion, production changes or publication.
 
 ## Return
 
-Use the [subagent handoff](../../templates/subagent-handoff.md) where appropriate,
+Use the [subagent handoff](references/templates/subagent-handoff.md) where appropriate,
 then return the evidence and outcome specified above. Unknown required evidence
 remains unknown. Do not claim a missing tool, session, or Skill was executed.
 
-The dispatched executor also receives the [temporary subagent role](../../roles/temporary-subagent.md).
+The dispatched executor also receives the [temporary subagent role](references/roles/temporary-subagent.md).
 No temporary subagent is created by installing this Skill. Keep the work in the main session
 when independence or safe isolation cannot be established.
 
-Read the [shared team boundaries](../../roles/team-boundaries.md). Preserve parent
+Read the [shared team boundaries](references/roles/team-boundaries.md). Preserve parent
 repair/resource budgets and original authorization across handoffs and resumes.
