@@ -39,17 +39,17 @@ Read the [shared team boundaries](#reference-5). Preserve parent
 repair/resource budgets and original authorization across handoffs and resumes.
 
 <!-- Generated copy. Canonical source hashes:
-skills/delegate-bounded-task/SKILL.md 2345d268f13a760fb37b016b7c462f772cdc8ddbb37000a1ba7155ef1c78e304
-roles/engineer.md e528a71784f6ec4ab22951ec88f648312854b092a4868e7a9b9f0655a6996220
-references/workflow.md 84dcb8a7c760b7239d0b8e7d86123f09cc972b9e183889c397c3ecef01df4d1b
-templates/subagent-handoff.md dc262d0cdca1fd83484c04c1ddba6d0952720226944d5641df1a088ae3454120
-roles/temporary-subagent.md a5f1007d8289c8c97ba5786b162aa057728870d271fc04de908d2f1a87ba98e9
-roles/team-boundaries.md 80f45861ab06317b9e8f7d737b1308efc7b9bec778a9b35729d2700d89f8a6d9
+skills/delegate-bounded-task/SKILL.md acb075567a1d08f9493e513066f4defe984f0f5420e74ab1def31ec8bacd7036
+skills/delegate-bounded-task/references/roles/engineer.md e528a71784f6ec4ab22951ec88f648312854b092a4868e7a9b9f0655a6996220
+skills/delegate-bounded-task/references/references/workflow.md 84dcb8a7c760b7239d0b8e7d86123f09cc972b9e183889c397c3ecef01df4d1b
+skills/delegate-bounded-task/references/templates/subagent-handoff.md dc262d0cdca1fd83484c04c1ddba6d0952720226944d5641df1a088ae3454120
+skills/delegate-bounded-task/references/roles/temporary-subagent.md a5f1007d8289c8c97ba5786b162aa057728870d271fc04de908d2f1a87ba98e9
+skills/delegate-bounded-task/references/roles/team-boundaries.md 80f45861ab06317b9e8f7d737b1308efc7b9bec778a9b35729d2700d89f8a6d9
 -->
 
 <a id="reference-1"></a>
 
-## Embedded reference 1: roles/engineer.md
+## Embedded reference 1: skills/delegate-bounded-task/references/roles/engineer.md
 
 # Engineer
 
@@ -129,7 +129,7 @@ overwrite unrelated work; create a new permanent Bot without authorization.
 
 <a id="reference-2"></a>
 
-## Embedded reference 2: references/workflow.md
+## Embedded reference 2: skills/delegate-bounded-task/references/references/workflow.md
 
 # Workflow, evidence, and action boundaries
 
@@ -286,7 +286,7 @@ Further design detail: `ARCHITECTURE.en.md`, `contracts/record-contracts.md` and
 
 <a id="reference-3"></a>
 
-## Embedded reference 3: templates/subagent-handoff.md
+## Embedded reference 3: skills/delegate-bounded-task/references/templates/subagent-handoff.md
 
 # Temporary subagent handoff
 Parent task / scope / snapshot:
@@ -304,7 +304,7 @@ external publication. Engineer inspects, integrates and checks the full change.
 
 <a id="reference-4"></a>
 
-## Embedded reference 4: roles/temporary-subagent.md
+## Embedded reference 4: skills/delegate-bounded-task/references/roles/temporary-subagent.md
 
 # Temporary Subagent
 
@@ -332,7 +332,7 @@ remaining work to Engineer, not to create another coordination layer.
 
 <a id="reference-5"></a>
 
-## Embedded reference 5: roles/team-boundaries.md
+## Embedded reference 5: skills/delegate-bounded-task/references/roles/team-boundaries.md
 
 # Shared team boundaries
 

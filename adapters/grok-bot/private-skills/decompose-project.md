@@ -45,15 +45,15 @@ as a consequence of planning. Do not recursively fan out teams or manufacture a
 parallel task merely to fill capacity. A recorded plan is not an enforced gate.
 
 <!-- Generated copy. Canonical source hashes:
-skills/decompose-project/SKILL.md b32be15210661b1c24adf7f8f33de000b75ea27e2f57fbfa211a0e5de2cf55f3
-roles/engineer.md e528a71784f6ec4ab22951ec88f648312854b092a4868e7a9b9f0655a6996220
-contracts/project-plan.md de68f28f2864598f39f573ac0e81752411d7a43022d576819578c632ed0ee20c
-templates/project-plan.md 50542806089f2f55095bf93a62fdd45eb59bec0a4e9cbb45ff03f92f1cf40670
+skills/decompose-project/SKILL.md 68bf5399d81f210343a4778ae49f4187fb21c1c70ddcb9d52482cc1a2c076dfd
+skills/decompose-project/references/roles/engineer.md e528a71784f6ec4ab22951ec88f648312854b092a4868e7a9b9f0655a6996220
+skills/decompose-project/references/contracts/project-plan.md de68f28f2864598f39f573ac0e81752411d7a43022d576819578c632ed0ee20c
+skills/decompose-project/references/templates/project-plan.md 50542806089f2f55095bf93a62fdd45eb59bec0a4e9cbb45ff03f92f1cf40670
 -->
 
 <a id="reference-1"></a>
 
-## Embedded reference 1: roles/engineer.md
+## Embedded reference 1: skills/decompose-project/references/roles/engineer.md
 
 # Engineer
 
@@ -133,7 +133,7 @@ overwrite unrelated work; create a new permanent Bot without authorization.
 
 <a id="reference-2"></a>
 
-## Embedded reference 2: contracts/project-plan.md
+## Embedded reference 2: skills/decompose-project/references/contracts/project-plan.md
 
 # Project and workstream contracts
 
@@ -252,7 +252,7 @@ No runtime capacity is created by installing these documents.
 
 <a id="reference-3"></a>
 
-## Embedded reference 3: templates/project-plan.md
+## Embedded reference 3: skills/decompose-project/references/templates/project-plan.md
 
 # Engineer-owned technical plan
 

@@ -5,8 +5,8 @@ description: Use when the user invokes Surgical Dev with a goal or resumes its f
 
 # Surgical Dev
 
-Read actual project instructions, the [shared boundaries](../../roles/team-boundaries.md)
-and [workflow](../../references/workflow.md). This is a content-only package; no
+Read actual project instructions, the [shared boundaries](references/roles/team-boundaries.md)
+and [workflow](references/references/workflow.md). This is a content-only package; no
 role dispatcher, scheduler, authorization service or enforced state machine is installed.
 
 ## Route only the responsibility needed

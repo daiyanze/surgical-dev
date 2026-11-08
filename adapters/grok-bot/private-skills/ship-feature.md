@@ -36,16 +36,16 @@ Read the [shared team boundaries](#reference-4). Preserve parent
 repair/resource budgets and original authorization across handoffs and resumes.
 
 <!-- Generated copy. Canonical source hashes:
-skills/ship-feature/SKILL.md 69c3acf9ad933ea7f6549de96364e3538f01d5b6c300616900d5f374b94eca64
-roles/engineer.md e528a71784f6ec4ab22951ec88f648312854b092a4868e7a9b9f0655a6996220
-references/workflow.md 84dcb8a7c760b7239d0b8e7d86123f09cc972b9e183889c397c3ecef01df4d1b
-templates/work-item.md d022a6029ee3d4420af89d2455394d642facaa6c3aab65383ea480853699e122
-roles/team-boundaries.md 80f45861ab06317b9e8f7d737b1308efc7b9bec778a9b35729d2700d89f8a6d9
+skills/ship-feature/SKILL.md 59a2bba98feda232d1aab8d9bbb5fd66aeb4b8591ea44e47bcd3f369b4f06a1f
+skills/ship-feature/references/roles/engineer.md e528a71784f6ec4ab22951ec88f648312854b092a4868e7a9b9f0655a6996220
+skills/ship-feature/references/references/workflow.md 84dcb8a7c760b7239d0b8e7d86123f09cc972b9e183889c397c3ecef01df4d1b
+skills/ship-feature/references/templates/work-item.md d022a6029ee3d4420af89d2455394d642facaa6c3aab65383ea480853699e122
+skills/ship-feature/references/roles/team-boundaries.md 80f45861ab06317b9e8f7d737b1308efc7b9bec778a9b35729d2700d89f8a6d9
 -->
 
 <a id="reference-1"></a>
 
-## Embedded reference 1: roles/engineer.md
+## Embedded reference 1: skills/ship-feature/references/roles/engineer.md
 
 # Engineer
 
@@ -125,7 +125,7 @@ overwrite unrelated work; create a new permanent Bot without authorization.
 
 <a id="reference-2"></a>
 
-## Embedded reference 2: references/workflow.md
+## Embedded reference 2: skills/ship-feature/references/references/workflow.md
 
 # Workflow, evidence, and action boundaries
 
@@ -282,7 +282,7 @@ Further design detail: `ARCHITECTURE.en.md`, `contracts/record-contracts.md` and
 
 <a id="reference-3"></a>
 
-## Embedded reference 3: templates/work-item.md
+## Embedded reference 3: skills/ship-feature/references/templates/work-item.md
 
 # Work item
 Task / project / scope revision:
@@ -310,7 +310,7 @@ Source, scope or permission changes do not silently inherit old review or grants
 
 <a id="reference-4"></a>
 
-## Embedded reference 4: roles/team-boundaries.md
+## Embedded reference 4: skills/ship-feature/references/roles/team-boundaries.md
 
 # Shared team boundaries
 

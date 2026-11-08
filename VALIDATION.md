@@ -5,10 +5,16 @@ Scope: current architecture, role/Skill content, record shapes and package integ
 
 ## Observed checks
 
-- Node package suite: 25 structural tests passed. Coverage includes twelve Skill
+- Node package suite: 26 structural tests passed. Coverage includes twelve Skill
   definitions, required files, local links, canonical/generated role consistency,
   embedded-source hashes, disabled defaults, goal/plan/integration contracts and
-  the illustrative three-stream dependency graph.
+  the illustrative three-stream dependency graph, plus standalone Skill references.
+- The skills CLI installed the entry Skill and all twelve Skills separately into
+  isolated local Codex test directories with `--copy`. The installed entry
+  contained its required reference files. This was a local-path installation
+  test, not a claim that public skills.sh indexing is complete.
+- `scripts/sync_skill_references.py --check` confirmed each Skill's bundled
+  Markdown references match the canonical sources.
 - Python record suite: 12 JSON Schema shape tests passed in an isolated test
   environment with the declared `tests/requirements.txt` dependencies.
 - Grok content exporter generated twelve self-contained private-Skill texts and
@@ -23,6 +29,7 @@ that a scheduler enforces the contracts. A well-formed PASS is not proof of succ
 
 ```bash
 npm test
+python3 scripts/sync_skill_references.py --check
 python3 -m venv surgeon-local/test-env
 surgeon-local/test-env/bin/python -m pip install -r tests/requirements.txt
 surgeon-local/test-env/bin/python tests/contracts_test.py
@@ -37,7 +44,7 @@ Use an isolated Python environment. Node package tests have no package dependenc
 
 The 42 behavioral acceptance scenarios are specifications and remain NOT RUN.
 No real parallel Engineer team, independent Agent behavioral evaluation, automatic
-scheduler, account setup, installed Skills, CI enforcement integration, merge,
+scheduler, account setup, Pi Git install or skills.sh remote Git install, CI enforcement integration, merge,
 publication, deployment or incident response was executed. Mermaid source is
 provided but visual rendering has not been tested. The content was self-reviewed;
 no independent runtime acceptance result is claimed.

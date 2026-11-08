@@ -23,16 +23,16 @@ Use the [handoff template](#reference-4).
 Incident state, impact, confirmed facts, containment results, linked repair, recovery criteria and residual risks. CONTAINED is not RESOLVED; resolution needs observed recovery.
 
 <!-- Generated copy. Canonical source hashes:
-skills/handle-incident/SKILL.md c4dae34234b0a07ea7ecfd16adfd9569bea15d01e6bc1c886f80d196c45d4604
-roles/operator.md 8eb79dfa65b2091d4d702d115f5901ecc1a6a50e20e65047dddd4a808c122923
-roles/team-boundaries.md 80f45861ab06317b9e8f7d737b1308efc7b9bec778a9b35729d2700d89f8a6d9
-references/workflow.md 84dcb8a7c760b7239d0b8e7d86123f09cc972b9e183889c397c3ecef01df4d1b
-templates/incident-packet.md ec74756e14e03effcd0e11c0d2963ad5f9c6679f89d2aec7c61de0396e803880
+skills/handle-incident/SKILL.md eafff1f9560a0b918ea4db0c4325f0d9b83e7a6215f1466380a9b17a07fbddff
+skills/handle-incident/references/roles/operator.md 8eb79dfa65b2091d4d702d115f5901ecc1a6a50e20e65047dddd4a808c122923
+skills/handle-incident/references/roles/team-boundaries.md 80f45861ab06317b9e8f7d737b1308efc7b9bec778a9b35729d2700d89f8a6d9
+skills/handle-incident/references/references/workflow.md 84dcb8a7c760b7239d0b8e7d86123f09cc972b9e183889c397c3ecef01df4d1b
+skills/handle-incident/references/templates/incident-packet.md ec74756e14e03effcd0e11c0d2963ad5f9c6679f89d2aec7c61de0396e803880
 -->
 
 <a id="reference-1"></a>
 
-## Embedded reference 1: roles/operator.md
+## Embedded reference 1: skills/handle-incident/references/roles/operator.md
 
 # Operator
 
@@ -93,7 +93,7 @@ background monitoring without an authorized trigger and budget.
 
 <a id="reference-2"></a>
 
-## Embedded reference 2: roles/team-boundaries.md
+## Embedded reference 2: skills/handle-incident/references/roles/team-boundaries.md
 
 # Shared team boundaries
 
@@ -138,7 +138,7 @@ They do not grant access, create tools, or provide a security sandbox.
 
 <a id="reference-3"></a>
 
-## Embedded reference 3: references/workflow.md
+## Embedded reference 3: skills/handle-incident/references/references/workflow.md
 
 # Workflow, evidence, and action boundaries
 
@@ -295,7 +295,7 @@ Further design detail: `ARCHITECTURE.en.md`, `contracts/record-contracts.md` and
 
 <a id="reference-4"></a>
 
-## Embedded reference 4: templates/incident-packet.md
+## Embedded reference 4: skills/handle-incident/references/templates/incident-packet.md
 
 # Incident packet
 Incident / project / environment:

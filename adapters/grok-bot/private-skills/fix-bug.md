@@ -36,16 +36,16 @@ Read the [shared team boundaries](#reference-4). Preserve parent
 repair/resource budgets and original authorization across handoffs and resumes.
 
 <!-- Generated copy. Canonical source hashes:
-skills/fix-bug/SKILL.md 37e46ad4baa574f1fa13e54e4eb29865caead269dc9b0118866d8384dcf0e8d2
-roles/engineer.md e528a71784f6ec4ab22951ec88f648312854b092a4868e7a9b9f0655a6996220
-references/workflow.md 84dcb8a7c760b7239d0b8e7d86123f09cc972b9e183889c397c3ecef01df4d1b
-templates/work-item.md d022a6029ee3d4420af89d2455394d642facaa6c3aab65383ea480853699e122
-roles/team-boundaries.md 80f45861ab06317b9e8f7d737b1308efc7b9bec778a9b35729d2700d89f8a6d9
+skills/fix-bug/SKILL.md 92745c58f45b722f7405b95e8cf0fa1357265974ead31cb268ef23ef50f9f201
+skills/fix-bug/references/roles/engineer.md e528a71784f6ec4ab22951ec88f648312854b092a4868e7a9b9f0655a6996220
+skills/fix-bug/references/references/workflow.md 84dcb8a7c760b7239d0b8e7d86123f09cc972b9e183889c397c3ecef01df4d1b
+skills/fix-bug/references/templates/work-item.md d022a6029ee3d4420af89d2455394d642facaa6c3aab65383ea480853699e122
+skills/fix-bug/references/roles/team-boundaries.md 80f45861ab06317b9e8f7d737b1308efc7b9bec778a9b35729d2700d89f8a6d9
 -->
 
 <a id="reference-1"></a>
 
-## Embedded reference 1: roles/engineer.md
+## Embedded reference 1: skills/fix-bug/references/roles/engineer.md
 
 # Engineer
 
@@ -125,7 +125,7 @@ overwrite unrelated work; create a new permanent Bot without authorization.
 
 <a id="reference-2"></a>
 
-## Embedded reference 2: references/workflow.md
+## Embedded reference 2: skills/fix-bug/references/references/workflow.md
 
 # Workflow, evidence, and action boundaries
 
@@ -282,7 +282,7 @@ Further design detail: `ARCHITECTURE.en.md`, `contracts/record-contracts.md` and
 
 <a id="reference-3"></a>
 
-## Embedded reference 3: templates/work-item.md
+## Embedded reference 3: skills/fix-bug/references/templates/work-item.md
 
 # Work item
 Task / project / scope revision:
@@ -310,7 +310,7 @@ Source, scope or permission changes do not silently inherit old review or grants
 
 <a id="reference-4"></a>
 
-## Embedded reference 4: roles/team-boundaries.md
+## Embedded reference 4: skills/fix-bug/references/roles/team-boundaries.md
 
 # Shared team boundaries
 

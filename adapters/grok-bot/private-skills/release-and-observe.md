@@ -23,16 +23,16 @@ Use the [handoff template](#reference-4).
 Actual action state, artifact/environment, job and grant references, observed effects, health window, uncertainties and recovery evidence. VERIFIED requires observed checks; a submitted request is not success.
 
 <!-- Generated copy. Canonical source hashes:
-skills/release-and-observe/SKILL.md 3b3555eb1f72f23c72975b6259f9d45f5be691ab5836825c475fb78587972723
-roles/operator.md 8eb79dfa65b2091d4d702d115f5901ecc1a6a50e20e65047dddd4a808c122923
-roles/team-boundaries.md 80f45861ab06317b9e8f7d737b1308efc7b9bec778a9b35729d2700d89f8a6d9
-references/workflow.md 84dcb8a7c760b7239d0b8e7d86123f09cc972b9e183889c397c3ecef01df4d1b
-templates/release-handoff.md e84081f9f776fb01b0ff2ebdb586389698eeac5aca0adc2d3b040912a9198009
+skills/release-and-observe/SKILL.md 36c1bae5493332af3721daa44ef1da4b71ce5a33dd21b776c5dda287a801cf80
+skills/release-and-observe/references/roles/operator.md 8eb79dfa65b2091d4d702d115f5901ecc1a6a50e20e65047dddd4a808c122923
+skills/release-and-observe/references/roles/team-boundaries.md 80f45861ab06317b9e8f7d737b1308efc7b9bec778a9b35729d2700d89f8a6d9
+skills/release-and-observe/references/references/workflow.md 84dcb8a7c760b7239d0b8e7d86123f09cc972b9e183889c397c3ecef01df4d1b
+skills/release-and-observe/references/templates/release-handoff.md e84081f9f776fb01b0ff2ebdb586389698eeac5aca0adc2d3b040912a9198009
 -->
 
 <a id="reference-1"></a>
 
-## Embedded reference 1: roles/operator.md
+## Embedded reference 1: skills/release-and-observe/references/roles/operator.md
 
 # Operator
 
@@ -93,7 +93,7 @@ background monitoring without an authorized trigger and budget.
 
 <a id="reference-2"></a>
 
-## Embedded reference 2: roles/team-boundaries.md
+## Embedded reference 2: skills/release-and-observe/references/roles/team-boundaries.md
 
 # Shared team boundaries
 
@@ -138,7 +138,7 @@ They do not grant access, create tools, or provide a security sandbox.
 
 <a id="reference-3"></a>
 
-## Embedded reference 3: references/workflow.md
+## Embedded reference 3: skills/release-and-observe/references/references/workflow.md
 
 # Workflow, evidence, and action boundaries
 
@@ -295,7 +295,7 @@ Further design detail: `ARCHITECTURE.en.md`, `contracts/record-contracts.md` and
 
 <a id="reference-4"></a>
 
-## Embedded reference 4: templates/release-handoff.md
+## Embedded reference 4: skills/release-and-observe/references/templates/release-handoff.md
 
 # Release handoff and action plan
 Release / task / independent review references:

@@ -23,16 +23,16 @@ Use the [handoff template](#reference-4).
 DRAFT or PROPOSED opportunity with sources, evidence gaps and decision needed; never a self-admitted task.
 
 <!-- Generated copy. Canonical source hashes:
-skills/discover-opportunity/SKILL.md 0d6b3696a8d18a25af3424b2211066226644e60d3cb3b4c7af094b5e67e784fa
-roles/product-scout.md 412d45fb556bc2d830b3a5b2fce03d76a317db87d3023d2789f34b4530da2640
-roles/team-boundaries.md 80f45861ab06317b9e8f7d737b1308efc7b9bec778a9b35729d2700d89f8a6d9
-references/workflow.md 84dcb8a7c760b7239d0b8e7d86123f09cc972b9e183889c397c3ecef01df4d1b
-templates/opportunity-brief.md 124e5f02375633265cd330663052d21f5e2583addaaec84f6d36642982f784ba
+skills/discover-opportunity/SKILL.md 06578718c345b448ab85c82f26cbb7b36b6761107b5d107e61975a51e2141e12
+skills/discover-opportunity/references/roles/product-scout.md 412d45fb556bc2d830b3a5b2fce03d76a317db87d3023d2789f34b4530da2640
+skills/discover-opportunity/references/roles/team-boundaries.md 80f45861ab06317b9e8f7d737b1308efc7b9bec778a9b35729d2700d89f8a6d9
+skills/discover-opportunity/references/references/workflow.md 84dcb8a7c760b7239d0b8e7d86123f09cc972b9e183889c397c3ecef01df4d1b
+skills/discover-opportunity/references/templates/opportunity-brief.md 124e5f02375633265cd330663052d21f5e2583addaaec84f6d36642982f784ba
 -->
 
 <a id="reference-1"></a>
 
-## Embedded reference 1: roles/product-scout.md
+## Embedded reference 1: skills/discover-opportunity/references/roles/product-scout.md
 
 # Product Scout
 
@@ -85,7 +85,7 @@ or a deferred proposal with the decision needed. Do not create more tasks to eva
 
 <a id="reference-2"></a>
 
-## Embedded reference 2: roles/team-boundaries.md
+## Embedded reference 2: skills/discover-opportunity/references/roles/team-boundaries.md
 
 # Shared team boundaries
 
@@ -130,7 +130,7 @@ They do not grant access, create tools, or provide a security sandbox.
 
 <a id="reference-3"></a>
 
-## Embedded reference 3: references/workflow.md
+## Embedded reference 3: skills/discover-opportunity/references/references/workflow.md
 
 # Workflow, evidence, and action boundaries
 
@@ -287,7 +287,7 @@ Further design detail: `ARCHITECTURE.en.md`, `contracts/record-contracts.md` and
 
 <a id="reference-4"></a>
 
-## Embedded reference 4: templates/opportunity-brief.md
+## Embedded reference 4: skills/discover-opportunity/references/templates/opportunity-brief.md
 
 # Opportunity brief
 Opportunity / project / revision:

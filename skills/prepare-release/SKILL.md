@@ -5,9 +5,9 @@ description: Use when release preparation is requested for a specified candidate
 
 # prepare-release
 
-Owner: operator. Read the [role](../../roles/operator.md),
-[shared boundaries](../../roles/team-boundaries.md) and
-[workflow](../../references/workflow.md). Use only existing capabilities and
+Owner: operator. Read the [role](references/roles/operator.md),
+[shared boundaries](references/roles/team-boundaries.md) and
+[workflow](references/references/workflow.md). Use only existing capabilities and
 original task/action authorization; these instructions grant no permissions.
 
 ## Procedure
@@ -19,5 +19,5 @@ authority or evidence, preserve prior phase, reason, owner and resume condition.
 
 ## Return
 
-Use the [handoff template](../../templates/release-handoff.md).
+Use the [handoff template](references/templates/release-handoff.md).
 PLANNED, PRECHECKING or READY release plan with exact candidate, missing gates, risks and separately authorized actions. Never claim execution.

@@ -53,14 +53,14 @@ current scope/source/check evidence; verdict or absence; unresolved risks and ne
 authorized action. Never invent agent runs, approvals, telemetry or product impact.
 
 <!-- Generated copy. Canonical source hashes:
-skills/surgical-dev/SKILL.md 0ca165a05d30b100ba580482d378be0e0122e338bb3769e564710504819bbcac
-roles/team-boundaries.md 80f45861ab06317b9e8f7d737b1308efc7b9bec778a9b35729d2700d89f8a6d9
-references/workflow.md 84dcb8a7c760b7239d0b8e7d86123f09cc972b9e183889c397c3ecef01df4d1b
+skills/surgical-dev/SKILL.md 76382a3867a3e39375c96a19954a22eb2905a5467063ec3da0f6626ffc10867e
+skills/surgical-dev/references/roles/team-boundaries.md 80f45861ab06317b9e8f7d737b1308efc7b9bec778a9b35729d2700d89f8a6d9
+skills/surgical-dev/references/references/workflow.md 84dcb8a7c760b7239d0b8e7d86123f09cc972b9e183889c397c3ecef01df4d1b
 -->
 
 <a id="reference-1"></a>
 
-## Embedded reference 1: roles/team-boundaries.md
+## Embedded reference 1: skills/surgical-dev/references/roles/team-boundaries.md
 
 # Shared team boundaries
 
@@ -105,7 +105,7 @@ They do not grant access, create tools, or provide a security sandbox.
 
 <a id="reference-2"></a>
 
-## Embedded reference 2: references/workflow.md
+## Embedded reference 2: skills/surgical-dev/references/references/workflow.md
 
 # Workflow, evidence, and action boundaries
 

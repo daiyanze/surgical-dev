@@ -44,18 +44,18 @@ Read the [shared team boundaries](#reference-6). Preserve parent
 repair/resource budgets and original authorization across handoffs and resumes.
 
 <!-- Generated copy. Canonical source hashes:
-skills/verify-change/SKILL.md edbab34d6d05da07ffa77aae29eea56cc4fe9e4baaf3349f453a076626db6cea
-roles/verifier.md 5f32b4852d8dd36f61a2c31749590442f729955962f762d1b9bb57975b540288
-references/workflow.md 84dcb8a7c760b7239d0b8e7d86123f09cc972b9e183889c397c3ecef01df4d1b
-templates/integration-review.md d311d32c1b9c17177c66614cc3c720e389cbf1c4d918c7b669abfe551542c90a
-templates/review-report.md d053620a98a5fd5fb2ea3c3c27dd9440dfd271c967e054b6db9da7e0582fa163
-templates/review-request.md 1607f81c72009b57494cf5140a83dfa8600c2d5c39646d7d6e86c025e78a5cf6
-roles/team-boundaries.md 80f45861ab06317b9e8f7d737b1308efc7b9bec778a9b35729d2700d89f8a6d9
+skills/verify-change/SKILL.md 50418cdf5582eceb36f69542699f3222b8011d39ff1b129da94189e81f2615e7
+skills/verify-change/references/roles/verifier.md 5f32b4852d8dd36f61a2c31749590442f729955962f762d1b9bb57975b540288
+skills/verify-change/references/references/workflow.md 84dcb8a7c760b7239d0b8e7d86123f09cc972b9e183889c397c3ecef01df4d1b
+skills/verify-change/references/templates/integration-review.md d311d32c1b9c17177c66614cc3c720e389cbf1c4d918c7b669abfe551542c90a
+skills/verify-change/references/templates/review-report.md d053620a98a5fd5fb2ea3c3c27dd9440dfd271c967e054b6db9da7e0582fa163
+skills/verify-change/references/templates/review-request.md 1607f81c72009b57494cf5140a83dfa8600c2d5c39646d7d6e86c025e78a5cf6
+skills/verify-change/references/roles/team-boundaries.md 80f45861ab06317b9e8f7d737b1308efc7b9bec778a9b35729d2700d89f8a6d9
 -->
 
 <a id="reference-1"></a>
 
-## Embedded reference 1: roles/verifier.md
+## Embedded reference 1: skills/verify-change/references/roles/verifier.md
 
 # Verifier
 
@@ -116,7 +116,7 @@ A technical PASS never implies release authorization or proven product benefit.
 
 <a id="reference-2"></a>
 
-## Embedded reference 2: references/workflow.md
+## Embedded reference 2: skills/verify-change/references/references/workflow.md
 
 # Workflow, evidence, and action boundaries
 
@@ -273,7 +273,7 @@ Further design detail: `ARCHITECTURE.en.md`, `contracts/record-contracts.md` and
 
 <a id="reference-3"></a>
 
-## Embedded reference 3: templates/integration-review.md
+## Embedded reference 3: skills/verify-change/references/templates/integration-review.md
 
 # Independent integration review
 
@@ -301,7 +301,7 @@ not authority to merge, deploy, publish or alter policy.
 
 <a id="reference-4"></a>
 
-## Embedded reference 4: templates/review-report.md
+## Embedded reference 4: skills/verify-change/references/templates/review-report.md
 
 # Independent review report
 Review / task / project / scope revision:
@@ -322,7 +322,7 @@ reviewed source branch merely to save it.
 
 <a id="reference-5"></a>
 
-## Embedded reference 5: templates/review-request.md
+## Embedded reference 5: skills/verify-change/references/templates/review-request.md
 
 # Independent review request
 Event / correlation / review attempt:
@@ -343,7 +343,7 @@ Send minimum factual context, not the implementation transcript or self-assessme
 
 <a id="reference-6"></a>
 
-## Embedded reference 6: roles/team-boundaries.md
+## Embedded reference 6: skills/verify-change/references/roles/team-boundaries.md
 
 # Shared team boundaries
 
