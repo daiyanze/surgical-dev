@@ -25,7 +25,7 @@ Run from the **target project** directory. Select the coding agent when asked:
 npx skills add daiyanze/surgical-dev --skill surgical-dev
 ```
 
-To install all twelve methods, choose an agent explicitly, for example:
+To install all thirteen methods, choose an agent explicitly, for example:
 
 ```bash
 npx skills add daiyanze/surgical-dev --skill '*' -a codex -y

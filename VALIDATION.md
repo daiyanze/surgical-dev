@@ -5,11 +5,11 @@ Scope: current architecture, role/Skill content, record shapes and package integ
 
 ## Observed checks
 
-- Node package suite: 26 structural tests passed. Coverage includes twelve Skill
+- Node package suite: 28 structural tests passed. Coverage includes thirteen Skill
   definitions, required files, local links, canonical/generated role consistency,
   embedded-source hashes, disabled defaults, goal/plan/integration contracts and
   the illustrative three-stream dependency graph, plus standalone Skill references.
-- The skills CLI installed the entry Skill and all twelve Skills separately into
+- The skills CLI installed the entry Skill and twelve Skills separately into
   isolated local Codex test directories with `--copy`. The installed entry
   contained its required reference files. This was a local-path installation
   test, not a claim that public skills.sh indexing is complete.
@@ -17,9 +17,12 @@ Scope: current architecture, role/Skill content, record shapes and package integ
   Markdown references match the canonical sources.
 - Python record suite: 12 JSON Schema shape tests passed in an isolated test
   environment with the declared `tests/requirements.txt` dependencies.
-- Grok content exporter generated twelve self-contained private-Skill texts and
+- Grok content exporter generated thirteen self-contained private-Skill texts and
   four role setup messages from canonical sources. Generation performs no network
   calls or account setup.
+- Engineering discipline checks cover explicit assumptions, minimal implementation,
+  surgical edits, and observable success criteria. The additional method was
+  structurally validated but not exercised by a real coding Agent.
 
 These tests validate declared content and basic shapes. They do not authenticate
 approvals, prove that a reviewer ran, validate live dependency artifacts, or show

@@ -37,8 +37,8 @@ repair/resource budgets and original authorization across handoffs and resumes.
 
 <!-- Generated copy. Canonical source hashes:
 skills/fix-bug/SKILL.md 92745c58f45b722f7405b95e8cf0fa1357265974ead31cb268ef23ef50f9f201
-skills/fix-bug/references/roles/engineer.md e528a71784f6ec4ab22951ec88f648312854b092a4868e7a9b9f0655a6996220
-skills/fix-bug/references/references/workflow.md 84dcb8a7c760b7239d0b8e7d86123f09cc972b9e183889c397c3ecef01df4d1b
+skills/fix-bug/references/roles/engineer.md a11db69575851df567f3bffdcff2cbc86fe220086132351bc590011ec2d7b301
+skills/fix-bug/references/references/workflow.md f6eb1d544756c424068c4ef232ecb2b67688d97b98191449a01b22fab4b695b1
 skills/fix-bug/references/templates/work-item.md d022a6029ee3d4420af89d2455394d642facaa6c3aab65383ea480853699e122
 skills/fix-bug/references/roles/team-boundaries.md 80f45861ab06317b9e8f7d737b1308efc7b9bec778a9b35729d2700d89f8a6d9
 -->
@@ -75,6 +75,14 @@ Use integrate-workstreams after stream checks/review. Stream INTEGRATION_READY i
 not project PR_READY: assemble a pinned candidate, run project end-to-end checks,
 and obtain independent integration acceptance. Route defects to their owners and
 preserve aggregate budgets across changed plans, session replacement and task IDs.
+
+## Engineering discipline
+
+Identify consequential assumptions and tradeoffs before implementation.
+Prefer the smallest solution meeting approved acceptance criteria and the
+existing project style. Change only relevant files; make verification
+observable. Reproduce a bug before fixing it where feasible. Do not create
+extra approval rounds for routine decisions within authorized scope.
 
 ## Own
 
@@ -190,6 +198,14 @@ user decision. Preparing an integration branch is not permission to merge main.
 Pin dependency inputs and revalidate downstream work after relevant changes. A
 claim/lease expiry is not proof an old process stopped: reconcile before reuse.
 Backpressure on full review/integration queues reduces new implementation dispatch.
+
+## Engineering discipline
+
+Before coding, surface material ambiguity instead of silently guessing.
+Choose the smallest sufficient implementation, and tie edits to approved
+criteria or required dependencies. Verify each meaningful step with real
+checks, reproducing a bug before fixing it when practical. Keep independent
+and integrated review; skip unnecessary ceremony for trivial changes.
 
 ## Implementation and checks
 

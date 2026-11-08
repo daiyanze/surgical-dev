@@ -1,6 +1,6 @@
 # Runtime work still needed
 
-The content pack provides four role types, twelve methods, goal/plan/integration
+The content pack provides four role types, thirteen methods, goal/plan/integration
 templates and record/state specifications. It does not implement an autonomous runtime.
 
 Use one workflow owner: Grok-native for the first capability pilot, or a future

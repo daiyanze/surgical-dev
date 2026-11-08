@@ -5,6 +5,13 @@ description: Use when the user invokes Surgical Dev with a goal or resumes its f
 
 # Surgical Dev
 
+## Engineering discipline
+
+Before coding, surface assumptions that materially affect the goal. Prefer
+the smallest sufficient design, limit changes to approved outcomes, and verify
+observable success. Load engineering-discipline for detail if installed.
+These habits require no extra role, approval gate or speculative abstraction.
+
 Read actual project instructions, the [shared boundaries](references/roles/team-boundaries.md)
 and [workflow](references/references/workflow.md). This is a content-only package; no
 role dispatcher, scheduler, authorization service or enforced state machine is installed.

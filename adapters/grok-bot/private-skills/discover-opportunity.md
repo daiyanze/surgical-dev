@@ -26,7 +26,7 @@ DRAFT or PROPOSED opportunity with sources, evidence gaps and decision needed; n
 skills/discover-opportunity/SKILL.md 06578718c345b448ab85c82f26cbb7b36b6761107b5d107e61975a51e2141e12
 skills/discover-opportunity/references/roles/product-scout.md 412d45fb556bc2d830b3a5b2fce03d76a317db87d3023d2789f34b4530da2640
 skills/discover-opportunity/references/roles/team-boundaries.md 80f45861ab06317b9e8f7d737b1308efc7b9bec778a9b35729d2700d89f8a6d9
-skills/discover-opportunity/references/references/workflow.md 84dcb8a7c760b7239d0b8e7d86123f09cc972b9e183889c397c3ecef01df4d1b
+skills/discover-opportunity/references/references/workflow.md f6eb1d544756c424068c4ef232ecb2b67688d97b98191449a01b22fab4b695b1
 skills/discover-opportunity/references/templates/opportunity-brief.md 124e5f02375633265cd330663052d21f5e2583addaaec84f6d36642982f784ba
 -->
 
@@ -195,6 +195,14 @@ user decision. Preparing an integration branch is not permission to merge main.
 Pin dependency inputs and revalidate downstream work after relevant changes. A
 claim/lease expiry is not proof an old process stopped: reconcile before reuse.
 Backpressure on full review/integration queues reduces new implementation dispatch.
+
+## Engineering discipline
+
+Before coding, surface material ambiguity instead of silently guessing.
+Choose the smallest sufficient implementation, and tie edits to approved
+criteria or required dependencies. Verify each meaningful step with real
+checks, reproducing a bug before fixing it when practical. Keep independent
+and integrated review; skip unnecessary ceremony for trivial changes.
 
 ## Implementation and checks
 

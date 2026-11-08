@@ -20,6 +20,12 @@ not establish Integration Passed. No author of included implementation, includin
 the integration owner or its helpers, may independently approve that implementation.
 For one stream, a single review can cover local and project ACs on the same snapshot.
 
+## Engineering discipline in review
+
+Look for unsupported consequential assumptions, unrequested complexity,
+unrelated changes and missing evidence. Only concrete requirement or policy
+violations block; optional simplifications remain advisory.
+
 ## Method
 
 Read source evidence independently. Inspect ACs, actual diff, affected callers,

@@ -40,8 +40,8 @@ repair/resource budgets and original authorization across handoffs and resumes.
 
 <!-- Generated copy. Canonical source hashes:
 skills/delegate-bounded-task/SKILL.md acb075567a1d08f9493e513066f4defe984f0f5420e74ab1def31ec8bacd7036
-skills/delegate-bounded-task/references/roles/engineer.md e528a71784f6ec4ab22951ec88f648312854b092a4868e7a9b9f0655a6996220
-skills/delegate-bounded-task/references/references/workflow.md 84dcb8a7c760b7239d0b8e7d86123f09cc972b9e183889c397c3ecef01df4d1b
+skills/delegate-bounded-task/references/roles/engineer.md a11db69575851df567f3bffdcff2cbc86fe220086132351bc590011ec2d7b301
+skills/delegate-bounded-task/references/references/workflow.md f6eb1d544756c424068c4ef232ecb2b67688d97b98191449a01b22fab4b695b1
 skills/delegate-bounded-task/references/templates/subagent-handoff.md dc262d0cdca1fd83484c04c1ddba6d0952720226944d5641df1a088ae3454120
 skills/delegate-bounded-task/references/roles/temporary-subagent.md a5f1007d8289c8c97ba5786b162aa057728870d271fc04de908d2f1a87ba98e9
 skills/delegate-bounded-task/references/roles/team-boundaries.md 80f45861ab06317b9e8f7d737b1308efc7b9bec778a9b35729d2700d89f8a6d9
@@ -79,6 +79,14 @@ Use integrate-workstreams after stream checks/review. Stream INTEGRATION_READY i
 not project PR_READY: assemble a pinned candidate, run project end-to-end checks,
 and obtain independent integration acceptance. Route defects to their owners and
 preserve aggregate budgets across changed plans, session replacement and task IDs.
+
+## Engineering discipline
+
+Identify consequential assumptions and tradeoffs before implementation.
+Prefer the smallest solution meeting approved acceptance criteria and the
+existing project style. Change only relevant files; make verification
+observable. Reproduce a bug before fixing it where feasible. Do not create
+extra approval rounds for routine decisions within authorized scope.
 
 ## Own
 
@@ -194,6 +202,14 @@ user decision. Preparing an integration branch is not permission to merge main.
 Pin dependency inputs and revalidate downstream work after relevant changes. A
 claim/lease expiry is not proof an old process stopped: reconcile before reuse.
 Backpressure on full review/integration queues reduces new implementation dispatch.
+
+## Engineering discipline
+
+Before coding, surface material ambiguity instead of silently guessing.
+Choose the smallest sufficient implementation, and tie edits to approved
+criteria or required dependencies. Verify each meaningful step with real
+checks, reproducing a bug before fixing it when practical. Keep independent
+and integrated review; skip unnecessary ceremony for trivial changes.
 
 ## Implementation and checks
 

@@ -7,7 +7,7 @@ context per stream, and owns integration. Product Scout, Engineer, Verifier and
 Operator are four role types; execution instances scale within explicit limits.
 Temporary subagents are optional helpers, never a fifth permanent Worker Bot.
 
-This repository provides role instructions, twelve on-demand Skills, handoff templates,
+This repository provides role instructions, thirteen on-demand Skills, handoff templates,
 design contracts and manual host setup. It does **not** implement a scheduler,
 authenticated controller, enforced gates or autonomous deployment. No Bots, Skills,
 monitoring routines or production permissions are activated by this update.
@@ -30,7 +30,7 @@ run from your project directory and choose an agent:
 npx skills add daiyanze/surgical-dev --skill surgical-dev
 ```
 
-To install all twelve methods for a selected agent:
+To install all thirteen methods for a selected agent:
 
 ```bash
 npx skills add daiyanze/surgical-dev --skill '*' -a codex -y
@@ -70,6 +70,7 @@ not prove product value. The feedback loop requires verified host capabilities.
 |---|---|
 | Product Scout | discover-opportunity, evaluate-outcome |
 | Engineer / entry | surgical-dev, decompose-project, ship-feature, fix-bug, delegate-bounded-task, integrate-workstreams |
+| Engineering discipline | engineering-discipline: clarify assumptions, minimize complexity, keep changes surgical, prove success |
 | Verifier | verify-change |
 | Operator | prepare-release, release-and-observe, handle-incident |
 
@@ -77,7 +78,7 @@ not prove product value. The feedback loop requires verified host capabilities.
 
 | Host | Guide | Included resources |
 |---|---|---|
-| Grok Bot | [Setup](adapters/grok-bot/SETUP.md) | Four self-contained role setup messages; twelve flattened private-Skill texts |
+| Grok Bot | [Setup](adapters/grok-bot/SETUP.md) | Four self-contained role setup messages; thirteen flattened private-Skill texts |
 | Pi | [Setup](adapters/pi/SETUP.md) | Skills-only package metadata; no automatic session launcher |
 | Other runtime | [Source map](docs/source-map.md) | Portable content; verified native integration is still required |
 
@@ -124,6 +125,13 @@ live handoffs or production automation. After editing canonical references, sync
 standalone Skill resources with `python3 scripts/sync_skill_references.py`, then
 regenerate Grok copies with `python3 scripts/export_grok_skills.py`.
 
+## Engineering discipline
+
+Use [engineering-discipline](docs/engineering-discipline.md) during coding and
+review: make consequential assumptions explicit, prefer the smallest sufficient
+solution, change only the required scope, and verify observable results. This
+adds no new Bot, mandatory approval or unbounded retry loop.
+
 ## References and inspiration
 
 Surgical Dev grew out of a review of agent development workflows. These are
@@ -131,6 +139,7 @@ conceptual references, not runtime dependencies or endorsements:
 
 - [Anthropic — When to fold subagents into your main agent loop](https://claude.com/resources/articles/building-agents-when-to-fold-subagents-into-your-main-agent-loop): the main architectural influence. Keep closely related work in one context, load Skills on demand, and retain subagents where independent verification or bounded parallel work adds value.
 - [Multica Best Practices](https://github.com/it235/multica-best-practices): a reference for explicit role boundaries, delivery handoffs, quality gates, and evidence-based acceptance. Surgical Dev uses a smaller standing team rather than adopting the full squad structure.
+- [Andrej Karpathy's coding observations](https://x.com/karpathy/status/2015883857489522876) and [community guidelines](https://github.com/multica-ai/andrej-karpathy-skills): assumptions, simplicity, scoped edits and verifiable goals.
 - [Superpowers](https://github.com/obra/superpowers): a reference for reusable engineering Skills, independent review, and verification before declaring completion.
 
 The four-role architecture, gate definitions, and retry limits are Surgical Dev design

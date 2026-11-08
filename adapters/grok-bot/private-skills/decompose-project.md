@@ -46,7 +46,7 @@ parallel task merely to fill capacity. A recorded plan is not an enforced gate.
 
 <!-- Generated copy. Canonical source hashes:
 skills/decompose-project/SKILL.md 68bf5399d81f210343a4778ae49f4187fb21c1c70ddcb9d52482cc1a2c076dfd
-skills/decompose-project/references/roles/engineer.md e528a71784f6ec4ab22951ec88f648312854b092a4868e7a9b9f0655a6996220
+skills/decompose-project/references/roles/engineer.md a11db69575851df567f3bffdcff2cbc86fe220086132351bc590011ec2d7b301
 skills/decompose-project/references/contracts/project-plan.md de68f28f2864598f39f573ac0e81752411d7a43022d576819578c632ed0ee20c
 skills/decompose-project/references/templates/project-plan.md 50542806089f2f55095bf93a62fdd45eb59bec0a4e9cbb45ff03f92f1cf40670
 -->
@@ -83,6 +83,14 @@ Use integrate-workstreams after stream checks/review. Stream INTEGRATION_READY i
 not project PR_READY: assemble a pinned candidate, run project end-to-end checks,
 and obtain independent integration acceptance. Route defects to their owners and
 preserve aggregate budgets across changed plans, session replacement and task IDs.
+
+## Engineering discipline
+
+Identify consequential assumptions and tradeoffs before implementation.
+Prefer the smallest solution meeting approved acceptance criteria and the
+existing project style. Change only relevant files; make verification
+observable. Reproduce a bug before fixing it where feasible. Do not create
+extra approval rounds for routine decisions within authorized scope.
 
 ## Own
 

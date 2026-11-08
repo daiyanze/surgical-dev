@@ -45,8 +45,8 @@ repair/resource budgets and original authorization across handoffs and resumes.
 
 <!-- Generated copy. Canonical source hashes:
 skills/verify-change/SKILL.md 50418cdf5582eceb36f69542699f3222b8011d39ff1b129da94189e81f2615e7
-skills/verify-change/references/roles/verifier.md 5f32b4852d8dd36f61a2c31749590442f729955962f762d1b9bb57975b540288
-skills/verify-change/references/references/workflow.md 84dcb8a7c760b7239d0b8e7d86123f09cc972b9e183889c397c3ecef01df4d1b
+skills/verify-change/references/roles/verifier.md a6ddf6185b6c339e0a775212b530c664fff1fc933ebf55d53bc165d1ce89bcf0
+skills/verify-change/references/references/workflow.md f6eb1d544756c424068c4ef232ecb2b67688d97b98191449a01b22fab4b695b1
 skills/verify-change/references/templates/integration-review.md d311d32c1b9c17177c66614cc3c720e389cbf1c4d918c7b669abfe551542c90a
 skills/verify-change/references/templates/review-report.md d053620a98a5fd5fb2ea3c3c27dd9440dfd271c967e054b6db9da7e0582fa163
 skills/verify-change/references/templates/review-request.md 1607f81c72009b57494cf5140a83dfa8600c2d5c39646d7d6e86c025e78a5cf6
@@ -78,6 +78,12 @@ actual combined candidate and project end-to-end evidence. Local PASS reports do
 not establish Integration Passed. No author of included implementation, including
 the integration owner or its helpers, may independently approve that implementation.
 For one stream, a single review can cover local and project ACs on the same snapshot.
+
+## Engineering discipline in review
+
+Look for unsupported consequential assumptions, unrequested complexity,
+unrelated changes and missing evidence. Only concrete requirement or policy
+violations block; optional simplifications remain advisory.
 
 ## Method
 
@@ -181,6 +187,14 @@ user decision. Preparing an integration branch is not permission to merge main.
 Pin dependency inputs and revalidate downstream work after relevant changes. A
 claim/lease expiry is not proof an old process stopped: reconcile before reuse.
 Backpressure on full review/integration queues reduces new implementation dispatch.
+
+## Engineering discipline
+
+Before coding, surface material ambiguity instead of silently guessing.
+Choose the smallest sufficient implementation, and tie edits to approved
+criteria or required dependencies. Verify each meaningful step with real
+checks, reproducing a bug before fixing it when practical. Keep independent
+and integrated review; skip unnecessary ceremony for trivial changes.
 
 ## Implementation and checks
 

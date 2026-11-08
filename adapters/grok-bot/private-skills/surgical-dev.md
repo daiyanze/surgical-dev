@@ -5,6 +5,13 @@ description: Use when the user invokes Surgical Dev with a goal or resumes its f
 
 # Surgical Dev
 
+## Engineering discipline
+
+Before coding, surface assumptions that materially affect the goal. Prefer
+the smallest sufficient design, limit changes to approved outcomes, and verify
+observable success. Load engineering-discipline for detail if installed.
+These habits require no extra role, approval gate or speculative abstraction.
+
 Read actual project instructions, the [shared boundaries](#reference-1)
 and [workflow](#reference-2). This is a content-only package; no
 role dispatcher, scheduler, authorization service or enforced state machine is installed.
@@ -53,9 +60,9 @@ current scope/source/check evidence; verdict or absence; unresolved risks and ne
 authorized action. Never invent agent runs, approvals, telemetry or product impact.
 
 <!-- Generated copy. Canonical source hashes:
-skills/surgical-dev/SKILL.md 76382a3867a3e39375c96a19954a22eb2905a5467063ec3da0f6626ffc10867e
+skills/surgical-dev/SKILL.md 53e940103dff31174b85bcb6594c5a9e787ddf553ad50af5331fe04ca2877aeb
 skills/surgical-dev/references/roles/team-boundaries.md 80f45861ab06317b9e8f7d737b1308efc7b9bec778a9b35729d2700d89f8a6d9
-skills/surgical-dev/references/references/workflow.md 84dcb8a7c760b7239d0b8e7d86123f09cc972b9e183889c397c3ecef01df4d1b
+skills/surgical-dev/references/references/workflow.md f6eb1d544756c424068c4ef232ecb2b67688d97b98191449a01b22fab4b695b1
 -->
 
 <a id="reference-1"></a>
@@ -170,6 +177,14 @@ user decision. Preparing an integration branch is not permission to merge main.
 Pin dependency inputs and revalidate downstream work after relevant changes. A
 claim/lease expiry is not proof an old process stopped: reconcile before reuse.
 Backpressure on full review/integration queues reduces new implementation dispatch.
+
+## Engineering discipline
+
+Before coding, surface material ambiguity instead of silently guessing.
+Choose the smallest sufficient implementation, and tie edits to approved
+criteria or required dependencies. Verify each meaningful step with real
+checks, reproducing a bug before fixing it when practical. Keep independent
+and integrated review; skip unnecessary ceremony for trivial changes.
 
 ## Implementation and checks
 
