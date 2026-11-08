@@ -5,7 +5,7 @@ import { dirname, resolve, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const skills = ['surgical-dev', 'ship-feature', 'fix-bug', 'delegate-bounded-task', 'verify-change', 'prepare-release', 'discover-opportunity', 'evaluate-outcome', 'release-and-observe', 'handle-incident', 'decompose-project', 'integrate-workstreams'];
+const skills = ['surgical-dev', 'ship-feature', 'fix-bug', 'delegate-bounded-task', 'verify-change', 'prepare-release', 'discover-opportunity', 'evaluate-outcome', 'release-and-observe', 'handle-incident', 'decompose-project', 'integrate-workstreams', 'engineering-discipline'];
 const read = path => readFileSync(resolve(root, path), 'utf8');
 const json = path => JSON.parse(read(path));
 
@@ -200,6 +200,17 @@ test('examples are explicitly non-authorizing and initially blocked or brief', (
   assert.equal(task.fix_cycles_used, 0);
   assert.equal(review.verdict, 'BLOCKED');
   assert.equal(review.reviewer_session_ref, null);
+});
+
+test('Karpathy-inspired engineering discipline covers four actionable habits', () => {
+  const skill = read('skills/engineering-discipline/SKILL.md');
+  for (const heading of ['Think before coding', 'Simplicity first', 'Surgical changes', 'Goal-driven execution']) {
+    assert.ok(skill.includes(heading), heading);
+  }
+  assert.match(read('skills/surgical-dev/SKILL.md'), /engineering-discipline/);
+  assert.match(read('roles/engineer.md'), /smallest solution/);
+  assert.match(read('roles/verifier.md'), /unrelated changes/);
+  assert.match(read('references/workflow.md'), /reproducing a bug/);
 });
 
 test('core invariants remain explicit', () => {

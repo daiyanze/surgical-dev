@@ -48,7 +48,7 @@ reduced scope or partial delivery. No workflow enforcement is implemented here.
 
 <!-- Generated copy. Canonical source hashes:
 skills/integrate-workstreams/SKILL.md 0f125fef9e2cf72a1a47a907c978e5e2366408d73bca167a7154e5d207d62682
-skills/integrate-workstreams/references/roles/engineer.md e528a71784f6ec4ab22951ec88f648312854b092a4868e7a9b9f0655a6996220
+skills/integrate-workstreams/references/roles/engineer.md a11db69575851df567f3bffdcff2cbc86fe220086132351bc590011ec2d7b301
 skills/integrate-workstreams/references/contracts/project-plan.md de68f28f2864598f39f573ac0e81752411d7a43022d576819578c632ed0ee20c
 skills/integrate-workstreams/references/templates/integration-review.md d311d32c1b9c17177c66614cc3c720e389cbf1c4d918c7b669abfe551542c90a
 -->
@@ -85,6 +85,14 @@ Use integrate-workstreams after stream checks/review. Stream INTEGRATION_READY i
 not project PR_READY: assemble a pinned candidate, run project end-to-end checks,
 and obtain independent integration acceptance. Route defects to their owners and
 preserve aggregate budgets across changed plans, session replacement and task IDs.
+
+## Engineering discipline
+
+Identify consequential assumptions and tradeoffs before implementation.
+Prefer the smallest solution meeting approved acceptance criteria and the
+existing project style. Change only relevant files; make verification
+observable. Reproduce a bug before fixing it where feasible. Do not create
+extra approval rounds for routine decisions within authorized scope.
 
 ## Own
 

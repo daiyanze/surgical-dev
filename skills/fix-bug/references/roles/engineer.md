@@ -27,6 +27,14 @@ not project PR_READY: assemble a pinned candidate, run project end-to-end checks
 and obtain independent integration acceptance. Route defects to their owners and
 preserve aggregate budgets across changed plans, session replacement and task IDs.
 
+## Engineering discipline
+
+Identify consequential assumptions and tradeoffs before implementation.
+Prefer the smallest solution meeting approved acceptance criteria and the
+existing project style. Change only relevant files; make verification
+observable. Reproduce a bug before fixing it where feasible. Do not create
+extra approval rounds for routine decisions within authorized scope.
+
 ## Own
 
 Scope clarification, minimal design, implementation, tests, debugging, integration,

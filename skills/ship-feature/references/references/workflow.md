@@ -62,6 +62,14 @@ Pin dependency inputs and revalidate downstream work after relevant changes. A
 claim/lease expiry is not proof an old process stopped: reconcile before reuse.
 Backpressure on full review/integration queues reduces new implementation dispatch.
 
+## Engineering discipline
+
+Before coding, surface material ambiguity instead of silently guessing.
+Choose the smallest sufficient implementation, and tie edits to approved
+criteria or required dependencies. Verify each meaningful step with real
+checks, reproducing a bug before fixing it when practical. Keep independent
+and integrated review; skip unnecessary ceremony for trivial changes.
+
 ## Implementation and checks
 
 Keep reading, planning, coding, tests, and debugging for a feature in one coding

@@ -1,6 +1,6 @@
 # Pi setup — Skills-only package
 
-This archive has `pi.skills` metadata and twelve discoverable Skills. It has no
+This archive has `pi.skills` metadata and thirteen discoverable Skills. It has no
 extensions, hooks, custom tools, subagent scheduler, or automatic session launcher.
 Package structure follows the official [Pi package documentation](https://pi.dev/docs/latest/packages)
 and [Skill documentation](https://pi.dev/docs/latest/skills), checked 2026-11-07.
