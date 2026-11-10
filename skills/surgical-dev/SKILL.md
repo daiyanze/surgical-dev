@@ -49,7 +49,7 @@ Use integrate-workstreams for the combined candidate. Local stream acceptance is
 INTEGRATION_READY, not project completion. Project PR_READY needs current project
 checks and independent Integration Passed. One stream may reuse one review covering
 all project ACs on the same snapshot. Stop at PR_READY unless delivery is in scope.
-No mandatory Scout or Operator pass, no Manager Bot and no automatic permanent-Bot creation.
+No mandatory Scout or Operator pass, no manager agent and no automatic permanent-agent creation.
 In-scope technical replanning/allocation is automatic; new scope, authority or budget
 requires a decision. Unsupported runtime operations must not be presented as executed.
 

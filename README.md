@@ -5,15 +5,15 @@ budget and permissions—not a manually split backlog or staff assignments. Engi
 organizes independently testable workstreams, keeps one continuous implementation
 context per stream, and owns integration. Product Scout, Engineer, Verifier and
 Operator are four role types; execution instances scale within explicit limits.
-Temporary subagents are optional helpers, never a fifth permanent Worker Bot.
+Temporary subagents are optional helpers, never a fifth permanent worker agent.
 
 This repository provides role instructions, thirteen on-demand Skills, handoff templates,
 design contracts and manual host setup. It does **not** implement a scheduler,
-authenticated controller, enforced gates or autonomous deployment. No Bots, Skills,
-monitoring routines or production permissions are activated by this update.
+authenticated controller, enforced gates or autonomous deployment. No agents, Skills,
+monitoring jobs or production permissions are activated by this update.
 
-[中文快速开始](QUICKSTART.zh-CN.md) · [English architecture](ARCHITECTURE.en.md) ·
-[中文架构](ARCHITECTURE.zh-CN.md) · [Goal prompt](templates/project-goal.md) · [Validation](VALIDATION.md)
+[English architecture](ARCHITECTURE.en.md) ·
+[中文架构摘要](ARCHITECTURE.zh-CN.md) · [Goal prompt](templates/project-goal.md) · [Validation](VALIDATION.md)
 
 ## Install
 
@@ -78,13 +78,13 @@ not prove product value. The feedback loop requires verified host capabilities.
 
 | Host | Guide | Included resources |
 |---|---|---|
-| Grok Bot | [Setup](adapters/grok-bot/SETUP.md) | Four self-contained role setup messages; thirteen flattened private-Skill texts |
 | Pi | [Setup](adapters/pi/SETUP.md) | Skills-only package metadata; no automatic session launcher |
-| Other runtime | [Source map](docs/source-map.md) | Portable content; verified native integration is still required |
+| Codex | [Setup](adapters/codex/SETUP.md) | Skills via `.agents/skills/`; optional read-only-by-instruction `verifier` subagent |
+| Other runtime | [Distribution](docs/distribution.md) | Portable content; verified native integration is still required |
 
-With Pi, invoke `/skill:surgical-dev <authorized task>` in the appropriate project.
+With Pi, invoke `/skill:surgical-dev <authorized task>`; with Codex, `$surgical-dev <authorized task>`.
 Independent acceptance still requires a separate reviewer context. Installing
-Skills does not create Bots or enable automated handoffs.
+Skills does not create agents or enable automated handoffs.
 
 ## Boundaries and resources
 
@@ -97,16 +97,14 @@ Skills does not create Bots or enable automated handoffs.
   [disabled policy example](contracts/project-policy.example.yaml), [handoffs](templates).
 - [Delivery](workflows/delivery.mmd), [incident](workflows/incident.mmd),
   [architecture](workflows/architecture.mmd), [pilot scenarios](tests/acceptance-scenarios.md).
-- [Remaining runtime work](docs/runtime-next.md). Basic JSON schemas validate task/review
-  shapes only; they cannot establish dependency readiness, authority or integration success.
+- [Remaining runtime work](docs/runtime-next.md). Basic JSON schemas validate task, review and
+  plan shapes only; they cannot establish dependency readiness, authority or integration success.
 
-Default: automation and helpers disabled. The enabled-pilot policy example caps
-active Engineers at two, Verifiers at one, helpers at two across the project, and
-all active executions at four total. All caps apply together. Keep one integration
-per shared target and two repair/reverify cycles per review target under a finite
-aggregate project budget. Routine technical planning and assignment are automatic;
-new scope, budget or authority require a decision. Missing safe parallel capability
-falls back to serial execution, not a weaker acceptance gate.
+Default: automation and helpers disabled; the enabled-pilot caps, which all apply
+together, are listed in [default limits](contracts/README.md#default-limits).
+Routine technical planning and assignment are automatic; new scope, budget or
+authority require a decision. Missing safe parallel capability falls back to
+serial execution, not a weaker acceptance gate.
 
 A stream's INTEGRATION_READY is not project PR_READY. The combined candidate must
 satisfy project ACs and independent integration acceptance before delivery. For one
@@ -122,15 +120,24 @@ python3 tests/contracts_test.py
 Node.js 18+ is sufficient for the package tests. Python contract tests require
 `tests/requirements.txt`; they exercise basic task/review schemas. These checks do not prove
 live handoffs or production automation. After editing canonical references, sync
-standalone Skill resources with `python3 scripts/sync_skill_references.py`, then
-regenerate Grok copies with `python3 scripts/export_grok_skills.py`.
+standalone Skill resources with `python3 scripts/sync_skill_references.py`.
 
 ## Engineering discipline
 
-Use [engineering-discipline](docs/engineering-discipline.md) during coding and
-review: make consequential assumptions explicit, prefer the smallest sufficient
-solution, change only the required scope, and verify observable results. This
-adds no new Bot, mandatory approval or unbounded retry loop.
+Four habits, adapted independently from the Karpathy-inspired sources listed
+below (not an official endorsement). The
+[engineering-discipline Skill](skills/engineering-discipline/SKILL.md) has the
+detailed method; the entry Skill carries a short form.
+
+| Habit | Engineer | Verifier |
+|---|---|---|
+| Think before coding | Surface consequential assumptions and tradeoffs | Identify assumptions undermining approved criteria |
+| Simplicity first | Prefer the minimum sufficient design | Report concrete complexity risks separately from preferences |
+| Surgical changes | Limit changes to scope and necessary dependencies | Detect unrelated edits or shared-contract drift |
+| Goal-driven execution | Use reproducible tests and observable checks | Independently inspect evidence for the current snapshot |
+
+These are habits within existing roles, not a new agent, mandatory approval or
+unbounded retry loop.
 
 ## References and inspiration
 
@@ -145,7 +152,7 @@ conceptual references, not runtime dependencies or endorsements:
 
 The four-role architecture, gate definitions, and retry limits are Surgical Dev design
 choices, not requirements prescribed by these sources. See
-[technical references](docs/sources.md) for Skill formats and host setup documentation.
+[sources and references](references/sources.md) for Skill formats and host setup documentation.
 
 ## Project
 

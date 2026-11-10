@@ -5,9 +5,16 @@ import { dirname, resolve, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const skills = ['surgical-dev', 'ship-feature', 'fix-bug', 'delegate-bounded-task', 'verify-change', 'prepare-release', 'discover-opportunity', 'evaluate-outcome', 'release-and-observe', 'handle-incident', 'decompose-project', 'integrate-workstreams', 'engineering-discipline'];
+const skills = readdirSync(resolve(root, 'skills'), { withFileTypes: true })
+  .filter(entry => entry.isDirectory() && existsSync(resolve(root, 'skills', entry.name, 'SKILL.md')))
+  .map(entry => entry.name)
+  .sort();
 const read = path => readFileSync(resolve(root, path), 'utf8');
 const json = path => JSON.parse(read(path));
+
+test('skills are derived from the skills directory', () => {
+  assert.ok(skills.length > 0, 'No skills found under skills/');
+});
 
 test('current operating docs contain no version-transition guide links', () => {
   const guidePattern = /(?:migration|upgrade|transition-guide)\.md$/i;
@@ -32,7 +39,7 @@ test('parallel workstreams and auxiliary subagents have distinct contracts', () 
   for (const field of ['max_active_engineers', 'max_active_verifiers', 'max_active_subagents_project', 'max_total_active_executions', 'max_active_integrations_per_target', 'serial_fallback']) assert.ok(policy.includes(field + ':'), field);
   assert.match(policy, /automation_enabled: false/);
   assert.match(policy, /profile: DRAFT_ONLY/);
-  assert.match(policy, /create_persistent_bots: false/);
+  assert.match(policy, /create_persistent_agents: false/);
   assert.match(read('contracts/project-plan.md'), /dependency.*snapshot|snapshot.*dependency/i);
   assert.match(read('contracts/project-plan.md'), /acyclic/i);
   assert.match(read('contracts/project-plan.md'), /lease/i);
@@ -77,7 +84,7 @@ test('project plan example has explicit dependencies, boundaries and no authorit
 
 function files(dir = root) {
   return readdirSync(dir, { withFileTypes: true }).flatMap(entry => {
-    if (['node_modules', '.git', 'surgeon-local', '__pycache__'].includes(entry.name)) return [];
+    if (['node_modules', '.git', '.venv', '__pycache__'].includes(entry.name)) return [];
     const full = resolve(dir, entry.name);
     return entry.isDirectory() ? files(full) : [full];
   });
@@ -123,16 +130,14 @@ for (const name of skills) {
     assert.ok(metadata.description.startsWith('Use when'));
     assert.ok(metadata.description.length <= 1024);
     assert.ok(text.split('\n').length < 500);
-    assert.ok(!text.includes('For now, only confirm'), 'Setup-only stop must not become a task rule');
     assert.ok(text.includes('## Return'), 'Output contract is required');
   });
 }
 
-test('four persistent roles and temporary helper assets exist without one-time setup instructions', () => {
+test('four persistent roles and temporary helper assets exist', () => {
   for (const role of ['product-scout', 'engineer', 'verifier', 'operator', 'temporary-subagent']) {
     const path = `roles/${role}.md`;
     assert.ok(existsSync(resolve(root, path)), `Missing ${path}`);
-    assert.ok(!read(path).includes('For now, only confirm'));
   }
 });
 
@@ -169,25 +174,20 @@ test('standalone Skills include their canonical Markdown references', () => {
 });
 
 test('schemas parse and declare JSON Schema 2020-12', () => {
-  for (const path of ['contracts/task.schema.json', 'contracts/review.schema.json']) {
+  const schemaPaths = readdirSync(resolve(root, 'contracts'))
+    .filter(name => name.endsWith('.schema.json'))
+    .sort()
+    .map(name => `contracts/${name}`);
+  for (const name of ['task.schema.json', 'review.schema.json', 'project-plan.schema.json']) {
+    assert.ok(schemaPaths.includes(`contracts/${name}`), `Missing contracts/${name}`);
+  }
+  for (const path of schemaPaths) {
     assert.ok(existsSync(resolve(root, path)), `Missing ${path}`);
     const schema = json(path);
     assert.equal(schema.$schema, 'https://json-schema.org/draft/2020-12/schema');
     assert.equal(schema.type, 'object');
     assert.equal(schema.additionalProperties, false);
     assert.ok(Array.isArray(schema.required));
-  }
-});
-
-test('Grok setup copies match canonical roles', () => {
-  for (const role of ['product-scout', 'engineer', 'verifier', 'operator']) {
-    const path = `adapters/grok-bot/${role.toUpperCase().replaceAll('-', '_')}_SETUP.md`;
-    assert.ok(existsSync(resolve(root, path)), `Missing ${path}`);
-    const content = read(path);
-    assert.ok(content.includes(read(`roles/${role}.md`).trim()));
-    assert.ok(content.includes('## Setup-only response'));
-    assert.ok(content.includes(read('roles/team-boundaries.md').trim()));
-    assert.ok(!/supersed|adopts the migration|v1.*v2|v2.*v1/i.test(content));
   }
 });
 
@@ -200,6 +200,19 @@ test('examples are explicitly non-authorizing and initially blocked or brief', (
   assert.equal(task.fix_cycles_used, 0);
   assert.equal(review.verdict, 'BLOCKED');
   assert.equal(review.reviewer_session_ref, null);
+});
+
+test('default limits table matches policy example', () => {
+  const limits = Object.fromEntries([...read('contracts/project-policy.example.yaml').matchAll(/^\s+(max_[a-z_]+):\s*(\d+)/gm)].map(match => [match[1], match[2]]));
+  assert.ok(Object.keys(limits).length > 0, 'No max_* limits found in policy example');
+  const rows = read('contracts/README.md').split('\n')
+    .filter(line => line.trim().startsWith('|'))
+    .map(line => line.split('|').map(cell => cell.trim()));
+  for (const [key, value] of Object.entries(limits)) {
+    const row = rows.find(cells => cells[1] === `\`${key}\``);
+    assert.ok(row, `contracts/README.md: missing table row for ${key}`);
+    assert.equal(row[2], value, `contracts/README.md: wrong default for ${key}`);
+  }
 });
 
 test('Karpathy-inspired engineering discipline covers four actionable habits', () => {
@@ -222,20 +235,9 @@ test('core invariants remain explicit', () => {
   assert.match(read('references/workflow.md'), /not.*authorization/i);
 });
 
-test('self-contained Grok copies exist and their source hashes are current', async () => {
-  const { createHash } = await import('node:crypto');
-  for (const name of skills) {
-    const path = `adapters/grok-bot/private-skills/${name}.md`;
-    assert.ok(existsSync(resolve(root, path)), `Missing ${path}`);
-    const text = read(path);
-    assert.ok(!/\]\(\.\.\//.test(text), 'Export must not leave package-relative links');
-    const block = text.match(/<!-- Generated copy\. Canonical source hashes:\n([\s\S]*?)\n-->/);
-    assert.ok(block, 'Source inventory is required');
-    for (const line of block[1].split('\n')) {
-      const [source, digest] = line.split(' ');
-      assert.ok(existsSync(resolve(root, source)));
-      const actual = createHash('sha256').update(readFileSync(resolve(root, source))).digest('hex');
-      assert.equal(actual, digest, `${path}: stale copy of ${source}`);
-    }
-  }
+test('Codex reviewer agent defines the required keys and defers to verify-change', () => {
+  const toml = read('adapters/codex/agents/verifier.toml');
+  for (const key of ['name', 'description', 'developer_instructions']) assert.match(toml, new RegExp(`^${key} = `, 'm'), key);
+  assert.match(toml, /verify-change/);
+  assert.match(read('adapters/codex/SETUP.md'), /\.agents\/skills/);
 });

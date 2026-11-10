@@ -87,7 +87,7 @@ record the missing external enforcement and any independent local verification.
 
 ## Independent acceptance
 
-Use a separate Verifier session or Bot. Switching personas in the same
+Use a separate Verifier session or agent. Switching personas in the same
 implementation conversation is not independent review. If no independent reviewer
 can be reached, stop at BLOCKED rather than inventing a PASS. A human may perform
 an explicitly documented alternative review; do not present it as an agent run.
@@ -153,7 +153,7 @@ Reconcile the original platform job and partial effects before retrying a timeou
 Never blindly roll back migrations, published packages or external side effects.
 CONTAINED is not RESOLVED. Source/pipeline/IaC changes return to Engineer and Verifier.
 
-The controller is ordinary runtime code, not another Bot. It must authenticate
+The controller is ordinary runtime code, not another agent. It must authenticate
 identities, persist IDs/budgets/locks, reject duplicate/stale events, reconcile
 restarts and honor cancellation. This content pack does not implement that code.
 Further design detail: `ARCHITECTURE.en.md`, `contracts/record-contracts.md` and

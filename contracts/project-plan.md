@@ -1,7 +1,7 @@
 # Project and workstream contracts
 
 These are requirements for a host adapter and readable task records, not an
-implemented scheduler or a native Grok/Pi payload. A plan is not an action grant.
+implemented scheduler or a native host payload. A plan is not an action grant.
 
 ## Project goal and technical plan
 
@@ -10,6 +10,10 @@ repository, chooses a project **integration owner**, and produces the technical
 plan without asking the user to split tasks or choose agents. The integration
 owner is an Engineer assignment, not a fifth permanent role; it owns shared
 contracts, key implementation and integrated delivery, not everyone's transcript.
+
+Fields in the table below are required before execution starts. The minimal
+`DRAFT` shape is validated by `contracts/project-plan.schema.json`, and the
+example `examples/project.plan.json` is authoritative.
 
 Required plan fields:
 
@@ -54,7 +58,7 @@ The future controller must atomically establish all of the following:
 5. A single-owner claim/lease and execution ID are persisted before dispatch.
 
 The controller allocates only ready streams and slows new implementation when
-review/integration queues or conflicts become the bottleneck. No quorum of Bots
+review/integration queues or conflicts become the bottleneck. No quorum of agents
 or extra manager is required. The integration owner may revise ordering, combine
 coupled streams and reassign idle capacity within the original scope and budget.
 New business scope, extra authority or budget increases require the user/policy.
@@ -110,5 +114,5 @@ not promise atomic cross-repository merges or universally reversible rollback.
 When parallel sessions or isolation are unavailable, use one continuing Engineer
 sequentially and preserve independent review. If independent review itself is
 unavailable, report BLOCKED or use a specifically authorized human alternative.
-Creating new persistent Bots is separate from launching permitted task sessions.
+Creating new persistent agents is separate from launching permitted task sessions.
 No runtime capacity is created by installing these documents.

@@ -46,7 +46,7 @@ and automatic handoffs before parallel work is claimed. Without them, stay seria
 and still obtain independent acceptance. integrate-workstreams covers the final
 candidate, not an additional manager role. Scout, Verifier and
 Operator methods must run in their appropriate contexts with verified handoffs.
-Pi metadata does not create four Bots or enforce role routing. Referenced files are resolved from the
+Pi metadata does not create four agents or enforce role routing. Referenced files are resolved from the
 loaded Skill's directory, not from the target repository. Keep the entire package
 layout intact; copying only `skills/` drops shared role and workflow references.
 
@@ -54,7 +54,7 @@ layout intact; copying only `skills/` drops shared role and workflow references.
 
 Prepare the [review request](../../templates/review-request.md), including current
 scope, provenance, snapshot and checks. A human may route it to a genuinely
-separate Verifier session or Bot. In an already authorized, isolated review
+separate Verifier session or agent. In an already authorized, isolated review
 workspace, a separate Pi session can load:
 
 ```text

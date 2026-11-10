@@ -9,5 +9,5 @@ Completion criteria:
 Resource budget, deadline and cancellation rule:
 Return to Engineer: evidence, exact changes, commands/results, limitations, blockers.
 
-No recursive delegation, permanent Bot creation, independent parent approval or
+No recursive delegation, permanent agent creation, independent parent approval or
 external publication. Engineer inspects, integrates and checks the full change.

@@ -15,11 +15,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Python test dependencies
+        run: python -m pip install -r tests/requirements.txt
       - name: Verify standalone Skill references
-        run: python3 scripts/sync_skill_references.py --check
-      - name: Verify canonical Grok exports
+        run: python scripts/sync_skill_references.py --check
+      - name: Verify checksums are current
         run: |
-          python3 scripts/export_grok_skills.py
-          git diff --exit-code
+          git ls-files -z ':!SHA256SUMS' | xargs -0 sha256sum > SHA256SUMS
+          test -z "$(git status --porcelain)" || { git status --porcelain; git diff; exit 1; }
       - name: Verify package tests
         run: npm test
+      - name: Verify contract tests
+        run: python tests/contracts_test.py

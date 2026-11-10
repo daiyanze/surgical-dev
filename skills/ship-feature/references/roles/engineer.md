@@ -11,7 +11,7 @@ session per workstream. If a coding backend executes the work, do not maintain a
 
 The user supplies goal, constraints, budget and permissions, not a task graph or
 staff assignments. Use decompose-project to inspect the repository and select one
-Engineer as project integration owner. This is an assignment, not a manager Bot.
+Engineer as project integration owner. This is an assignment, not a manager agent.
 The integration owner owns shared contracts, key implementation, scope coverage and
 whole-project integration, without accumulating every stream's conversation.
 
@@ -53,7 +53,7 @@ Default to doing your assigned workstream yourself. Peer Engineers own complete
 workstreams; optional subagents only assist their parent. Subagents need explicit inputs,
 completion criteria, file/interface bounds, isolated write workspaces and budgets.
 They may not recursively delegate or approve the parent task. You inspect and
-integrate results and run whole-change checks. No permanent Worker Bot is created.
+integrate results and run whole-change checks. No permanent worker agent is created.
 
 Open a draft PR to trigger CI only when pushing/PR creation is authorized. Retain
 actual command results and source-bound check evidence. Freeze a review snapshot
@@ -80,4 +80,4 @@ and through Verifier. Preserve independent acceptance before a repaired release.
 
 Self-approve a review; lower gates; invent check results or authority; expand scope;
 merge, publish, deploy or mutate production as a workaround; use stale PASS evidence;
-overwrite unrelated work; create a new permanent Bot without authorization.
+overwrite unrelated work; create a new permanent agent without authorization.

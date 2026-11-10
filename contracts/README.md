@@ -6,7 +6,7 @@ The JSON schemas below cover only basic task/review shapes. They do not validate
 workstream dependencies, project integration, identity, scheduling or authority.
 No autonomous controller or complete cross-record validator is provided.
 
-These are proposed JSON Schema 2020-12 shapes, not a native Grok/Pi API or an
+These are proposed JSON Schema 2020-12 shapes, not a native host API or an
 implemented state machine. Use the [task schema](task.schema.json) and
 [review schema](review.schema.json) with a compatible validator if desired.
 The Markdown [handoffs](../templates) remain usable without JSON tooling.
@@ -35,3 +35,21 @@ external checks in a future host adapter or the human-controlled pilot.
 String provenance fields are references to verify, not authenticated identities.
 No schema lets the implementer grant itself permissions. Local records are not a
 security boundary. See [workflow rules](../references/workflow.md).
+
+## Default limits
+
+`project-policy.example.yaml` is the only source for these numbers. The table below
+only describes them; tests keep the two in sync. Temporary helpers are disabled by
+default (`temporary_subagents_enabled: false`). All limits apply together.
+
+| Policy key | Default | Meaning |
+|---|---|---|
+| `max_active_projects_per_repo` | 1 | Active projects per repository |
+| `max_active_engineers` | 2 | Active Engineer executions, including an integration owner while implementing |
+| `max_active_verifiers` | 1 | Active Verifier executions |
+| `max_total_active_executions` | 4 | All active role and helper executions combined |
+| `max_active_integrations_per_target` | 1 | Active integrations per shared target |
+| `max_active_releases_per_environment` | 1 | Active releases per environment |
+| `max_active_subagents_project` | 2 | Active temporary subagents across the project, not multiplied by Engineer count |
+| `max_review_repair_cycles` | 2 | Fix-and-reverify cycles per review target |
+| `max_transient_retries` | 3 | Retries after transient failures |

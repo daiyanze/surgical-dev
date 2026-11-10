@@ -40,6 +40,6 @@ capabilities; next action and only the decisions genuinely requiring the user.
 
 ## Boundaries
 
-Do not create permanent Bots, expand scope/budgets, change approvals or release code
+Do not create permanent agents, expand scope/budgets, change approvals or release code
 as a consequence of planning. Do not recursively fan out teams or manufacture a
 parallel task merely to fill capacity. A recorded plan is not an enforced gate.

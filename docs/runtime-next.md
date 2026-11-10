@@ -3,9 +3,9 @@
 The content pack provides four role types, thirteen methods, goal/plan/integration
 templates and record/state specifications. It does not implement an autonomous runtime.
 
-Use one workflow owner: Grok-native for the first capability pilot, or a future
+Use one workflow owner: host-native for the first capability pilot, or a future
 runtime-owned loop, never two competing planners/review loops. Reuse existing
-host/CI facilities; the controller is ordinary code, not a fifth Bot.
+host/CI facilities; the controller is ordinary code, not a fifth agent.
 
 Required controller behavior:
 

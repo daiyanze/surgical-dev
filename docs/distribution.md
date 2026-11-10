@@ -1,7 +1,7 @@
 # Install and distribute Surgical Dev
 
 Surgical Dev is a **content-only Skills package**. Installing it makes task
-instructions discoverable; it does **not** provision Bots, launch Engineer or
+instructions discoverable; it does **not** provision agents, launch Engineer or
 Verifier sessions, enforce approval gates, or enable automatic dispatch.
 Independent review still requires a separate real reviewer context.
 
@@ -31,7 +31,11 @@ To install all thirteen methods, choose an agent explicitly, for example:
 npx skills add daiyanze/surgical-dev --skill '*' -a codex -y
 ```
 
-Use `-a claude-code`, `-a opencode`, etc. for a different supported agent.
+Use `-a pi`, `-a claude-code`, `-a opencode`, etc. for a different supported agent.
+Codex and Pi both read the repository-level `.agents/skills/` directory, as do
+several other agents; see the CLI's
+[supported agents](https://github.com/vercel-labs/skills/blob/main/docs/agents.md)
+table for each agent's path. Codex details: [Codex setup](../adapters/codex/SETUP.md).
 Add `-g` only if you want user-level rather than project-level installation.
 Do not use `--all` unless you really intend to install for every supported agent.
 
@@ -44,6 +48,25 @@ The skills.sh directory uses actual skills CLI installation data for discovery;
 publishing a GitHub repository is not a guarantee of immediate directory ranking
 or visibility. Source: [skills CLI](https://github.com/vercel-labs/skills/blob/main/docs/commands.md).
 
+## Host capability tiers
+
+Any agent that reads `SKILL.md` can load the methods. What differs is whether the
+host can meet the workflow's requirements. This table records what is documented,
+not what has been exercised.
+
+| Requirement | Pi | Codex |
+|---|---|---|
+| Skill loading | `/skill:name`, reads `.agents/skills/` | `$name` or `/skills`, reads `.agents/skills/` |
+| Independent Verifier | Separate Pi session (the Pi skills page does not describe subagents) | Reviewer subagent or separate session; see [Codex setup](../adapters/codex/SETUP.md) |
+| Parallel Engineers | Not documented; stay serial | Subagents exist, workspace isolation not documented; stay serial unless each stream has its own worktree |
+| Handoff between sessions | Manual | Manual |
+
+Single-session hosts use serial work and a human-routed review. Hosts with
+multi-session support may run bounded parallel streams only with isolated
+workspaces and the caps in [default limits](../contracts/README.md#default-limits).
+An agent not listed here: check the same four rows against its documentation
+before claiming more than serial work with a separate reviewer.
+
 ## 3. GitHub Releases
 
 GitHub is the source repository. For a reproducible published snapshot,
@@ -52,7 +75,6 @@ contents and reviewing the release:
 
 ```bash
 python3 scripts/sync_skill_references.py --check
-python3 scripts/export_grok_skills.py
 npm test
 git diff --exit-code
 # After approval, choose a release tag:
@@ -73,13 +95,11 @@ and `templates/`. After changing them:
 
 ```bash
 python3 scripts/sync_skill_references.py
-python3 scripts/export_grok_skills.py
 npm test
 ```
 
-The sync script updates in-Skill reference bundles; the export script updates
-the self-contained Grok texts. CI checks these generated files remain current.
-Both are local text operations with no account configuration or network access.
+The sync script updates in-Skill reference bundles; CI checks they remain current.
+It is a local text operation with no account configuration or network access.
 
 No npm registry package or Claude Code Marketplace plugin is published by this
 repository. The existing `private: true` manifest is intentional until a

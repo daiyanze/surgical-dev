@@ -17,9 +17,6 @@ Scope: current architecture, role/Skill content, record shapes and package integ
   Markdown references match the canonical sources.
 - Python record suite: 12 JSON Schema shape tests passed in an isolated test
   environment with the declared `tests/requirements.txt` dependencies.
-- Grok content exporter generated thirteen self-contained private-Skill texts and
-  four role setup messages from canonical sources. Generation performs no network
-  calls or account setup.
 - Engineering discipline checks cover explicit assumptions, minimal implementation,
   surgical edits, and observable success criteria. The additional method was
   structurally validated but not exercised by a real coding Agent.
@@ -33,15 +30,17 @@ that a scheduler enforces the contracts. A well-formed PASS is not proof of succ
 ```bash
 npm test
 python3 scripts/sync_skill_references.py --check
-python3 -m venv surgeon-local/test-env
-surgeon-local/test-env/bin/python -m pip install -r tests/requirements.txt
-surgeon-local/test-env/bin/python tests/contracts_test.py
-python3 scripts/export_grok_skills.py
+python3 -m venv .venv
+.venv/bin/python -m pip install -r tests/requirements.txt
+.venv/bin/python tests/contracts_test.py
 ```
 
 Use an isolated Python environment. Node package tests have no package dependencies.
 `SHA256SUMS` covers distributed content other than itself; verify with
 `sha256sum -c SHA256SUMS` or `shasum -a 256 -c SHA256SUMS` on macOS.
+To regenerate it, run `git ls-files -z ':!SHA256SUMS' | xargs -0 sha256sum > SHA256SUMS`
+on Linux, or replace `sha256sum` with `shasum -a 256` on macOS. CI regenerates
+`SHA256SUMS` and fails unless the working tree is unchanged afterwards.
 
 ## Not performed
 

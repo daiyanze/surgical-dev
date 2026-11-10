@@ -1,4 +1,4 @@
-# Design example, NOT a Grok/Pi import format or an enforcing policy.
+# Design example, NOT a host import format or an enforcing policy.
 # Configure all null fields and approve a protected policy before autonomous use.
 schema_version: surgical-dev-goal-driven
 project_id: UNCONFIGURED
@@ -8,7 +8,7 @@ profile: DRAFT_ONLY
 policy_authority_reference: null
 repository: null
 coding_runtime: null
-workflow_owner: grok_native  # Or runtime_owned, never two competing controllers.
+workflow_owner: host_native  # Or runtime_owned, never two competing controllers.
 
 role_destinations:
   product_scout: null
@@ -66,8 +66,8 @@ permissions:
   deploy_preview: false
   deploy_production: false
   rollback: false
-  create_persistent_bots: false
-  modify_skills_or_routines: false
+  create_persistent_agents: false
+  modify_skills_or_scheduled_jobs: false
   delete_data: false
   change_permissions_or_gate_policy: false
 

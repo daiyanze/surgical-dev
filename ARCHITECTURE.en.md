@@ -3,12 +3,12 @@
 
 **Design date:** 2026-11-08
 
-**Primary deployment target:** Grok Bot, with one verified coding runtime  
-**Status:** Current Surgical Dev content and architecture package. Not an installed plugin, enforced workflow engine, or demonstrated autonomous service. Repository content is updated; no Bots, accounts, routines, CI policies or production systems are activated.
+**Primary deployment targets:** Pi and Codex (Skills hosts), with one verified coding runtime  
+**Status:** Current Surgical Dev content and architecture package. Not an installed plugin, enforced workflow engine, or demonstrated autonomous service. Repository content is updated; no agents, accounts, scheduled jobs, CI policies or production systems are activated.
 
 ## 1. Decision and scope
 
-Use four persistent role types—**Product Scout, Engineer, Verifier, and Operator**—and an optional pool of temporary subagents. Do not create a permanent Worker Bot or a fifth manager Bot. “Persistent” means durable responsibility and curated project knowledge, not a process that must run continuously or one conversation that grows forever.
+Use four persistent role types—**Product Scout, Engineer, Verifier, and Operator**—and an optional pool of temporary subagents. Do not create a permanent worker agent or a fifth manager agent. “Persistent” means durable responsibility and curated project knowledge, not a process that must run continuously or one conversation that grows forever.
 
 Engineer remains the accountable owner of a software change. Reading code, technical planning, implementation, tests, and debugging stay in the same continuing coding session whenever possible. The other roles contribute an opportunity before implementation, independent judgment at acceptance, or operational responsibility after delivery. They do not take turns owning pieces of one tightly coupled implementation.
 
@@ -24,9 +24,9 @@ This is our design choice, informed by Anthropic's context-boundary and progress
 
 ### Non-goals
 
-No simulated company hierarchy; no mandatory passage through every role; no universal autonomous product strategy; no guarantee that every task finishes without intervention; no security boundary based only on prompts or separate Bot names; no message broker, database cluster, or multi-runtime abstraction platform in the first implementation.
+No simulated company hierarchy; no mandatory passage through every role; no universal autonomous product strategy; no guarantee that every task finishes without intervention; no security boundary based only on prompts or separate agent names; no message broker, database cluster, or multi-runtime abstraction platform in the first implementation.
 
-The document specifies desired behavior, contracts, and acceptance scenarios. It does not supply executable gate enforcement, a Grok import format, installed Skills, or automatic event subscriptions.
+The document specifies desired behavior, contracts, and acceptance scenarios. It does not supply executable gate enforcement, a host-specific import format, installed Skills, or automatic event subscriptions.
 
 ### Alternatives considered
 
@@ -42,18 +42,18 @@ The document specifies desired behavior, contracts, and acceptance scenarios. It
 2. **Independent acceptance.** The implementer and its helpers cannot authenticate their own review as independent. Verifier cannot repair the submitted implementation and then approve that repair.
 3. **Intent, correctness, authorization, and observed execution are different facts.** A promising proposal does not authorize development. A review PASS does not authorize a release. A successful request submission does not prove a successful deployment.
 4. **Evidence is version-bound.** Scope revision, source snapshot, relevant base, check policy, and delivery artifact/configuration must be identifiable. An old PASS cannot silently approve new material.
-5. **No authority from untrusted content.** Issues, PRs, logs, web pages, or another Bot's assertion cannot grant new permissions or override the user's policy.
+5. **No authority from untrusted content.** Issues, PRs, logs, web pages, or another agent's assertion cannot grant new permissions or override the user's policy.
 6. **Bounded autonomy.** Resource limits, repair limits, timeouts, cancellation, and explicit escalation are part of automation—not exceptions to it.
 7. **No required helper.** If optional subagents are unavailable, Engineer works sequentially. Missing independent acceptance is different: block or use an explicitly authorized independent human alternative.
 8. **Source-changing work returns to engineering.** Operator does not hot-patch business code or lower CI thresholds to rescue a deployment.
 9. **Record observations, not confidence.** Unavailable checks remain unavailable; an observation window supports only the checks and interval actually measured.
-10. **Role separation is not credential isolation.** Grok Bots on one account share a computer and login state [S2]. Use real execution and platform controls.
+10. **Role separation is not credential isolation.** Agent sessions on one machine or account can share files and credentials. Use real execution and platform controls.
 
 ## 3. Topology and ownership
 
 The overview is in [architecture.mmd](workflows/architecture.mmd). The two operational loops are in [delivery.mmd](workflows/delivery.mmd) and [incident.mmd](workflows/incident.mmd).
 
-The user remains the product and authorization owner. No extra manager Bot sits above the four roles. A small deterministic controller—ordinary code or an existing host workflow—routes events, validates records, enforces counters, and reconciles executions. It is not an AI role and does not make product decisions.
+The user remains the product and authorization owner. No extra manager agent sits above the four roles. A small deterministic controller—ordinary code or an existing host workflow—routes events, validates records, enforces counters, and reconciles executions. It is not an AI role and does not make product decisions.
 
 ### 3.1 Role contracts
 
@@ -63,7 +63,7 @@ The user remains the product and authorization owner. No extra manager Bot sits 
 | Engineer | How do we implement and repair this bounded change? | Authorized task, project rules, current code, review/incident findings | Code, tests, current check evidence, PR, integration and handoff records | Self-approving independent acceptance; expanding scope or privileges; bypassing gates; production mutation outside its role |
 | Verifier | Does this exact change meet the approved contract? | Approved scope, source snapshot, actual diff, related code/tests, trusted checks | PASS / CHANGES_REQUIRED / BLOCKED with AC mapping and evidence | Implementing the reviewed fix; accepting the implementer's confidence as proof; granting release authorization |
 | Operator | Which version is running, and is authorized delivery operating as expected? | Accepted change, release candidate, environment policy, runbooks, telemetry | Release plan, observed action result, observation report, incident packet, containment status | Business-code hot fixes; overriding a negative review; inventing production authority; automatic destructive rollback |
-| Temporary subagent | What bounded piece can be completed independently? | Engineer's explicit subtask, sources, snapshot, boundaries, budget | Compact evidence, change references, limitations, completion/blocker status | Recursive delegation; new permanent Bots; parent-task approval; shared-interface changes beyond assignment; release actions |
+| Temporary subagent | What bounded piece can be completed independently? | Engineer's explicit subtask, sources, snapshot, boundaries, budget | Compact evidence, change references, limitations, completion/blocker status | Recursive delegation; new permanent agents; parent-task approval; shared-interface changes beyond assignment; release actions |
 
 Detailed charters are in [roles/](roles/README.md). They are design assets, not host-enforced permissions.
 
@@ -137,7 +137,7 @@ business ambiguity, scope changes, additional authority/budget or persistent fai
 ### One workstream, one lead implementer
 
 Choose one Engineer as the project's **integration owner**. This is an assignment
-within the Engineer role, not a fifth manager Bot. It owns shared contracts, key
+within the Engineer role, not a fifth manager agent. It owns shared contracts, key
 implementation, the dependency map and overall integration; it does not absorb all
 peer implementation transcripts or independently approve code it authored.
 
@@ -173,7 +173,7 @@ Keep one integration operation per shared target and one relevant release per
 environment. Slow new implementation when review, integration, CI or shared
 resources are the bottleneck. If parallel sessions or safe isolation are unavailable,
 fall back to serial execution, never a weaker acceptance or permission policy.
-Do not create new persistent Bots without their separate setup grant.
+Do not create new persistent agents without their separate setup grant.
 
 ### Integration Passed is a separate fact
 
@@ -287,7 +287,7 @@ Operator's release-readiness judgment is not a substitute for Verifier's code re
 
 ## 8. Elastic subagents: capacity, not another permanent role
 
-In this design, **Temp Worker means a temporary subagent**. Engineer owns a bounded invocation, not a new long-lived Bot. Do not create or delete persistent Bots as a side effect of ordinary tasks.
+In this design, **Temp Worker means a temporary subagent**. Engineer owns a bounded invocation, not a new long-lived agent. Do not create or delete persistent agents as a side effect of ordinary tasks.
 
 ### Admission test for delegation
 
@@ -307,7 +307,7 @@ Cancellation stops new child dispatch, requests cancellation of active jobs, and
 
 ## 9. Autonomy policy and authority
 
-Autonomy is configured per project and action, not by a Bot deciding that a task “looks safe.” Use [project-policy.example.yaml](contracts/project-policy.example.yaml) as a design questionnaire. It is not a directly importable or enforcing configuration.
+Autonomy is configured per project and action, not by a agent deciding that a task “looks safe.” Use [project-policy.example.yaml](contracts/project-policy.example.yaml) as a design questionnaire. It is not a directly importable or enforcing configuration.
 
 ### Supported operating profiles
 
@@ -333,7 +333,7 @@ Sensitive classes default to explicit human review: authentication/authorization
 - A user stop disables new work, revokes unconsumed action grants where supported, requests job cancellation, and reconciles already initiated side effects. Stopping is not proof that an in-flight deployment was reversed.
 - Trusted scopes may authorize incident containment without a fresh question; destructive or non-invertible recovery still requires its own valid policy.
 
-Grok's documented approval layer can independently ask for permission or deny an action; our content cannot override it [S3]. No production automation is enabled by this design deliverable.
+A host's own approval layer can independently ask for permission or deny an action; our content cannot override it. No production automation is enabled by this design deliverable.
 
 ## 10. State, events, and the small controller
 
@@ -365,13 +365,13 @@ Use the selected host's existing execution and storage capabilities first. Add a
 6. Record an intended external action before calling its trusted executor; reconcile its outcome afterward.
 7. Notify on completion, approval needs, or escalation; suppress duplicate progress chatter.
 
-Do not implement `approve_everything()` or accept arbitrary model-written `set_status(PASS)`. The controller determines whether prerequisites exist; the models perform domain reasoning. This layer is **not a fifth Bot**.
+Do not implement `approve_everything()` or accept arbitrary model-written `set_status(PASS)`. The controller determines whether prerequisites exist; the models perform domain reasoning. This layer is **not a fifth agent**.
 
 ### 10.3 Event contract
 
 Each handoff names an event ID, correlation/task ID, causation ID, source role's verified runtime identity, recipient, event type, scope/snapshot references, evidence references, and budget context. Roles named inside a payload are descriptive, not authentication. See [record-contracts.md](contracts/record-contracts.md).
 
-Route only explicit events such as `task.accepted`, `checks.completed`, `review.completed`, `release.requested`, `deployment.observed`, and `incident.reported`. A status summary or group-chat FYI must not accidentally start a second task. Response/ACK messages are not new work requests. Resolve role names to actual Bot/account/session identifiers; do not rely on display names alone.
+Route only explicit events such as `task.accepted`, `checks.completed`, `review.completed`, `release.requested`, `deployment.observed`, and `incident.reported`. A status summary or group-chat FYI must not accidentally start a second task. Response/ACK messages are not new work requests. Resolve role names to actual agent/account/session identifiers; do not rely on display names alone.
 
 ### 10.4 Delivery semantics and recovery
 
@@ -406,11 +406,11 @@ Internal handoff permission is not permission to copy secrets or customer data i
 
 ## 12. Skill allocation — included content, not installed capabilities
 
-The twelve methods below are now included as canonical Skill instructions and generated Grok copies. Structural validation does not prove runtime behavior; no method is installed in an account.
+The thirteen methods below are now included as canonical Skill instructions. Structural validation does not prove runtime behavior; no method is installed in a host.
 
 | Skill name | Primary role | Purpose |
 |---|---|---|
-| surgical-dev | Engineer / common workflow entry | Admit and route a Surgeon work item without creating another manager |
+| surgical-dev | Engineer / common workflow entry | Admit and route a Surgical Dev work item without creating another manager |
 | decompose-project | Engineer / integration owner | Build bounded workstreams, dependency contracts and automatic assignment requests |
 | integrate-workstreams | Engineer / integration owner | Assemble an accepted candidate and obtain independent whole-project acceptance |
 | discover-opportunity | Product Scout | Turn source evidence into a bounded, prioritized proposal |
@@ -418,6 +418,7 @@ The twelve methods below are now included as canonical Skill instructions and ge
 | ship-feature | Engineer | Implement an authorized feature in one continuing context |
 | fix-bug | Engineer | Establish cause, repair, and verify regression protection |
 | delegate-bounded-task | Engineer | Invoke, inspect and integrate a temporary helper |
+| engineering-discipline | Engineer / Verifier | Surface assumptions, keep design and diff minimal, prove success with observable checks |
 | verify-change | Verifier | Independent, version-bound acceptance |
 | prepare-release | Operator | Establish candidate/environment/recovery readiness; no implied execution |
 | release-and-observe | Operator | Execute a permitted delivery action and observe actual effects |
@@ -425,22 +426,20 @@ The twelve methods below are now included as canonical Skill instructions and ge
 
 Specialist frontend/backend/security/performance knowledge remains on-demand reference material, not new persistent job titles. An unavailable mandatory method or tool is reported, never invented. Small engineering-only tasks do not load Scout or Operator procedures.
 
-The future runtime has to supply session creation, trusted evidence collection, action controls, and recovery; Skills only supply instructions. Grok's documentation distinguishes reusable Skills from scheduled/event-driven routines and recommends proving a one-off process before automation [S6]. No routine is created by this package.
+The future runtime has to supply session creation, trusted evidence collection, action controls, and recovery; Skills only supply instructions. Prove a one-off process before automating it. No scheduled job is created by this package.
 
-## 13. Grok Bot deployment model
+## 13. Host deployment model
 
-Configure four role types only when the user authorizes setup. Reuse supported task sessions or existing instances for peer workstreams; four types do not impose a four-session limit. The supplied [Grok setup guide](adapters/grok-bot/SETUP.md) and role setup messages are design/configuration text, not an automatic installer. Do not create a fifth Worker Bot.
+Install the Skills with Pi or Codex (see [distribution](docs/distribution.md), [Pi setup](adapters/pi/SETUP.md), [Codex setup](adapters/codex/SETUP.md)). Four role types do not impose a four-session limit; reuse supported sessions for peer workstreams. Do not create a fifth worker agent.
 
-Before enabling autonomous handoffs, probe actual account capability: role addressing, receipt/reply correlation, coding executor launch/resume/status/cancel, independent review, CI access, and deployment actions. The documented collaboration surface supports Bot communication [S4]; that does not establish reliable delivery or authorization semantics for this project's adapters.
+Before enabling autonomous handoffs, probe actual host capability: role addressing, receipt/reply correlation, coding executor launch/resume/status/cancel, independent review, CI access, and deployment actions. Documented collaboration features do not establish reliable delivery or authorization semantics for this project's adapters.
 
-For the initial Grok deployment, select **Grok-native role ownership** and verify the controller/executor integration. Runtime-owned mode is a later portability alternative, not a second simultaneous loop:
+Select one workflow owner and verify the controller/executor integration. Never run two competing loops:
 
-- **Grok-native mode:** Grok roles perform handoffs and a verified backend executes bounded coding/verification. Validate native control behavior; supplement missing deterministic controls or retain a human-assisted pilot.
-- **Runtime-owned mode:** a coding runtime/adapter owns task/review state and subagent execution; Grok is the conversational and authorization surface. Do not also run a competing Grok repair loop.
+- **Host-native mode:** the host's sessions or subagents perform handoffs and a verified backend executes bounded coding/verification. Validate native control behavior; supplement missing deterministic controls or retain a human-assisted pilot.
+- **Runtime-owned mode:** a coding runtime/adapter owns task/review state and subagent execution; the host is the conversational and authorization surface.
 
-Do not present a Pi manifest as a Grok import file. Do not assume assigning different Bot names creates isolated credentials. Production access belongs in a scoped external action executor or approved pipeline, not in shared unrestricted shell sessions. GitHub protection/check-source settings can provide external gates where available [S5]; inspect bypass permissions and plan availability.
-
-The setup pack instructs each role to acknowledge responsibilities and capability gaps first. It does not authorize installing tools, saving Skills, creating Bots/routines, running paid tasks, changing repositories, or starting production monitoring. These actions need their actual grants.
+Do not assume different session names create isolated credentials. Production access belongs in a scoped external action executor or approved pipeline, not in shared unrestricted shell sessions. GitHub protection/check-source settings can provide external gates where available [S5]; inspect bypass permissions and plan availability.
 
 ## 14. Implementation roadmap and acceptance
 
@@ -487,11 +486,7 @@ This architecture and its supporting templates are complete as a **design draft 
 Sources and consultation dates are listed in [references/sources.md](references/sources.md):
 
 - [S1] Anthropic, *Building agents: When to fold subagents into your main agent loop* — context boundaries and progressive disclosure. Indexed official excerpts were available; full-page retrieval was not available during this update.
-- [S2] Grok Bot FAQ / computer documentation — shared account computer and credentials.
-- [S3] Grok Bot approvals/security — action review, custom rules and approval boundaries.
-- [S4] Grok Bot messaging/collaboration — available collaboration surface; no claim of end-to-end reliability of this design.
 - [S5] GitHub protected branches — checks, reviews, source restrictions and stale approvals.
-- [S6] Grok Bot Skills/routines — method instructions versus execution triggers.
 - [S7] Yang et al. (2026), arXiv:2611.03931 — submission gates, corrective feedback and failure recovery; exploratory reasoning experiments with a ground-truth-informed evaluator, not validation of software delivery gates.
 
 Role count, state names, default budgets, record formats and autonomy profiles are our design, not vendor-defined standards or undocumented API payloads. Verify actual host/version/account capabilities before implementing an adapter.

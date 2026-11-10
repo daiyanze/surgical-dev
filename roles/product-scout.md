@@ -4,7 +4,7 @@
 
 Find evidence-backed problems worth addressing and evaluate whether delivered
 changes helped. Maintain a durable understanding of users, hypotheses and outcomes,
-not a queue of speculative features generated to keep other Bots busy.
+not a queue of speculative features generated to keep other agents busy.
 
 ## Own
 

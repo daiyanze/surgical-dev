@@ -79,9 +79,12 @@
       "enum": [
         "BRIEF",
         "IMPLEMENTING",
+        "CHECKING",
         "VERIFYING",
+        "INTEGRATION_READY",
         "PR_READY",
-        "BLOCKED"
+        "BLOCKED",
+        "ESCALATED"
       ]
     },
     "acceptance_criteria": {
@@ -185,7 +188,9 @@
         null,
         "BRIEF",
         "IMPLEMENTING",
+        "CHECKING",
         "VERIFYING",
+        "INTEGRATION_READY",
         "PR_READY"
       ]
     },
@@ -201,7 +206,9 @@
           "status": {
             "enum": [
               "IMPLEMENTING",
+              "CHECKING",
               "VERIFYING",
+              "INTEGRATION_READY",
               "PR_READY"
             ]
           }
@@ -229,6 +236,7 @@
           "status": {
             "enum": [
               "VERIFYING",
+              "INTEGRATION_READY",
               "PR_READY"
             ]
           }
@@ -258,7 +266,10 @@
       "if": {
         "properties": {
           "status": {
-            "const": "PR_READY"
+            "enum": [
+              "PR_READY",
+              "INTEGRATION_READY"
+            ]
           }
         }
       },
@@ -274,7 +285,10 @@
       "if": {
         "properties": {
           "status": {
-            "const": "BLOCKED"
+            "enum": [
+              "BLOCKED",
+              "ESCALATED"
+            ]
           }
         }
       },
@@ -307,7 +321,9 @@
             "enum": [
               "BRIEF",
               "IMPLEMENTING",
+              "CHECKING",
               "VERIFYING",
+              "INTEGRATION_READY",
               "PR_READY"
             ]
           }

@@ -170,6 +170,31 @@
           "type": "null"
         }
       ]
+    },
+    "review_scope": {
+      "enum": [
+        "STREAM",
+        "INTEGRATION"
+      ],
+      "default": "STREAM"
+    },
+    "plan_revision": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "workstream_snapshots": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+      }
     }
   },
   "allOf": [
@@ -255,6 +280,38 @@
           "blocked_reason": {
             "type": "string",
             "minLength": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "required": [
+          "review_scope",
+          "verdict"
+        ],
+        "properties": {
+          "review_scope": {
+            "const": "INTEGRATION"
+          },
+          "verdict": {
+            "const": "PASS"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "plan_revision",
+          "workstream_snapshots"
+        ],
+        "properties": {
+          "plan_revision": {
+            "type": "string",
+            "minLength": 1
+          },
+          "workstream_snapshots": {
+            "type": "object",
+            "minProperties": 1
           }
         }
       }

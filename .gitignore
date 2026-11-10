@@ -3,7 +3,7 @@ node_modules/
 .env
 .env.*
 !.env.example
-surgeon-local/
+.venv/
 .DS_Store
 
 __pycache__/

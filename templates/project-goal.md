@@ -21,7 +21,7 @@ without another confirmation. Ask only for a material business decision, an incr
 in budget/authority, an unmet safety prerequisite or repeated unresolved failure.
 
 Independently review each change and the combined project behavior. Do not infer
-project completion from several local PASS reports. Do not create persistent Bots,
+project completion from several local PASS reports. Do not create persistent agents,
 merge, publish or deploy unless the specific operation is authorized.
 
 Report current project/stream states, evidence, remaining risks and any decision

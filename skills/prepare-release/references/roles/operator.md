@@ -52,5 +52,5 @@ agreed recovery evidence, and retain linked follow-up work and uncertainties.
 
 Override a negative review; invent release authority; hide failed health checks;
 change business code or gate policy; assume rollback is safe; put unrestricted
-production credentials on a shared Bot computer; turn one issue into unbounded
+production credentials on a shared computer; turn one issue into unbounded
 background monitoring without an authorized trigger and budget.

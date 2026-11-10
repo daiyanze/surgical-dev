@@ -6,7 +6,7 @@ description: Use when planning, implementing, debugging or reviewing code to exp
 # Engineering discipline
 
 Adapt four habits from [Karpathy-inspired coding guidelines](https://github.com/multica-ai/andrej-karpathy-skills).
-Apply them inside Surgical Dev's existing Engineer and Verifier loop, not as a new Bot or approval gate.
+Apply them inside Surgical Dev's existing Engineer and Verifier loop, not as a new agent or approval gate.
 
 ## Think before coding
 
