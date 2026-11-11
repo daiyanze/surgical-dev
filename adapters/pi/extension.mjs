@@ -44,11 +44,11 @@ export function registerSurgicalLoop(pi) {
         if (version.code !== 0 || !match || Number(match[1]) < 1 || (Number(match[1]) === 1 && (Number(match[2]) < 5 || (Number(match[2]) === 5 && Number(match[3]) < 2)))) {
           throw new Error('The Pi loop and reviewer require Pi v1.5.2 or later');
         }
-        const engineer = await readFile(new URL('../../roles/engineer.md', import.meta.url), 'utf8');
+        const worker = await readFile(new URL('../../roles/worker.md', import.meta.url), 'utf8');
         const discipline = await readFile(new URL('../../skills/engineering-discipline/SKILL.md', import.meta.url), 'utf8');
         run = await createRun({
           cwd: ctx.cwd, goal: parts.join(' '), config, policyDigest,
-          engineerSessionId: ctx.sessionManager.getSessionId(),
+          workerSessionId: ctx.sessionManager.getSessionId(),
           model: ctx.model ? { provider: ctx.model.provider, id: ctx.model.id } : undefined,
           onChange: state => {
             lastState = state;
@@ -59,13 +59,13 @@ export function registerSurgicalLoop(pi) {
         });
         active = run;
         if (startup.signal.aborted) { await run.stop('CANCELLED', 'Startup cancelled'); return; }
-        const prompt = `${engineer}\n\n${discipline}\n\nSurgical Dev task ${active.state.id}\nAC-1: ${active.state.goal}\nRequired check commands (argv): ${JSON.stringify(config.checks)}\n\nKeep implementation, debugging and fixes in this Engineer session. Make routine in-scope decisions yourself. Do not request intermediate human handoffs: the extension runs checks and supplies independent review feedback after you finish a turn. Never approve your own implementation. Do not change .surgical-dev.json, weaken checks, hide changes with ignore rules, push, merge, release or deploy. Stop your turn when the candidate is ready to check. If the goal needs unavailable access or an unresolved product decision, explain the blocker. The target of this run is PR_READY for this one workstream.\n\nImplement the goal now.`;
+        const prompt = `${worker}\n\n${discipline}\n\nSurgical Dev task ${active.state.id}\nAC-1: ${active.state.goal}\nRequired check commands (argv): ${JSON.stringify(config.checks)}\n\nKeep implementation, debugging and fixes in this Worker session. Make routine in-scope decisions yourself. Do not request intermediate human handoffs: the extension runs checks and supplies independent review feedback after you finish a turn. Never approve your own implementation. Do not change .surgical-dev.json, weaken checks, hide changes with ignore rules, push, merge, release or deploy. Stop your turn when the candidate is ready to check. If the goal needs unavailable access or an unresolved product decision, explain the blocker. The target of this run is PR_READY for this one workstream.\n\nImplement the goal now.`;
         // A custom trigger enters Pi's active-run lifecycle synchronously. Waiting
         // keeps print/JSON mode alive; sendUserMessage has asynchronous preflight.
-        run.engineerRunning = true;
+        run.workerRunning = true;
         pi.sendMessage({ customType: 'surgical-goal', content: prompt, display: true }, { triggerTurn: true });
         await ctx.waitForIdle();
-        run.engineerRunning = false;
+        run.workerRunning = false;
         if (!TERMINAL.has(run.state.status)) await run.stop('BLOCKED', 'Pi settled without completing the independent acceptance loop');
       } catch (error) {
         if (run && !TERMINAL.has(run.state.status)) await run.stop('BLOCKED', error.message);
@@ -73,7 +73,7 @@ export function registerSurgicalLoop(pi) {
       } finally {
         if (run) {
           await ctx.waitForIdle();
-          run.engineerRunning = false;
+          run.workerRunning = false;
           if (TERMINAL.has(run.state.status)) await run.close();
         }
         if (starting === startup) starting = undefined;
@@ -86,17 +86,17 @@ export function registerSurgicalLoop(pi) {
     if (!active || TERMINAL.has(active.state.status)) return;
     active.state.turnsUsed++;
     active.save();
-    if (active.state.turnsUsed > active.state.config.maxTurns) await stop(ctx, 'ESCALATED', 'Engineer turn budget exhausted');
+    if (active.state.turnsUsed > active.state.config.maxTurns) await stop(ctx, 'ESCALATED', 'Worker turn budget exhausted');
   });
 
   pi.on('agent_before_settle', async (event, ctx) => {
     if (!active || TERMINAL.has(active.state.status)) return;
-    if (ctx.sessionManager.getSessionId() !== active.state.engineerSessionId) {
-      await active.stop('BLOCKED', 'Engineer session changed');
+    if (ctx.sessionManager.getSessionId() !== active.state.workerSessionId) {
+      await active.stop('BLOCKED', 'Worker session changed');
       return;
     }
     if (event.outcome !== 'completed') {
-      await active.stop(event.outcome === 'aborted' ? 'CANCELLED' : 'BLOCKED', `Engineer ended with ${event.outcome}`);
+      await active.stop(event.outcome === 'aborted' ? 'CANCELLED' : 'BLOCKED', `Worker ended with ${event.outcome}`);
       return;
     }
     if (event.continue || event.context.pendingMessages.length || ctx.hasPendingMessages()) return;
@@ -104,7 +104,7 @@ export function registerSurgicalLoop(pi) {
     if (result.action === 'continue') {
       // Pi recalculates canContinue after committing our user-role feedback.
       if (active.state.turnsUsed >= active.state.config.maxTurns) {
-        await active.stop('ESCALATED', 'No further Engineer turn is available; feedback retained');
+        await active.stop('ESCALATED', 'No further Worker turn is available; feedback retained');
         return;
       }
       return {
@@ -116,7 +116,7 @@ export function registerSurgicalLoop(pi) {
 
   pi.on('agent_settled', async (event) => {
     if (!active) return;
-    active.engineerRunning = false;
+    active.workerRunning = false;
     if (event.aborted) await active.stop('CANCELLED', 'Agent abort observed at settlement; no continuation dispatched');
     else if (active.readySnapshot && !TERMINAL.has(active.state.status)) {
       try { await active.finish(); }

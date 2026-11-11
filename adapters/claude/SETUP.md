@@ -35,7 +35,7 @@ with that packet. For a subagent, explicitly include the `verify-change`
 instructions; Skills invoked in the parent are not automatically inherited by
 an ordinary fresh subagent. Give the reviewer source access without editing rights.
 
-Return actionable findings to the original Engineer, rerun checks, and request
+Return actionable findings to the original Worker, rerun checks, and request
 another independent review. A changed candidate needs fresh acceptance. See
 [Claude Code subagents](https://code.claude.com/docs/en/sub-agents) for context and
 tool configuration.

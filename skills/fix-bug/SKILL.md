@@ -5,7 +5,7 @@ description: Use when an authorized Surgical Dev task concerns a reproducible de
 
 # fix-bug
 
-For authorized Surgical Dev tasks only. Read the [Engineer role](references/roles/engineer.md)
+For authorized Surgical Dev tasks only. Read the [Worker role](references/roles/worker.md)
 and [workflow rules](references/references/workflow.md) as needed. Host capabilities
 and real approvals, not this file, determine what can execute.
 
@@ -21,8 +21,8 @@ and real approvals, not this file, determine what can execute.
 
 **Approval:** Do not “fix” a problem by changing product rules, deleting tests, relaxing thresholds, or altering security configuration without approval.
 
-Integration findings return to the responsible stream Engineer; cross-stream
-findings go to the Engineer integration owner. Preserve original scope and aggregate
+Integration findings return to the responsible stream Worker; cross-stream
+findings go to the Worker integration owner. Preserve original scope and aggregate
 budgets. Recheck both the repaired component and affected combined behavior; local
 success alone cannot clear a project integration finding.
 

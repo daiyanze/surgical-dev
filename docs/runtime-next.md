@@ -1,6 +1,6 @@
 # Runtime work still needed
 
-The package provides four role types, thirteen methods, goal/plan/integration
+The package provides three role types, thirteen methods, goal/plan/integration
 templates and record/state specifications. The Pi adapter implements the first
 single-workstream loop: fixed goal, actual checks, fresh independent review,
 automatic repair, finite budgets and a version-bound `PR_READY` result. See
@@ -15,22 +15,22 @@ automatic repair, finite budgets and a version-bound `PR_READY` result. See
    and usage, and restore a run without resetting its counters or duplicating work.
 3. **Authorized delivery:** create PRs and reconcile CI, then add explicitly scoped
    merge/deploy executors with observed outcomes and recovery.
-4. **Multiple workstreams:** dependency planning, isolated Engineer sessions, shared
+4. **Multiple workstreams:** dependency planning, isolated Worker sessions, shared
    resource/capacity accounting and independent integrated acceptance.
 
 Use one workflow owner: host-native for the first capability pilot, or a future
 runtime-owned loop, never two competing planners/review loops. Reuse existing
-host/CI facilities; the controller is ordinary code, not a fifth agent.
+host/CI facilities; the controller is ordinary code, not another agent.
 
 Required controller behavior for the broader architecture:
 
-- Accept goals and authority, then have Engineer generate the technical plan; do
+- Accept goals and authority, then have Worker generate the technical plan; do
   not require user-written task partitions or assignments.
 - Validate an acyclic dependency graph and accepted input snapshots; resolve real
-  Engineer/Verifier execution identities and safe workspaces.
+  Worker/Verifier execution identities and safe workspaces.
 - Claim ready streams atomically within project/global capacity. Check file,
   contract and shared-resource conflicts; apply review/integration backpressure.
-- Keep one implementation owner per stream and one Engineer integration owner.
+- Keep one implementation owner per stream and one Worker integration owner.
   Helpers are auxiliary jobs under the same aggregate budget, not recursive teams.
 - Persist plan/task/event/action IDs, leases, counters and cancellation. An expired
   lease or timeout requires job reconciliation before rescheduling, not duplication.

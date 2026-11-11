@@ -40,8 +40,8 @@ export async function loadConfig(cwd) {
   return { config: validateConfig(JSON.parse(raw)), policyDigest: digest(raw) };
 }
 
-export async function createRun({ cwd, goal, config, engineerSessionId, policyDigest, model, onChange = () => {} }) {
-  if (!nonempty(goal) || !nonempty(engineerSessionId)) throw new Error('A goal and Engineer session ID are required');
+export async function createRun({ cwd, goal, config, workerSessionId, policyDigest, model, onChange = () => {} }) {
+  if (!nonempty(goal) || !nonempty(workerSessionId)) throw new Error('A goal and Worker session ID are required');
   cwd = await realpath(cwd);
   if (await realpath(await git(cwd, ['rev-parse', '--show-toplevel'])) !== cwd) throw new Error('Start Surgical Dev from the Git repository root');
   if (await git(cwd, ['status', '--porcelain', '--untracked-files=all'])) throw new Error('Start from a clean Git checkout; commit or set aside existing changes first');
@@ -56,11 +56,11 @@ export async function createRun({ cwd, goal, config, engineerSessionId, policyDi
     if (error.code === 'EEXIST') throw new Error('Repository already claimed by a Surgical Dev run. Inspect the existing run before removing an interrupted-run lock.');
     throw error;
   }
-  await lock.writeFile(JSON.stringify({ taskId: id, pid: process.pid, hostname: hostname(), sessionId: engineerSessionId }));
+  await lock.writeFile(JSON.stringify({ taskId: id, pid: process.pid, hostname: hostname(), sessionId: workerSessionId }));
   await lock.close();
   const abortController = new AbortController();
   const state = {
-    schemaVersion: 1, id, cwd, goal, engineerSessionId, baseSha: base.head,
+    schemaVersion: 1, id, cwd, goal, workerSessionId, baseSha: base.head,
     scopeRevision: digest(JSON.stringify({ goal, checks: config.checks })),
     config, policyDigest, model, status: 'IMPLEMENTING', reason: null,
     startedAt: Date.now(), deadlineAt: Date.now() + config.timeoutSeconds * 1000,
@@ -69,10 +69,10 @@ export async function createRun({ cwd, goal, config, engineerSessionId, policyDi
   };
   let closed = false, timer;
   const run = {
-    state, abortController, busy: false, engineerRunning: false, readySnapshot: null,
+    state, abortController, busy: false, workerRunning: false, readySnapshot: null,
     save() { onChange(structuredClone(state)); },
     async close() {
-      if (closed || run.busy || run.engineerRunning) return;
+      if (closed || run.busy || run.workerRunning) return;
       closed = true;
       clearTimeout(timer);
       const owner = JSON.parse(await readFile(lockPath, 'utf8').catch(() => '{}'));
@@ -196,7 +196,7 @@ export async function advanceRun(run) {
   const stop = async (status, reason) => { await run.stop(status, reason); return { action: 'stop', reason }; };
   try {
     if (Date.now() >= state.deadlineAt) return await stop('TIMED_OUT', 'Total run deadline exceeded');
-    if (state.turnsUsed > state.config.maxTurns) return await stop('ESCALATED', 'Engineer turn budget exhausted');
+    if (state.turnsUsed > state.config.maxTurns) return await stop('ESCALATED', 'Worker turn budget exhausted');
     if (state.checkAttempts >= state.config.maxCheckAttempts) return await stop('ESCALATED', 'Check attempt budget exhausted');
     if (state.policyDigest && digest(await readFile(resolve(state.cwd, '.surgical-dev.json'), 'utf8')) !== state.policyDigest) return await stop('BLOCKED', 'Check policy changed during the run');
     const snapshot = await captureSnapshot(state.cwd, abortController.signal);
@@ -241,7 +241,7 @@ export async function advanceRun(run) {
       state.reviewRepairsUsed++;
       state.status = 'IMPLEMENTING';
       run.save();
-      return { action: 'continue', feedback: `Independent review requires changes. Keep the original goal and current Engineer context. Address these findings, then run the required checks again.\n${JSON.stringify(state.review, null, 2)}` };
+      return { action: 'continue', feedback: `Independent review requires changes. Keep the original goal and current Worker context. Address these findings, then run the required checks again.\n${JSON.stringify(state.review, null, 2)}` };
     }
     run.readySnapshot = snapshot;
     return { action: 'ready' }; // Pi's settled event confirms this was not aborted.

@@ -13,7 +13,7 @@ Non-goals and affected contracts:
 Repository and base/head/pinned source snapshot:
 Required check commands and policy revision:
 Allowed actions and delivery target:
-Engineer runtime/session reference:
+Worker runtime/session reference:
 Helper allowance, write ownership and shared-resource claims:
 Overall budget; transient retries; review repair cycles used:
 Evidence references:

@@ -1,4 +1,4 @@
-# Release handoff and action plan
+# Release record and action plan
 Release / task / independent review references:
 Requested delivery target and actions (merge/tag/build/publish/deploy separately):
 Original action authority, policy revision, expiry/revocation source:

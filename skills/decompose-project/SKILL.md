@@ -5,7 +5,7 @@ description: Use when an authorized Surgical Dev goal spans several independentl
 
 # Decompose a project
 
-Use the [Engineer role](references/roles/engineer.md),
+Use the [Worker role](references/roles/worker.md),
 [project contract](references/contracts/project-plan.md) and
 [plan template](references/templates/project-plan.md).
 This is a planning method; it does not install a scheduler or grant execution.
@@ -15,14 +15,14 @@ This is a planning method; it does not install a scheduler or grant execution.
 1. Read the user's goal, constraints, finite budget, permissions, project rules and
    actual repository boundaries. Resolve only material missing business decisions.
    Do not ask the user to split the project or assign agents.
-2. Choose one Engineer as integration owner. Keep tightly coupled work together;
+2. Choose one Worker as integration owner. Keep tightly coupled work together;
    use one stream when splitting would add more coordination than useful parallelism.
 3. Partition by independently testable outcomes, not frontend/backend/test titles.
    Assign each stream project ACs, dependencies, versioned interfaces, allowed writes,
    shared resources, checks, budget and an integration destination.
 4. Make the graph acyclic and pin accepted dependency artifacts. Establish the
    minimum shared contracts first; do not require a complete upfront system design.
-5. Request bounded peer Engineer sessions through verified host capabilities. The
+5. Request bounded peer Worker sessions through verified host capabilities. The
    controller admits only ready, non-conflicting work within global/project caps.
    A peer owns its own implementation/review loop; a helper only assists its parent.
 6. Record assignments and plan revisions. Reorder, combine or serialize work within

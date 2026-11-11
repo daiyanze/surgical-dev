@@ -7,7 +7,7 @@ Allowed files/interfaces and separate workspace:
 Must not change:
 Completion criteria:
 Resource budget, deadline and cancellation rule:
-Return to Engineer: evidence, exact changes, commands/results, limitations, blockers.
+Return to Worker: evidence, exact changes, commands/results, limitations, blockers.
 
 No recursive delegation, permanent agent creation, independent parent approval or
-external publication. Engineer inspects, integrates and checks the full change.
+external publication. Worker inspects, integrates and checks the full change.

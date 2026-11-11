@@ -39,7 +39,7 @@ In Codex CLI or the IDE extension, type `$surgical-dev` or run `/skills`:
 $surgical-dev Fix the selected bug within the approved scope.
 ```
 
-The current session is Engineer. It can use native subagents when instructed;
+The current session is Worker. It can use native subagents when instructed;
 installing these files does not install an automatic check/review/repair controller.
 Choose `$ship-feature` or `$fix-bug` directly for a known task.
 
@@ -50,7 +50,7 @@ The Verifier must be a separate context that did not write the change. Choose on
 1. **Reviewer subagent.** After checks pass, ask Codex to spawn the `verifier` agent
    with the filled [review request](../../templates/review-request.md) and explicit
    instructions to use `$verify-change`. The subagent has its own thread and
-   instructions; do not substitute the Engineer's self-review.
+   instructions; do not substitute the Worker's self-review.
 2. **Separate session.** Open a new Codex session in a clean checkout or worktree
    of the exact candidate snapshot and run `$verify-change` with the same request.
 

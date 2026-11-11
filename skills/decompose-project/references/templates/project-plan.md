@@ -1,4 +1,4 @@
-# Engineer-owned technical plan
+# Worker-owned technical plan
 
 Project / plan ID / plan revision:
 Goal / original authorization / scope and policy revisions:
@@ -11,7 +11,7 @@ Reason to remain sequential or use independent workstreams:
 
 Shared contract owners and change/notification rules:
 Graph validation: known unique IDs / acyclic / dependencies accessible:
-Capacity: Engineer / Verifier / project helpers / total executions:
+Capacity: Worker / Verifier / project helpers / total executions:
 Aggregate execution budget and consumed amount:
 Integrated candidate target, repository/commit map and project checks:
 Independent integration reviewer requirement:

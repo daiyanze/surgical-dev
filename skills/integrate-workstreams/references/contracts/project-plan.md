@@ -5,10 +5,10 @@ implemented scheduler or a native host payload. A plan is not an action grant.
 
 ## Project goal and technical plan
 
-The user supplies goal, constraints, budget and permissions. Engineer reads the
+The user supplies goal, constraints, budget and permissions. Worker reads the
 repository, chooses a project **integration owner**, and produces the technical
 plan without asking the user to split tasks or choose agents. The integration
-owner is an Engineer assignment, not a fifth permanent role; it owns shared
+owner is a Worker assignment, not an additional permanent role; it owns shared
 contracts, key implementation and integrated delivery, not everyone's transcript.
 
 Fields in the table below are required before execution starts. The minimal
@@ -22,7 +22,7 @@ Required plan fields:
 | project_id, plan_id, plan_revision | Stable project identity and versioned plan |
 | goal_ref, scope_revision, authorization_ref, policy_revision | Original objective and authority; never self-authored approval |
 | project_acceptance_criteria, non_goals | Observable whole-project outcome and exclusions |
-| integration_owner_ref | Actual Engineer identity resolved by the host |
+| integration_owner_ref | Actual Worker identity resolved by the host |
 | workstreams | Minimal set of independently testable outcomes, or one stream |
 | shared_contracts | Owner, interface/version, consumers, change policy and evidence |
 | capacity, budget_ref | Project/global finite ceilings, not per-child duplicated budgets |
@@ -38,10 +38,10 @@ workspace/branch, actual assignee_execution_ref, budget allocation, repair histo
 review references and next action. A repository path alone does not describe a
 semantic boundary: record shared interfaces and runtime resources too.
 
-A peer Engineer owns a complete stream through design, code, tests and repair.
+A peer Worker owns a complete stream through design, code, tests and repair.
 A temporary subagent owns only a bounded auxiliary result and returns it to its
-parent Engineer; it cannot claim the stream or project independently accepted.
-A small task uses one Engineer with the same evidence rules, not a mandatory DAG.
+parent Worker; it cannot claim the stream or project independently accepted.
+A small task uses one Worker with the same evidence rules, not a mandatory DAG.
 
 ## Scheduling admission
 
@@ -53,7 +53,7 @@ The future controller must atomically establish all of the following:
    A predecessor's 'done' message without accessible artifacts is insufficient.
 3. File ownership, shared interfaces, test databases, ports and preview environments
    do not conflict. Unknown overlap is serialized, not assumed independent.
-4. A compatible Engineer session and isolated workspace are available; the same
+4. A compatible Worker session and isolated workspace are available; the same
    workstream is not already executing. Global and per-project capacity both apply.
 5. A single-owner claim/lease and execution ID are persisted before dispatch.
 
@@ -93,7 +93,7 @@ check-policy revision, project-AC evidence and the real review execution identit
 No author of an included implementation, including the integration owner or a
 helper, may approve that implementation as its independent reviewer.
 
-Route integration defects to the owning Engineer; the integration owner handles
+Route integration defects to the owning Worker; the integration owner handles
 cross-stream design/assembly issues. Recheck repaired streams and the new combined
 candidate. Default: at most two fix-and-reverify cycles per review target, with a
 finite project-wide execution ceiling; new plan IDs do not replenish either limit.
@@ -111,7 +111,7 @@ not promise atomic cross-repository merges or universally reversible rollback.
 
 ## Host capability fallback
 
-When parallel sessions or isolation are unavailable, use one continuing Engineer
+When parallel sessions or isolation are unavailable, use one continuing Worker
 sequentially and preserve independent review. If independent review itself is
 unavailable, report BLOCKED or use a specifically authorized human alternative.
 Creating new persistent agents is separate from launching permitted task sessions.

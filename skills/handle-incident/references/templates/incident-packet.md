@@ -7,10 +7,11 @@ Confirmed facts vs suspected cause:
 Immediate containment needed and applicable grant/runbook:
 Containment actions actually taken and observed result:
 Reversibility constraints / unsafe actions:
-Bounded repair requested from Engineer:
+Bounded repair scope and responsible Worker:
 Linked repair task and independent review:
 Recovery checks and observation window:
 Residual risk, follow-up and current state:
 
-Operator may contain within authorization; business and pipeline source changes
-still go through Engineer and Verifier. CONTAINED is not a fabricated root cause.
+Worker may contain within authorization and continue with the repair. Business and
+pipeline source changes still need checks and independent Verifier acceptance.
+CONTAINED is not a fabricated root cause.

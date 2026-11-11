@@ -5,7 +5,7 @@ description: Use when an active Surgical Dev task contains an independent invest
 
 # delegate-bounded-task
 
-For authorized Surgical Dev tasks only. Read the [Engineer role](references/roles/engineer.md)
+For authorized Surgical Dev tasks only. Read the [Worker role](references/roles/worker.md)
 and [workflow rules](references/references/workflow.md) as needed. Host capabilities
 and real approvals, not this file, determine what can execute.
 
@@ -13,16 +13,16 @@ and real approvals, not this file, determine what can execute.
 
 **Inputs and access:** A complete delegation package, isolated working directory, and the minimum access required.
 
-**Procedure:** Determine whether delegation has a real benefit → check dependencies and conflicts → assign one clearly accountable temporary subagent → obtain evidence → have Engineer inspect and integrate the result → rerun affected checks.
+**Procedure:** Determine whether delegation has a real benefit → check dependencies and conflicts → assign one clearly accountable temporary subagent → obtain evidence → have Worker inspect and integrate the result → rerun affected checks.
 
 **Verification:** Confirm that the result meets the criteria, uses the correct version, and stays within the allowed file scope. A temporary subagent's completion claim does not mean the result is ready to integrate.
 
 **Return:** Concise findings, evidence and code references, limitations, and blockers.
 
-**Approval:** Default disabled; only Engineer may dispatch after explicit enablement,
+**Approval:** Default disabled; only Worker may dispatch after explicit enablement,
 with at most two concurrent helpers across the whole project and isolated write
 workspaces. Helpers consume the global execution budget and cannot spawn peer
-Engineer teams. Complete workstreams use decompose-project instead. No recursive
+Worker teams. Complete workstreams use decompose-project instead. No recursive
 delegation, shared-interface expansion, production changes or publication.
 
 ## Return

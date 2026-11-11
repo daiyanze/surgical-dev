@@ -21,7 +21,7 @@ Scout may propose; acceptance must refer to original user or trusted-policy auth
 
 ## Project plan and workstreams
 
-The user provides goal/constraints/budget/permissions. Engineer supplies the plan,
+The user provides goal/constraints/budget/permissions. Worker supplies the plan,
 workstream boundaries and assignments, following `contracts/project-plan.md`.
 Keep plan_id/revision, project ACs, integration owner, acyclic dependency graph,
 accepted dependency snapshots, versioned shared contracts, resource/write claims,
@@ -32,7 +32,7 @@ Technical in-scope replanning is not a new product approval or budget grant.
 
 `task_id`, originating request/opportunity/incident, scope revision and snapshot,
 original authority reference, ACs, non-goals, allowed actions, repository,
-base/head/source snapshot, required-check policy, Engineer execution ID,
+base/head/source snapshot, required-check policy, Worker execution ID,
 active subtask IDs, repair-cycle count, budgets, current evidence and next action.
 For a workstream also bind plan_id/revision, workstream_id, dependencies/snapshots,
 contract versions, explicit write/resource ownership, assigned execution/claim,
@@ -81,7 +81,7 @@ An operational smoke test is not proof of product adoption or causal impact.
 `subtask_id`, parent task/scope/snapshot, actual runtime job/session, goal,
 input refs, allowed files/interfaces, workspace, completion criteria, budget,
 return destination, state, change/evidence refs, limitations, cancellation state.
-Only Engineer accepts integration. The result cannot approve the parent task.
+Only Worker accepts integration. The result cannot approve the parent task.
 
 ## Handoff/event envelope
 
