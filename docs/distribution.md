@@ -1,9 +1,9 @@
 # Install and distribute Surgical Dev
 
-Surgical Dev is a **content-only Skills package**. Installing it makes task
-instructions discoverable; it does **not** provision agents, launch Engineer or
-Verifier sessions, enforce approval gates, or enable automatic dispatch.
-Independent review still requires a separate real reviewer context.
+Surgical Dev distributes **portable Skills and an opt-in Pi extension**. Installing
+the Pi package registers the methods and `/surgical` command. Running `/surgical run`
+starts one Engineer/check/review/repair loop. Installing individual Skills through
+the skills CLI provides instructions; the extension requires the full Pi package.
 
 ## 1. Install with Pi (GitHub source)
 
@@ -13,9 +13,10 @@ Pi can install the package straight from Git, without an npm publication:
 pi install git:github.com/daiyanze/surgical-dev
 ```
 
-Start a fresh Pi session and invoke `/skill:surgical-dev <your authorized goal>`.
-This uses the package's existing `pi.skills` metadata and retains the complete
-repository content. See [Pi setup](../adapters/pi/SETUP.md).
+Start a fresh Pi 1.5.2+ session. Configure the target repository as described in
+[Pi setup](../adapters/pi/SETUP.md), then invoke `/surgical run <your authorized goal>`.
+`/skill:surgical-dev` remains the portable instruction-only entry point. Package
+metadata includes both `pi.skills` and `pi.extensions`; retain the complete layout.
 
 ## 2. Install with the skills CLI (skills.sh)
 
@@ -51,15 +52,16 @@ or visibility. Source: [skills CLI](https://github.com/vercel-labs/skills/blob/m
 ## Host capability tiers
 
 Any agent that reads `SKILL.md` can load the methods. What differs is whether the
-host can meet the workflow's requirements. This table records what is documented,
-not what has been exercised.
+host can meet the workflow's requirements. Pi's single-workstream lifecycle is
+tested with actual Pi processes and a local deterministic model. Real-model behavior
+and the broader target architecture require separate evaluation.
 
 | Requirement | Pi | Codex |
 |---|---|---|
 | Skill loading | `/skill:name`, reads `.agents/skills/` | `$name` or `/skills`, reads `.agents/skills/` |
-| Independent Verifier | Separate Pi session (the Pi skills page does not describe subagents) | Reviewer subagent or separate session; see [Codex setup](../adapters/codex/SETUP.md) |
-| Parallel Engineers | Not documented; stay serial | Subagents exist, workspace isolation not documented; stay serial unless each stream has its own worktree |
-| Handoff between sessions | Manual | Manual |
+| Independent Verifier | Extension launches a fresh read-tool Pi process on a Git snapshot | Reviewer subagent or separate session; see [Codex setup](../adapters/codex/SETUP.md) |
+| Parallel Engineers | Single Engineer in the shipped loop | Subagents exist, workspace isolation not documented; stay serial unless each stream has its own worktree |
+| Handoff between sessions | Automatic checks/review feedback with `/surgical run` | Manual |
 
 Single-session hosts use serial work and a human-routed review. Hosts with
 multi-session support may run bounded parallel streams only with isolated

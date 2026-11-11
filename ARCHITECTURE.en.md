@@ -4,7 +4,7 @@
 **Design date:** 2026-11-08
 
 **Primary deployment targets:** Pi and Codex (Skills hosts), with one verified coding runtime  
-**Status:** Current Surgical Dev content and architecture package. Not an installed plugin, enforced workflow engine, or demonstrated autonomous service. Repository content is updated; no agents, accounts, scheduled jobs, CI policies or production systems are activated.
+**Status:** Target architecture with an opt-in Pi single-workstream development/check/review/repair implementation. See [Pi setup](adapters/pi/SETUP.md) for the shipped subset and [validation](VALIDATION.md) for evidence. Multi-stream scheduling, durable recovery and automated delivery are not implemented.
 
 ## 1. Decision and scope
 
@@ -26,7 +26,7 @@ This is our design choice, informed by Anthropic's context-boundary and progress
 
 No simulated company hierarchy; no mandatory passage through every role; no universal autonomous product strategy; no guarantee that every task finishes without intervention; no security boundary based only on prompts or separate agent names; no message broker, database cluster, or multi-runtime abstraction platform in the first implementation.
 
-The document specifies desired behavior, contracts, and acceptance scenarios. It does not supply executable gate enforcement, a host-specific import format, installed Skills, or automatic event subscriptions.
+This document specifies the broader desired behavior, contracts and acceptance scenarios. The Pi adapter implements a bounded subset; the document does not imply that every capability described below is available.
 
 ### Alternatives considered
 

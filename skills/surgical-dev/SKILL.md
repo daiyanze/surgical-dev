@@ -13,8 +13,10 @@ observable success. Load engineering-discipline for detail if installed.
 These habits require no extra role, approval gate or speculative abstraction.
 
 Read actual project instructions, the [shared boundaries](references/roles/team-boundaries.md)
-and [workflow](references/references/workflow.md). This is a content-only package; no
-role dispatcher, scheduler, authorization service or enforced state machine is installed.
+and [workflow](references/references/workflow.md). This Skill supplies instructions.
+The full Pi package additionally provides an opt-in `/surgical run` loop for one
+Engineer and an independent Verifier. Skill loading alone does not activate it or
+install a scheduler or authorization service.
 
 ## Route only the responsibility needed
 

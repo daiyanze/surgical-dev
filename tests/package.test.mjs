@@ -102,14 +102,15 @@ function withoutCode(text) {
   }).join('\n');
 }
 
-test('manifest exposes only existing content, with no runtime hooks', () => {
+test('manifest exposes Skills and the opt-in Pi extension without install-time hooks', () => {
   assert.ok(existsSync(resolve(root, 'package.json')), 'package.json is required');
   const pkg = json('package.json');
   assert.equal(pkg.name, 'surgical-dev');
   assert.equal(pkg.private, true);
-  assert.deepEqual(pkg.pi, { skills: ['./skills'] });
+  assert.deepEqual(pkg.pi, { skills: ['./skills'], extensions: ['./adapters/pi/extensions/surgical.ts'] });
+  for (const path of pkg.pi.extensions) assert.ok(existsSync(resolve(root, path)), `Missing extension: ${path}`);
   for (const path of pkg.files) assert.ok(existsSync(resolve(root, path)), `Missing packaged path: ${path}`);
-  assert.ok(!pkg.dependencies, 'Content pack must have no runtime dependencies');
+  assert.ok(!pkg.dependencies, 'The extension must use host APIs and Node standard library only');
   for (const hook of ['preinstall', 'install', 'postinstall', 'prepare']) assert.ok(!pkg.scripts?.[hook]);
 });
 

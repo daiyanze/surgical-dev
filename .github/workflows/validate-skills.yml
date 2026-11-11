@@ -30,3 +30,7 @@ jobs:
         run: npm test
       - name: Verify contract tests
         run: python tests/contracts_test.py
+      - name: Install pinned Pi host for integration check
+        run: npm install --prefix "$RUNNER_TEMP/surgical-pi" --ignore-scripts --no-audit --no-fund @earendil-works/pi-coding-agent@1.5.2
+      - name: Verify actual Pi lifecycle with a local model fixture
+        run: SURGICAL_PI_EXECUTABLE="$RUNNER_TEMP/surgical-pi/node_modules/.bin/pi" npm run test:pi-host

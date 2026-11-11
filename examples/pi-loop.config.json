@@ -1,0 +1,10 @@
+{
+  "checks": [["npm", "test"]],
+  "reviewerCommand": ["pi"],
+  "maxTurns": 40,
+  "maxCheckAttempts": 6,
+  "maxReviewRepairCycles": 2,
+  "timeoutSeconds": 1800,
+  "checkTimeoutSeconds": 120,
+  "reviewTimeoutSeconds": 180
+}

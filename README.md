@@ -1,6 +1,6 @@
 # Surgical Dev
 
-**Goal-driven content pack · 0.3.0-content.** Give the team a goal, constraints,
+**Goal-driven Skills and an opt-in Pi development loop.** Give the team a goal, constraints,
 budget and permissions—not a manually split backlog or staff assignments. Engineer
 organizes independently testable workstreams, keeps one continuous implementation
 context per stream, and owns integration. Product Scout, Engineer, Verifier and
@@ -8,9 +8,11 @@ Operator are four role types; execution instances scale within explicit limits.
 Temporary subagents are optional helpers, never a fifth permanent worker agent.
 
 This repository provides role instructions, thirteen on-demand Skills, handoff templates,
-design contracts and manual host setup. It does **not** implement a scheduler,
-authenticated controller, enforced gates or autonomous deployment. No agents, Skills,
-monitoring jobs or production permissions are activated by this update.
+design contracts and a Pi extension for one workstream. `/surgical run <goal>` keeps
+Engineer in the current session, executes configured checks, obtains an independent
+review and automatically returns failures for repair. A successful run stops at
+`PR_READY`. Installation registers commands; a run starts only when requested.
+Multi-stream scheduling, crash recovery and automatic delivery remain future work.
 
 [English architecture](ARCHITECTURE.en.md) ·
 [中文架构摘要](ARCHITECTURE.zh-CN.md) · [Goal prompt](templates/project-goal.md) · [Validation](VALIDATION.md)
@@ -42,6 +44,36 @@ installation, verification and host limitations. Skills are portable instruction
 role/workflow/template references needed by skills.sh-style installers.
 
 ## How it works
+
+### Available now: one-workstream Pi loop
+
+Use Pi **1.5.2 or later**, Node **22.19 or later**, and Git on Linux or macOS.
+Commit a `.surgical-dev.json` in the target repository with its real check commands:
+
+```json
+{
+  "checks": [["npm", "test"]]
+}
+```
+
+Start Pi at the clean repository root, with a configured coding model, then run:
+
+```text
+/surgical run Implement the requested feature and preserve existing behavior.
+/surgical status
+/surgical stop
+```
+
+The reviewer inherits the current model/provider by default, including a configured
+DeepSeek model. It starts a fresh Pi process with read tools against a disposable
+Git snapshot. Check failures and actionable review findings return to the same
+Engineer session. Defaults allow 6 check attempts, 2 review repair cycles, 40 model
+turns and 30 minutes total. Unknown evidence or exhausted limits stop the run.
+
+See [Pi setup](adapters/pi/SETUP.md) for configuration, cancellation behavior,
+review isolation and the exact limits of this first runtime.
+
+### Target architecture: multiple workstreams and delivery
 
 ```mermaid
 flowchart TD
@@ -78,13 +110,13 @@ not prove product value. The feedback loop requires verified host capabilities.
 
 | Host | Guide | Included resources |
 |---|---|---|
-| Pi | [Setup](adapters/pi/SETUP.md) | Skills-only package metadata; no automatic session launcher |
+| Pi | [Setup](adapters/pi/SETUP.md) | Thirteen Skills and an opt-in single-workstream development/review loop |
 | Codex | [Setup](adapters/codex/SETUP.md) | Skills via `.agents/skills/`; optional read-only-by-instruction `verifier` subagent |
 | Other runtime | [Distribution](docs/distribution.md) | Portable content; verified native integration is still required |
 
-With Pi, invoke `/skill:surgical-dev <authorized task>`; with Codex, `$surgical-dev <authorized task>`.
-Independent acceptance still requires a separate reviewer context. Installing
-Skills does not create agents or enable automated handoffs.
+For the portable method, invoke `/skill:surgical-dev <authorized task>` in Pi or
+`$surgical-dev <authorized task>` in Codex. In Pi, `/surgical run` activates the
+included executable loop. Installing individual Skills alone does not install it.
 
 ## Boundaries and resources
 
@@ -100,8 +132,10 @@ Skills does not create agents or enable automated handoffs.
 - [Remaining runtime work](docs/runtime-next.md). Basic JSON schemas validate task, review and
   plan shapes only; they cannot establish dependency readiness, authority or integration success.
 
-Default: automation and helpers disabled; the enabled-pilot caps, which all apply
-together, are listed in [default limits](contracts/README.md#default-limits).
+The general project-policy example keeps automation and helpers disabled; its
+enabled-pilot caps are listed in [default limits](contracts/README.md#default-limits).
+The Pi command explicitly starts its narrower single-stream pilot using
+`.surgical-dev.json`; it does not activate that broader policy profile.
 Routine technical planning and assignment are automatic; new scope, budget or
 authority require a decision. Missing safe parallel capability falls back to
 serial execution, not a weaker acceptance gate.
@@ -110,17 +144,23 @@ A stream's INTEGRATION_READY is not project PR_READY. The combined candidate mus
 satisfy project ACs and independent integration acceptance before delivery. For one
 stream, one review can cover both levels on the same snapshot without duplicate ceremony.
 
-## Structural checks
+## Verification
 
 ```bash
 npm test
 python3 tests/contracts_test.py
 ```
 
-Node.js 18+ is sufficient for the package tests. Python contract tests require
-`tests/requirements.txt`; they exercise basic task/review schemas. These checks do not prove
-live handoffs or production automation. After editing canonical references, sync
-standalone Skill resources with `python3 scripts/sync_skill_references.py`.
+The Node suites cover package structure and runtime behavior using real Git repositories,
+subprocesses and a deterministic reviewer fixture. They need no npm dependencies.
+Python contract tests require `tests/requirements.txt`.
+
+For the actual Pi CLI integration check, set `SURGICAL_PI_EXECUTABLE` to an absolute
+Pi executable path and run `npm run test:pi-host`. It runs real Pi processes and tools
+against a local deterministic model endpoint, with no paid API. This verifies the
+host lifecycle; it does not measure real-model engineering quality or deployment.
+After editing canonical references, sync standalone Skill resources with
+`python3 scripts/sync_skill_references.py`.
 
 ## Engineering discipline
 

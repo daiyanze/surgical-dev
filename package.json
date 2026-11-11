@@ -2,7 +2,7 @@
   "name": "surgical-dev",
   "version": "0.3.0-content",
   "private": true,
-  "description": "Goal-driven software teams: four role types, autonomous workstream planning, independent integration acceptance; content-only pilot.",
+  "description": "Goal-driven software methods with an opt-in Pi development, verification and repair loop.",
   "type": "module",
   "keywords": [
     "pi-package",
@@ -12,6 +12,9 @@
   "pi": {
     "skills": [
       "./skills"
+    ],
+    "extensions": [
+      "./adapters/pi/extensions/surgical.ts"
     ]
   },
   "files": [
@@ -32,6 +35,7 @@
     "workflows"
   ],
   "scripts": {
-    "test": "node --test tests/package.test.mjs"
+    "test": "node --test tests/*.test.mjs",
+    "test:pi-host": "node --test tests/pi-host-smoke.mjs"
   }
 }

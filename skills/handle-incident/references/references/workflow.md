@@ -155,6 +155,9 @@ CONTAINED is not RESOLVED. Source/pipeline/IaC changes return to Engineer and Ve
 
 The controller is ordinary runtime code, not another agent. It must authenticate
 identities, persist IDs/budgets/locks, reject duplicate/stale events, reconcile
-restarts and honor cancellation. This content pack does not implement that code.
+restarts and honor cancellation. The full Pi package implements a bounded single-stream
+check/review/repair loop. Durable restart reconciliation, parallel scheduling and
+external action authorization remain future controller work; portable Skills alone
+do not implement those capabilities.
 Further design detail: `ARCHITECTURE.en.md`, `contracts/record-contracts.md` and
 `contracts/state-transitions.md` in the full repository.
