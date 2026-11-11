@@ -1,199 +1,116 @@
 # Surgical Dev
 
-**Goal-driven Skills and an opt-in Pi development loop.** Give the team a goal, constraints,
-budget and permissions—not a manually split backlog or staff assignments. Engineer
-organizes independently testable workstreams, keeps one continuous implementation
-context per stream, and owns integration. Product Scout, Engineer, Verifier and
-Operator are four role types; execution instances scale within explicit limits.
-Temporary subagents are optional helpers, never a fifth permanent worker agent.
+**Give your coding agent a clear way to build, verify, and repair.**
 
-This repository provides role instructions, thirteen on-demand Skills, handoff templates,
-design contracts and a Pi extension for one workstream. `/surgical run <goal>` keeps
-Engineer in the current session, executes configured checks, obtains an independent
-review and automatically returns failures for repair. A successful run stops at
-`PR_READY`. Installation registers commands; a run starts only when requested.
-Multi-stream scheduling, crash recovery and automatic delivery remain future work.
+Surgical Dev is a collection of Skills for coding agents. It gives them a repeatable
+way to understand a goal, make focused changes, get independent review, and work
+through the findings. Use it with Pi, Codex, Claude Code, or other hosts that support
+Agent Skills.
 
-[English architecture](ARCHITECTURE.en.md) ·
-[中文架构摘要](ARCHITECTURE.zh-CN.md) · [Goal prompt](templates/project-goal.md) · [Validation](VALIDATION.md)
+## Why it exists
 
-## Install
+Generating code is one part of delivering a working change. A task can still go
+wrong when:
 
-**Pi agent** — install directly from GitHub (no npm publication needed):
+- **The scope drifts.** A small fix grows into a rewrite, assumptions go unstated,
+  and unrelated code changes along the way.
+- **The context gets fragmented.** Planning, coding, and debugging bounce between
+  agents. You end up restoring context and relaying feedback yourself.
+- **“Done” is hard to trust.** The author reviews its own work, checks refer to an
+  earlier revision, or individually passing pieces fail when combined.
 
-```bash
-pi install git:github.com/daiyanze/surgical-dev
+Surgical Dev addresses these problems through explicit working habits, ownership,
+and acceptance criteria. The aim is to reduce the coordination you need to do
+between giving an agent a goal and receiving a verified change.
+
+## How it works
+
+One **Engineer** owns implementation from reading the repository through debugging
+and repair. A separate **Verifier** inspects the result against the goal and actual
+check evidence. Findings return to the Engineer that already understands the work.
+
+```mermaid
+flowchart TD
+    G["Goal and constraints"] --> E["Engineer: implement or repair"]
+    E --> C["Run project checks"]
+    C -->|Fail| E
+    C -->|Pass| V["Verifier: independent review"]
+    V -->|Required fixes| E
+    V -->|Pass| R["Ready for a PR"]
 ```
 
-**Claude Code, Codex, OpenCode and other supported Skills CLI hosts** —
-run from your project directory and choose an agent:
+The name comes from a surgical team: a lead practitioner stays with the task while
+others provide focused support. Most changes need only Engineer and Verifier.
+**Product Scout** helps investigate what to build; **Operator** handles authorized
+delivery and operations when the task calls for them.
+
+## What makes it different
+
+- **Keep the implementation context together.** Reading, planning, coding, testing,
+  and repairs stay in one Engineer session per workstream. Delegate independent
+  questions or separable outcomes when the host can support them safely.
+- **Make the smallest sufficient change.** Surface consequential assumptions,
+  follow the existing codebase, and keep edits tied to the requested outcome.
+  Verification should demonstrate the behavior the user asked for.
+- **Make review independent and actionable.** The Verifier uses a separate context
+  and inspects current source and evidence. Blocking findings explain the defect,
+  its impact, and what resolves it; optional style preferences remain advisory.
+- **Work from goals, with explicit limits.** You provide the goal and constraints;
+  Engineer organizes the technical work. The methods define bounded repair cycles
+  and require a visible blocker when inputs, evidence, or execution capacity are missing.
+
+The [thirteen Skills](skills/) cover features, bug fixes, project decomposition,
+integration, review, and delivery. Load the methods a task needs. They provide
+instructions; the host supplies tools, sessions, isolation, and execution control.
+
+## Get started
+
+### Use the Skills
+
+Install the entry Skill from your project directory and select your coding agent:
 
 ```bash
 npx skills add daiyanze/surgical-dev --skill surgical-dev
 ```
 
-To install all thirteen methods for a selected agent:
-
-```bash
-npx skills add daiyanze/surgical-dev --skill '*' -a codex -y
-```
-
-See [distribution guide](docs/distribution.md) for GitHub Releases, global
-installation, verification and host limitations. Skills are portable instructions,
-**not** an autonomous multi-agent runtime. Individual Skills bundle the local
-role/workflow/template references needed by skills.sh-style installers.
-
-## How it works
-
-### Available now: one-workstream Pi loop
-
-Use Pi **1.5.2 or later**, Node **22.19 or later**, and Git on Linux or macOS.
-Commit a `.surgical-dev.json` in the target repository with its real check commands:
-
-```json
-{
-  "checks": [["npm", "test"]]
-}
-```
-
-Start Pi at the clean repository root, with a configured coding model, then run:
+Then give it a concrete goal, for example:
 
 ```text
-/surgical run Implement the requested feature and preserve existing behavior.
+Use Surgical Dev to fix duplicate form submissions.
+Keep the existing API and add a regression test.
+```
+
+See [installation options](docs/distribution.md) for all thirteen Skills and
+[Codex setup](adapters/codex/SETUP.md) for host-specific configuration.
+
+### Automate the loop with Pi
+
+The full Pi package includes an optional extension that runs project checks,
+starts a fresh Verifier, and returns failures to the original Engineer automatically.
+With Pi 1.5.2+ and your repository's check commands configured, use:
+
+```text
+/surgical run Fix duplicate form submissions and add a regression test.
 /surgical status
 /surgical stop
 ```
 
-The reviewer inherits the current model/provider by default, including a configured
-DeepSeek model. It starts a fresh Pi process with read tools against a disposable
-Git snapshot. Check failures and actionable review findings return to the same
-Engineer session. Defaults allow 6 check attempts, 2 review repair cycles, 40 model
-turns and 30 minutes total. Unknown evidence or exhausted limits stop the run.
+Follow [Pi setup](adapters/pi/SETUP.md) to install the package and configure checks.
+The current extension handles one workstream and stops at `PR_READY`: the change
+has passed checks and independent review. Automatic PR creation, merge, deployment,
+parallel scheduling, and crash recovery remain future work. Installing Skills
+alone does not activate this loop.
 
-See [Pi setup](adapters/pi/SETUP.md) for configuration, cancellation behavior,
-review isolation and the exact limits of this first runtime.
+## Further reading
 
-### Target architecture: multiple workstreams and delivery
+- [Architecture](ARCHITECTURE.en.md) · [中文摘要](ARCHITECTURE.zh-CN.md) — roles and the broader design.
+- [Validation](VALIDATION.md) — what has been tested, including the distinction between runtime integration tests and real-model evaluation.
+- [Next steps](docs/runtime-next.md) — remaining automation work.
 
-```mermaid
-flowchart TD
-    U["User: goal, constraints, budget and permissions"] --> P["Engineer integration owner: plan workstreams"]
-    S["Scout: evidence-backed proposals"] -->|Scope admission| U
-    P --> C["Verified controller: dependencies, conflicts and capacity"]
-    C --> E1["Engineer A: implement, test, repair"]
-    C --> E2["Engineer B: independent workstream when useful"]
-    E1 --> V["Independent stream review"]
-    E2 --> V
-    V -->|Findings| C
-    V -->|INTEGRATION_READY| I["Integration owner: combined candidate and project checks"]
-    I --> IV["Independent integration acceptance"]
-    IV -->|Findings| C
-    IV -->|PASS| R["Project PR_READY"]
-    R -->|Delivery in scope and authorized| O["Operator: deliver and observe"]
-    O --> S
-```
-
-These are conditional handoffs, not mandatory stages for every task. Ordinary bugs
-go straight to Engineer. PR-only work stops at PR_READY. Product proposals need
-admission, review PASS never grants release permission, and deployment health does
-not prove product value. The feedback loop requires verified host capabilities.
-
-| Responsibility | Methods |
-|---|---|
-| Product Scout | discover-opportunity, evaluate-outcome |
-| Engineer / entry | surgical-dev, decompose-project, ship-feature, fix-bug, delegate-bounded-task, integrate-workstreams |
-| Engineering discipline | engineering-discipline: clarify assumptions, minimize complexity, keep changes surgical, prove success |
-| Verifier | verify-change |
-| Operator | prepare-release, release-and-observe, handle-incident |
-
-## Start with one host
-
-| Host | Guide | Included resources |
-|---|---|---|
-| Pi | [Setup](adapters/pi/SETUP.md) | Thirteen Skills and an opt-in single-workstream development/review loop |
-| Codex | [Setup](adapters/codex/SETUP.md) | Skills via `.agents/skills/`; optional read-only-by-instruction `verifier` subagent |
-| Other runtime | [Distribution](docs/distribution.md) | Portable content; verified native integration is still required |
-
-For the portable method, invoke `/skill:surgical-dev <authorized task>` in Pi or
-`$surgical-dev <authorized task>` in Codex. In Pi, `/surgical run` activates the
-included executable loop. Installing individual Skills alone does not install it.
-
-## Boundaries and resources
-
-- [Four roles and temporary helper](roles/README.md), [shared boundaries](roles/team-boundaries.md).
-- [Workflow](references/workflow.md): Scope Ready, Checks Passed, Review Passed,
-  Integration Passed, Release Ready, Action Authorized and Outcome Observed.
-- [Project planning contract](contracts/project-plan.md), [team-owned plan](templates/project-plan.md),
-  [integration review](templates/integration-review.md).
-- [Record contracts](contracts/record-contracts.md), [states](contracts/state-transitions.md),
-  [disabled policy example](contracts/project-policy.example.yaml), [handoffs](templates).
-- [Delivery](workflows/delivery.mmd), [incident](workflows/incident.mmd),
-  [architecture](workflows/architecture.mmd), [pilot scenarios](tests/acceptance-scenarios.md).
-- [Remaining runtime work](docs/runtime-next.md). Basic JSON schemas validate task, review and
-  plan shapes only; they cannot establish dependency readiness, authority or integration success.
-
-The general project-policy example keeps automation and helpers disabled; its
-enabled-pilot caps are listed in [default limits](contracts/README.md#default-limits).
-The Pi command explicitly starts its narrower single-stream pilot using
-`.surgical-dev.json`; it does not activate that broader policy profile.
-Routine technical planning and assignment are automatic; new scope, budget or
-authority require a decision. Missing safe parallel capability falls back to
-serial execution, not a weaker acceptance gate.
-
-A stream's INTEGRATION_READY is not project PR_READY. The combined candidate must
-satisfy project ACs and independent integration acceptance before delivery. For one
-stream, one review can cover both levels on the same snapshot without duplicate ceremony.
-
-## Verification
-
-```bash
-npm test
-python3 tests/contracts_test.py
-```
-
-The Node suites cover package structure and runtime behavior using real Git repositories,
-subprocesses and a deterministic reviewer fixture. They need no npm dependencies.
-Python contract tests require `tests/requirements.txt`.
-
-For the actual Pi CLI integration check, set `SURGICAL_PI_EXECUTABLE` to an absolute
-Pi executable path and run `npm run test:pi-host`. It runs real Pi processes and tools
-against a local deterministic model endpoint, with no paid API. This verifies the
-host lifecycle; it does not measure real-model engineering quality or deployment.
-After editing canonical references, sync standalone Skill resources with
-`python3 scripts/sync_skill_references.py`.
-
-## Engineering discipline
-
-Four habits, adapted independently from the Karpathy-inspired sources listed
-below (not an official endorsement). The
-[engineering-discipline Skill](skills/engineering-discipline/SKILL.md) has the
-detailed method; the entry Skill carries a short form.
-
-| Habit | Engineer | Verifier |
-|---|---|---|
-| Think before coding | Surface consequential assumptions and tradeoffs | Identify assumptions undermining approved criteria |
-| Simplicity first | Prefer the minimum sufficient design | Report concrete complexity risks separately from preferences |
-| Surgical changes | Limit changes to scope and necessary dependencies | Detect unrelated edits or shared-contract drift |
-| Goal-driven execution | Use reproducible tests and observable checks | Independently inspect evidence for the current snapshot |
-
-These are habits within existing roles, not a new agent, mandatory approval or
-unbounded retry loop.
-
-## References and inspiration
-
-Surgical Dev grew out of a review of agent development workflows. These are
-conceptual references, not runtime dependencies or endorsements:
-
-- [Anthropic — When to fold subagents into your main agent loop](https://claude.com/resources/articles/building-agents-when-to-fold-subagents-into-your-main-agent-loop): the main architectural influence. Keep closely related work in one context, load Skills on demand, and retain subagents where independent verification or bounded parallel work adds value.
-- [Beyond Division of Labor (Yang et al., 2026)](https://arxiv.org/abs/2611.03931): a study of how reviewer-controlled submission affects corrective feedback and failure recovery. Informs evaluation of feedback access; it does not validate bypassing independent acceptance or delivery authorization.
-- [Multica Best Practices](https://github.com/it235/multica-best-practices): a reference for explicit role boundaries, delivery handoffs, quality gates, and evidence-based acceptance. Surgical Dev uses a smaller standing team rather than adopting the full squad structure.
-- [Andrej Karpathy's coding observations](https://x.com/karpathy/status/2015883857489522876) and [community guidelines](https://github.com/multica-ai/andrej-karpathy-skills): assumptions, simplicity, scoped edits and verifiable goals.
-- [Superpowers](https://github.com/obra/superpowers): a reference for reusable engineering Skills, independent review, and verification before declaring completion.
-
-The four-role architecture, gate definitions, and retry limits are Surgical Dev design
-choices, not requirements prescribed by these sources. See
-[sources and references](references/sources.md) for Skill formats and host setup documentation.
-
-## Project
-
-https://github.com/daiyanze/surgical-dev
+Design influences include [Anthropic's guidance on agent context and delegation](https://claude.com/resources/articles/building-agents-when-to-fold-subagents-into-your-main-agent-loop),
+[Karpathy's coding observations](https://x.com/karpathy/status/2015883857489522876) and their
+[community Skill implementation](https://github.com/multica-ai/andrej-karpathy-skills),
+[Superpowers](https://github.com/obra/superpowers),
+[Multica Best Practices](https://github.com/it235/multica-best-practices), and
+[Beyond Division of Labor](https://arxiv.org/abs/2611.03931).
+See [sources and scope](references/sources.md) for how these informed the design.
