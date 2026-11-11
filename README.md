@@ -25,25 +25,27 @@ between giving an agent a goal and receiving a verified change.
 
 ## How it works
 
-One **Engineer** owns implementation from reading the repository through debugging
+One **Worker** owns implementation from reading the repository through debugging
 and repair. A separate **Verifier** inspects the result against the goal and actual
-check evidence. Findings return to the Engineer that already understands the work.
+check evidence. Findings return to the Worker that already understands the work.
 
-![Surgical Dev workflow: a goal enters one Engineer context; failed project checks and required review fixes return to that same Engineer. Passing checks sends a fixed snapshot to a fresh Verifier. Passing independent review leads to PR Ready.](docs/images/workflow.png)
+![Surgical Dev workflow: a goal enters one Worker context; failed project checks and required review fixes return to that same Worker. Passing checks sends a fixed snapshot to a fresh Verifier. Passing independent review leads to PR Ready.](docs/images/workflow.png)
 
 This is the loop for **one workstream**. Every repair goes through checks and a
 fresh review again. Missing evidence or exhausted limits stops the loop with a
 visible reason. Larger projects also need decomposition and integration acceptance.
 
 The name comes from a surgical team: a lead practitioner stays with the task while
-others provide focused support. Most changes need only Engineer and Verifier.
-**Product Scout** helps investigate what to build; **Operator** handles authorized
-delivery and operations when the task calls for them.
+others provide focused support. There are three roles: **Product Scout** investigates
+what to build and evaluates outcomes; **Worker** implements, repairs, and handles
+authorized delivery and incidents; **Verifier** independently checks the result.
+Most changes need only Worker and Verifier. Worker keeps ownership when the task
+continues into delivery or operations.
 
 ## What makes it different
 
 - **Keep the implementation context together.** Reading, planning, coding, testing,
-  and repairs stay in one Engineer session per workstream. Delegate independent
+  and repairs stay in one Worker session per workstream. Delegate independent
   questions or separable outcomes when the host can support them safely.
 - **Make the smallest sufficient change.** Surface consequential assumptions,
   follow the existing codebase, and keep edits tied to the requested outcome.
@@ -52,7 +54,7 @@ delivery and operations when the task calls for them.
   and inspects current source and evidence. Blocking findings explain the defect,
   its impact, and what resolves it; optional style preferences remain advisory.
 - **Work from goals, with explicit limits.** You provide the goal and constraints;
-  Engineer organizes the technical work. The methods define bounded repair cycles
+  Worker organizes the technical work. The methods define bounded repair cycles
   and require a visible blocker when inputs, evidence, or execution capacity are missing.
 
 The [thirteen Skills](skills/) cover features, bug fixes, project decomposition,
@@ -101,7 +103,7 @@ $decompose-project Add team invitations with expiry, acceptance, and audit histo
 ```
 
 Give the agent the outcome, constraints, and observable success criteria. For a
-larger project, Engineer organizes the workstreams and dependencies.
+larger project, Worker organizes the workstreams and dependencies.
 
 ## Which Skill should I use?
 
@@ -123,7 +125,7 @@ reusable methods, not thirteen stages that every task must pass through.
 | [evaluate-outcome](skills/evaluate-outcome/SKILL.md) | Assess a shipped change against its goal | A baseline-based assessment: supported, inconclusive, or regressed |
 | [prepare-release](skills/prepare-release/SKILL.md) | Check whether a candidate is ready to release | Readiness evidence, observation and recovery plans; no release execution |
 | [release-and-observe](skills/release-and-observe/SKILL.md) | Perform an already authorized release | Execution evidence, health observations, and the actual release outcome |
-| [handle-incident](skills/handle-incident/SKILL.md) | Respond to a production incident | Triage, authorized containment, repair handoffs, and recovery evidence |
+| [handle-incident](skills/handle-incident/SKILL.md) | Respond to a production incident | Triage, authorized containment, bounded repair, and recovery evidence |
 
 **Independent review needs a separate context.** Run `verify-change` in a fresh
 reviewer session or subagent that did not write the change. Supply the goal, fixed
@@ -162,7 +164,7 @@ tested with real Pi processes and a local deterministic model; see
 ### Automate the loop with Pi
 
 The full Pi package includes an optional extension that runs project checks,
-starts a fresh Verifier, and returns failures to the original Engineer automatically.
+starts a fresh Verifier, and returns failures to the original Worker automatically.
 With Pi 1.5.2+, first create and commit `.surgical-dev.json` in your target repository:
 
 ```json

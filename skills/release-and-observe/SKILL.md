@@ -5,7 +5,7 @@ description: Use when an explicitly authorized release action is ready for execu
 
 # release-and-observe
 
-Owner: operator. Read the [role](references/roles/operator.md),
+Owner: worker. Read the [role](references/roles/worker.md),
 [shared boundaries](references/roles/team-boundaries.md) and
 [workflow](references/references/workflow.md). Use only existing capabilities and
 original task/action authorization; these instructions grant no permissions.
@@ -19,5 +19,5 @@ authority or evidence, preserve prior phase, reason, owner and resume condition.
 
 ## Return
 
-Use the [handoff template](references/templates/release-handoff.md).
+Use the [release record](references/templates/release-handoff.md).
 Actual action state, artifact/environment, job and grant references, observed effects, health window, uncertainties and recovery evidence. VERIFIED requires observed checks; a submitted request is not success.

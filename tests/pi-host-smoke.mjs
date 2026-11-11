@@ -55,7 +55,7 @@ test('actual Pi repairs a failed check and accepts a fresh independent review', 
   const git = (...args) => execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
   git('init', '-q'); git('config', 'user.name', 'Test'); git('config', 'user.email', 'test@example.invalid');
   git('add', '.'); git('commit', '-qm', 'baseline');
-  const session = join(directory, 'engineer.jsonl');
+  const session = join(directory, 'worker.jsonl');
   const packagePath = fileURLToPath(new URL('..', import.meta.url));
   const env = { ...process.env, PI_CODING_AGENT_DIR: agentDir };
   const installed = await runProcess([pi, 'install', packagePath], { cwd, env, timeoutMs: 10_000 });
@@ -75,11 +75,11 @@ test('actual Pi repairs a failed check and accepts a fresh independent review', 
   assert.equal(state.checkAttempts, 2);
   assert.equal(state.reviewAttempts, 1);
   assert.equal(state.review.verdict, 'PASS');
-  assert.notEqual(state.review.reviewer_session_ref, state.engineerSessionId);
+  assert.notEqual(state.review.reviewer_session_ref, state.workerSessionId);
   assert.equal((await readFile(join(cwd, 'answer.txt'), 'utf8')).trim(), '42');
   assert.equal(git('diff', '--cached'), '');
   assert.equal(git('worktree', 'list', '--porcelain').split('\n').filter(line => line.startsWith('worktree ')).length, 1);
   assert.ok(requests.some(request => JSON.stringify(request.messages).includes('Required check failed.')));
   assert.ok(requests.some(request => request.tools?.map(tool => tool.function.name).sort().join(',') === 'find,grep,ls,read'));
-  assert.equal(entries[0].id, state.engineerSessionId);
+  assert.equal(entries[0].id, state.workerSessionId);
 });

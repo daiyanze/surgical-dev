@@ -2,15 +2,15 @@ flowchart TD
     U["User goal, constraints, budget and permissions"] --> Q{"Scope Ready?"}
     Q -->|"Missing material decision"| ASK["Ask for scope or authority, not manual task assignment"]
     ASK --> Q
-    Q -->|"Yes"| PLAN["Engineer integration owner<br/>Minimal workstreams, dependencies, contracts and checks"]
-    PLAN --> SCHED["Verified controller claims ready work<br/>Safe parallel capacity or serial fallback"]
-    SCHED --> E["Assigned Engineer<br/>Implement, test and debug in one continuing stream session"]
+    Q -->|"Yes"| PLAN["Worker integration owner: Minimal workstreams, dependencies, contracts and checks"]
+    PLAN --> SCHED["Verified controller claims ready work: Safe parallel capacity or serial fallback"]
+    SCHED --> E["Assigned Worker: Implement, test and debug in one continuing stream session"]
     E -.->|"Optional bounded helper"| W["Temporary subagent under project limits"]
     W -.->|"Return evidence"| E
     E --> C["Actual checks and authorized draft-PR CI"]
     C --> G{"Checks Passed?"}
     G -->|"Failure within budget"| E
-    G -->|"Unknown or exhausted"| X["BLOCKED or ESCALATED<br/>Keep owner, evidence and resume condition"]
+    G -->|"Unknown or exhausted"| X["BLOCKED or ESCALATED: Keep owner, evidence and resume condition"]
     G -->|"Yes"| V["Independent stream Verifier"]
     V --> D{"Verdict"}
     D -->|"BLOCKED"| X
@@ -20,23 +20,23 @@ flowchart TD
     D -->|"PASS"| SR["Stream INTEGRATION_READY"]
     SR --> ALL{"All required stream versions ready?"}
     ALL -->|"No: dependencies still valid"| SCHED
-    ALL -->|"Yes"| I["Integration owner serially assembles candidate<br/>Contract and project end-to-end checks"]
-    I --> IV["Independent combined acceptance<br/>One same-snapshot review may cover a single-stream project"]
+    ALL -->|"Yes"| I["Integration owner serially assembles candidate: Contract and project end-to-end checks"]
+    I --> IV["Independent combined acceptance: One same-snapshot review may cover a single-stream project"]
     IV --> IG{"Integration Passed?"}
     IG -->|"Findings within budget: route to owners"| SCHED
     IG -->|"Unknown or exhausted"| X
     IG -->|"Yes"| PR["Project PR_READY"]
     PR --> DEL{"Delivery in scope?"}
     DEL -->|"No"| STOP["Return PR and evidence"]
-    DEL -->|"Yes"| O["Operator checks current candidate and grants"]
-    O --> MB["If needed: authorized protected merge and trusted build<br/>Observe actual source-to-artifact mapping"]
+    DEL -->|"Yes"| PREP["Same Worker checks current candidate and grants"]
+    PREP --> MB["If needed: authorized protected merge and trusted build: Observe actual source-to-artifact mapping"]
     MB --> RR{"Release Ready and action authorized?"}
     RR -->|"No"| X
     RR -->|"Source change required"| PLAN
     RR -->|"Yes"| RUN["Record intent; execute exact permitted action"]
-    RUN --> OBS["Reconcile platform job and actual version<br/>Observe configured checks and window"]
+    RUN --> OBS["Reconcile platform job and actual version: Observe configured checks and window"]
     OBS --> OK{"Outcome established?"}
     OK -->|"Unknown: reconcile before retry"| X
-    OK -->|"Failed"| INC["Operator contains under runbook<br/>Source repair goes to Engineer"]
+    OK -->|"Failed"| INC["Same Worker contains under runbook and handles bounded repair"]
     INC --> PLAN
     OK -->|"Checks satisfied"| DONE["Record actual result; optional Scout outcome assessment"]

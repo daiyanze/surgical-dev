@@ -6,13 +6,13 @@ Neither this file nor a schema-valid JSON record creates an authorization bounda
 ## Before execution
 
 Read the actual project's rules, goal, constraints, budget and permissions.
-Engineer uses decompose-project to organize independent workstreams and chooses an
-Engineer integration owner; the user does not need to split tasks or assign agents.
+Worker uses decompose-project to organize independent workstreams and chooses an
+Worker integration owner; the user does not need to split tasks or assign agents.
 Bind each stream to one continuing implementation session. Admission checks the
 dependency graph, current input contracts, write/resource conflicts and aggregate
 capacity. Coupled work or unsupported parallel capability uses serial execution.
 Start with zero temporary subagents. When enabled, at most two run across the
-project, with independent boundaries and workspaces; peer Engineers are different.
+project, with independent boundaries and workspaces; peer Workers are different.
 Do not overwrite existing local changes to get a clean checkout.
 
 An explicit low-risk task request may authorize its stated scope. For ambiguous,
@@ -25,13 +25,13 @@ operations, required checks, and relevant contracts.
 
 | Gate | Required evidence | Decision owner |
 |---|---|---|
-| Scope Ready | Bounded objective, testable AC, original authorization and permitted actions | Engineer prepares; user confirms when needed |
+| Scope Ready | Bounded objective, testable AC, original authorization and permitted actions | Worker prepares; user confirms when needed |
 | Checks Passed | Actual required check results for the submitted change | Tools/CI, independently inspected |
 | Review Passed | Independent Verifier report for the current scope and code | Verifier |
 | Integration Passed | Project ACs, accepted stream versions, actual combined snapshot and whole-project checks | Independent Verifier; integration owner prepares evidence |
-| Release Ready | Actual artifact provenance, environment/configuration, observation and recovery plan | Operator |
+| Release Ready | Actual artifact provenance, environment/configuration, observation and recovery plan | Worker |
 | Action Authorized | Specific authorization for each action and target | User or trusted existing policy |
-| Outcome Observed | Actual technical observation and separate product evidence | Operator / Product Scout |
+| Outcome Observed | Actual technical observation and separate product evidence | Worker / Product Scout |
 
 Use BRIEF -> IMPLEMENTING -> CHECKING -> VERIFYING for each stream, then
 INTEGRATION_READY on current independent PASS. The project proceeds through
@@ -44,7 +44,7 @@ project endpoint; it is not a merge, release or deployment and is not authorizat
 ## Automatic allocation and integration
 
 The integration owner owns technical partitioning, shared contract versions, key
-implementation and final assembly. Other Engineers own full independently testable
+implementation and final assembly. Other Workers own full independently testable
 streams, not frontend/backend/test fragments. The controller uses available real
 sessions, isolated workspaces, dependency evidence, atomic claims and project/global
 budgets to schedule; it does not invent business requirements or approve itself.
@@ -54,7 +54,7 @@ new authority, budget increases or persistent failure require a decision.
 Use integrate-workstreams to assemble accepted results serially for each shared
 integration target and run contract/integration/end-to-end checks. Local PASS
 results never sum to project acceptance. Route failed integration to responsible
-Engineers, then refresh affected stream and combined evidence. Missing required
+Workers, then refresh affected stream and combined evidence. Missing required
 scope prevents project PR_READY; partial delivery requires an existing policy or
 user decision. Preparing an integration branch is not permission to merge main.
 
@@ -74,7 +74,7 @@ and integrated review; skip unnecessary ceremony for trivial changes.
 
 Keep reading, planning, coding, tests, and debugging for a feature in one coding
 session. Load only the method needed for the task. Delegate only separable work.
-A missing optional temporary subagent does not prevent Engineer from doing the work itself.
+A missing optional temporary subagent does not prevent Worker from doing the work itself.
 
 Run only approved checks discovered in the actual repository. When pushing and
 opening draft PRs are authorized, a draft PR may precede PR-based CI. Do not
@@ -104,7 +104,7 @@ preferences are non-blocking unless they violate an explicitly required rule.
 
 After the initial review, allow at most two fix-and-reverify cycles per review target
 (stream or integrated candidate), within a finite project-wide execution budget.
-Count a cycle when Engineer applies review fixes and resubmits. Ordinary
+Count a cycle when Worker applies review fixes and resubmits. Ordinary
 check/debug retries have their own authorized execution budget. Repeated failure,
 contradictory evidence, or exhaustion of either budget requires human escalation.
 
@@ -141,17 +141,21 @@ never authorizes execution. Report only observed action outcomes.
 ## Product and operational loops
 
 Product Scout uses discover-opportunity to propose source-backed problems. Proposals
-require original user/trusted-policy admission before Engineer starts. Direct bugs
+require original user/trusted-policy admission before Worker starts. Direct bugs
 and incident repairs bypass Scout. evaluate-outcome returns SUPPORTED, INCONCLUSIVE
 or REGRESSED; lack of product data cannot be replaced by a green deployment.
 
-Operator owns prepare-release, release-and-observe and handle-incident. Read the
+Worker owns implementation, prepare-release, release-and-observe and handle-incident.
+Continue across these responsibilities in the current task context when applicable;
+no separate delivery role or mandatory session handoff is needed. Read the
 actual accepted integrated snapshot and check policy. When artifacts are built after merge,
 verify the protected merge result, source mapping and trusted build before delivery.
 Bind each action to its grant, artifact digest, environment and configuration.
 Reconcile the original platform job and partial effects before retrying a timeout.
 Never blindly roll back migrations, published packages or external side effects.
-CONTAINED is not RESOLVED. Source/pipeline/IaC changes return to Engineer and Verifier.
+CONTAINED is not RESOLVED. Source/pipeline/IaC changes return to the Worker's
+implementation loop, then checks and independent Verifier acceptance, before
+delivery continues. A change of responsibility does not reset execution budgets.
 
 The controller is ordinary runtime code, not another agent. It must authenticate
 identities, persist IDs/budgets/locks, reject duplicate/stale events, reconcile

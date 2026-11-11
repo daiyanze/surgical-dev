@@ -11,10 +11,10 @@ Implementation baseline: `ec8d56a`.
 | `npm test` | 64 passed | 29 package checks and 35 runtime regressions using real Git and subprocesses |
 | `python3 tests/contracts_test.py` | 19 passed | Existing task, review and project-plan schema constraints |
 | `python3 scripts/sync_skill_references.py --check` | Passed | Standalone Skills match canonical Markdown references |
-| `npm run test:pi-host` with Pi 1.5.2 | 1 passed | Local package installation and actual Pi Engineer/reviewer lifecycle with a deterministic local model |
+| `npm run test:pi-host` with Pi 1.5.2 | 1 passed | Local package installation and actual Pi Worker/reviewer lifecycle with a deterministic local model |
 | Independent code review | Findings resolved | Five reproduced lifecycle, ownership, snapshot and cancellation issues were fixed and regression-tested |
 
-The Node regression suite checks real failure evidence returning to Engineer,
+The Node regression suite checks real failure evidence returning to Worker,
 review findings returning for repair, fresh reviewer identities and candidate
 snapshots, two-cycle repair limits, cumulative check/turn limits, changed policy,
 failed/malformed model output, stale acceptance, cancellation, process deadlines,
@@ -26,7 +26,7 @@ double; subprocess reviewer fixtures are not live model evaluations.
 
 The host test uses the released `@earendil-works/pi-coding-agent@1.5.2`, Node 24
 and Git on Linux. It installs this package into a temporary Pi configuration and
-loads the extension through `pi.extensions`. It then starts an actual Pi Engineer
+loads the extension through `pi.extensions`. It then starts an actual Pi Worker
 with a local OpenAI-compatible model fixture:
 
 1. The first candidate fails a real check on `answer.txt`.
@@ -35,7 +35,7 @@ with a local OpenAI-compatible model fixture:
 4. The controller starts a separate Pi process in a detached Git worktree, with
    read tools only. Pi performs an actual read and returns the structured review.
 5. Final settlement records `PR_READY`, two check attempts, one independent review
-   and distinct Engineer/Verifier session IDs. The real index stays unchanged and
+   and distinct Worker/Verifier session IDs. The real index stays unchanged and
    the disposable worktree is removed.
 
 The model responses in this test are deterministic. This proves the actual host's

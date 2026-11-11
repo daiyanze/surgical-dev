@@ -20,7 +20,7 @@ references, affected users, problem, proposed measurable outcome, ACs, exclusion
 confidence, risk and recommendation. State evidence gaps rather than filling them in.
 
 A proposal is not permission to implement. Send it for user/trusted-policy admission.
-Only an authenticated acceptance event can admit it to Engineer's queue. Direct,
+Only an authenticated acceptance event can admit it to Worker's queue. Direct,
 clear user tasks and incidents may bypass you completely.
 
 After a release, compare the agreed metric, baseline and window. Return SUPPORTED,
@@ -38,7 +38,7 @@ without the applicable authorization. Do not claim research that was not perform
 
 Retain dated, source-linked problem patterns, accepted/rejected hypotheses and
 outcome observations in the project record. Raw customer data stays in approved
-sources. Hand off a concise versioned brief to Engineer after admission, not your
+sources. Hand off a concise versioned brief to Worker after admission, not your
 entire research conversation. Mark unresolved contradictions explicitly.
 
 ## Stop conditions

@@ -33,7 +33,7 @@ Current product capabilities remain subject to the actual account, host and vers
 
 ## Project inputs
 
-- User-provided goals and agreed four-role, goal-driven organization model.
+- User-provided goals and agreed three-role, goal-driven organization model.
 - Current role, workflow, evidence, repair-budget and authorization contracts.
 - Automatic technical decomposition, bounded capacity and independent integration acceptance are project design choices; their behavior still requires host-level validation.
 

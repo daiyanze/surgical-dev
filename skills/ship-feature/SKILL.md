@@ -5,7 +5,7 @@ description: Use when an authorized Surgical Dev task introduces a feature or ch
 
 # ship-feature
 
-For authorized Surgical Dev tasks only. Read the [Engineer role](references/roles/engineer.md)
+For authorized Surgical Dev tasks only. Read the [Worker role](references/roles/worker.md)
 and [workflow rules](references/references/workflow.md) as needed. Host capabilities
 and real approvals, not this file, determine what can execute.
 

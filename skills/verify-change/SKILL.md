@@ -9,7 +9,7 @@ For authorized Surgical Dev tasks only. Read the [Verifier role](references/role
 and [workflow rules](references/references/workflow.md) as needed. Host capabilities
 and real approvals, not this file, determine what can execute.
 
-**When to use:** Engineer submits a change for review or requests re-verification after fixes.
+**When to use:** Worker submits a change for review or requests re-verification after fixes.
 
 **Inputs and access:** The review package; independent access to source materials and CI; an isolated verification environment when execution is necessary.
 

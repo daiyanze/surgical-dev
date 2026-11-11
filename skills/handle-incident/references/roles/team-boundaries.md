@@ -14,12 +14,12 @@ They do not grant access, create tools, or provide a security sandbox.
    new work. Preserve correlation and event IDs; reject stale or duplicate results.
 5. Execute only the methods and tools actually available. Report missing required
    capabilities; do not simulate an independent reviewer by changing persona.
-6. User input is goal, constraints, budget and permissions. Engineer owns technical
-   decomposition and assignment. Peer Engineers own independent workstreams; one
-   Engineer is integration owner. Isolate writes and shared resources, obey global
+6. User input is goal, constraints, budget and permissions. Worker owns technical
+   decomposition and assignment. Peer Workers own independent workstreams; one
+   Worker is integration owner. Isolate writes and shared resources, obey global
    and project capacity, and fall back to serial execution when parallelism is
    unsafe or unavailable. Helpers are disabled until enabled, then capped at two
-   per project, not two per Engineer. Review repair is at most two cycles per review
+   per project, not two per Worker. Review repair is at most two cycles per review
    target, under a finite aggregate project budget; new IDs do not reset limits.
 7. If blocked, record missing input, owner, prior state and resumption condition.
    Check an old process or platform job before retrying side-effectful work.

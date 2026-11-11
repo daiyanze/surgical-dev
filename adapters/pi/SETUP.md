@@ -1,8 +1,8 @@
 # Pi setup — autonomous development pilot
 
 The package exposes thirteen Skills and one opt-in extension. The extension closes
-the single-workstream loop: Engineer → actual checks → independent Verifier → repair.
-The current Engineer session owns implementation throughout. Success is `PR_READY`.
+the single-workstream loop: Worker → actual checks → independent Verifier → repair.
+The current Worker session owns implementation throughout. Success is `PR_READY`.
 
 ## Install
 
@@ -58,7 +58,7 @@ review/repair limit of 0–2 is allowed. `maxTurns` counts Pi model turns, inclu
 tool-use turns; it is not the number of user messages. Failed checks and reviews
 consume the same run's cumulative limits. Missing reviewer access blocks the run.
 
-The reviewer uses the Engineer's provider/model. For a separately configured
+The reviewer uses the Worker's provider/model. For a separately configured
 review model, set `"reviewerModel": "provider/model-id"`. `reviewerCommand` may
 contain an absolute Pi path or an argv prefix; it must support Pi's CLI flags.
 Model authentication remains in Pi's own configuration, outside this JSON file.
@@ -81,7 +81,7 @@ dependency or unresolved requirement can still produce a visible `BLOCKED` resul
 
 | Status | Meaning |
 |---|---|
-| IMPLEMENTING | Engineer is implementing or repairing in its original session |
+| IMPLEMENTING | Worker is implementing or repairing in its original session |
 | CHECKING | The controller is executing the committed check policy |
 | VERIFYING | A fresh independent Pi reviewer is inspecting the fixed snapshot |
 | PR_READY | Checks and independent acceptance passed for the recorded source tree |
@@ -98,14 +98,14 @@ changes remain in your checkout; snapshot creation preserves your staging.
 ## Cancellation and recovery
 
 Use **`/surgical stop`** to interrupt an active check or reviewer. The controller
-terminates its subprocess group and aborts Engineer; the repository lock remains
+terminates its subprocess group and aborts Worker; the repository lock remains
 held until work settles. In print/JSON mode, terminate the Pi process or let the
 configured deadline stop it; commands cannot be typed into that mode's stdin.
 
 Native Esc aborts Pi, but Pi 1.5.2 does not expose that signal while an extension
 is awaiting checks/review at the final boundary. Cancellation is observed at
 settlement; a check and even a subsequent review can finish before that notification.
-No successful completion or next Engineer continuation is accepted after the abort.
+No successful completion or next Worker continuation is accepted after the abort.
 Use `/surgical stop` for immediate cancellation during verification.
 
 Run counters, check outputs and structured review evidence are saved in Pi custom
@@ -120,7 +120,7 @@ Automatic reconciliation and durable resume belong to the next phase.
 
 The controller snapshots working-tree content with an alternate Git index and
 creates a detached temporary worktree. The reviewer receives the goal, base/candidate
-identity, actual check evidence and diff, without Engineer's conversation history.
+identity, actual check evidence and diff, without Worker's conversation history.
 It starts with read/grep/find/ls only; extensions, MCP, context files, Skills,
 templates, themes and project approval/config execution are disabled for that child.
 The packaged Verifier instructions are supplied explicitly.
@@ -133,7 +133,7 @@ Live source is rechecked after checks, review and final settlement; stale result
 cannot make the task ready.
 
 These are tool restrictions and workspace separation, **not an OS sandbox**. The
-Engineer, check commands and Pi processes retain the launching user's permissions.
+Worker, check commands and Pi processes retain the launching user's permissions.
 Use a trusted repository and a controlled environment with the access appropriate
 to the task. The loop does not enforce dollar budgets or production authorization;
 cost visibility is recorded as `UNKNOWN`. Its bounds are turns, attempts and time.
@@ -151,7 +151,7 @@ SURGICAL_PI_EXECUTABLE=/absolute/path/to/pi npm run test:pi-host
 ```
 
 The first suite uses real Git/subprocess fixtures and a simulated Pi event interface.
-The second uses actual Pi Engineer/reviewer processes and their tools with a local
+The second uses actual Pi Worker/reviewer processes and their tools with a local
 deterministic model endpoint. It verifies lifecycle integration without credentials
 or API spend. Neither is a real-model capability evaluation; see
 [validation](../../VALIDATION.md) for what has and has not been exercised.

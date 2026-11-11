@@ -1,10 +1,10 @@
 # Pi autonomous loop implementation plan
 
-> For agentic workers: execute inline using superpowers:executing-plans and test-driven-development. The accepted scope is the conversation's P0 + P1: one Engineer, fixed checks, independent review, automatic repair, bounded termination.
+> For agentic workers: execute inline using superpowers:executing-plans and test-driven-development. The accepted scope is the conversation's P0 + P1: one Worker, fixed checks, independent review, automatic repair, bounded termination.
 
 **Goal:** Add an opt-in Pi command that completes a bounded development task without manual feedback handoffs.
 
-**Architecture:** Keep the current Pi session as Engineer. A small extension executes configured checks and starts a fresh read-tool-only Pi reviewer on a Git snapshot; actual findings request continuation in the same Engineer session. Existing role instructions and review record fields are reused. No service, daemon, automatic merge or deployment is added.
+**Architecture:** Keep the current Pi session as Worker. A small extension executes configured checks and starts a fresh read-tool-only Pi reviewer on a Git snapshot; actual findings request continuation in the same Worker session. Existing role instructions and review record fields are reused. No service, daemon, automatic merge or deployment is added.
 
 **Tech stack:** Node standard library and Pi v1.5.2 extension/JSON CLI interfaces; no new package dependencies.
 
@@ -14,12 +14,12 @@
 
 - Provide `/surgical run <goal>`, `/surgical status`, and `/surgical stop`.
 - Read fixed checks and finite limits from committed `.surgical-dev.json`; require a clean Git checkout at start.
-- Defaults: 40 Engineer turns, 6 check attempts, at most 2 review/repair cycles, 1800 seconds total, 120 seconds per check, 180 seconds per reviewer.
+- Defaults: 40 Worker turns, 6 check attempts, at most 2 review/repair cycles, 1800 seconds total, 120 seconds per check, 180 seconds per reviewer.
 - Preserve user staging by capturing snapshots with an alternate Git index. Review a detached disposable worktree; compare live source after checks and review.
 - Disable reviewer extension/MCP/skill/template/context discovery and permit only read/grep/find/ls. These tool restrictions do not claim OS-level isolation.
 - Validate reviewer session identity, final model stop reason, acceptance evidence, and findings. Bind identity and check metadata in controller code, not model output.
 - Persist run state in Pi custom entries. Interrupted runs stop; automatic crash recovery and restarting expired budgets are outside P1.
-- Keep all verification feedback available to Engineer. Do not modify delivery permissions or create scheduled jobs.
+- Keep all verification feedback available to Worker. Do not modify delivery permissions or create scheduled jobs.
 
 ## Tasks
 

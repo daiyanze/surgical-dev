@@ -24,8 +24,8 @@ test('current operating docs contain no version-transition guide links', () => {
   }
 });
 
-test('project organization is owned by Engineer rather than the user', () => {
-  const role = read('roles/engineer.md');
+test('project organization is owned by Worker rather than the user', () => {
+  const role = read('roles/worker.md');
   assert.match(role, /integration owner/i);
   assert.match(role, /decompose-project/);
   assert.match(role, /integrate-workstreams/);
@@ -36,7 +36,7 @@ test('project organization is owned by Engineer rather than the user', () => {
 
 test('parallel workstreams and auxiliary subagents have distinct contracts', () => {
   const policy = read('contracts/project-policy.example.yaml');
-  for (const field of ['max_active_engineers', 'max_active_verifiers', 'max_active_subagents_project', 'max_total_active_executions', 'max_active_integrations_per_target', 'serial_fallback']) assert.ok(policy.includes(field + ':'), field);
+  for (const field of ['max_active_workers', 'max_active_verifiers', 'max_active_subagents_project', 'max_total_active_executions', 'max_active_integrations_per_target', 'serial_fallback']) assert.ok(policy.includes(field + ':'), field);
   assert.match(policy, /automation_enabled: false/);
   assert.match(policy, /profile: DRAFT_ONLY/);
   assert.match(policy, /create_persistent_agents: false/);
@@ -51,7 +51,7 @@ test('project readiness requires independent integration acceptance', () => {
   assert.match(workflow, /INTEGRATION_READY/);
   assert.match(workflow, /PR_READY/);
   assert.match(read('roles/verifier.md'), /integration/i);
-  assert.match(read('roles/operator.md'), /integration/i);
+  assert.match(read('roles/worker.md'), /integration/i);
   const packet = read('templates/integration-review.md');
   for (const word of ['Plan revision:', 'Workstream snapshots:', 'Integrated snapshot:', 'Project acceptance criteria:', 'Independent reviewer:']) assert.ok(packet.includes(word), word);
 });
@@ -135,10 +135,19 @@ for (const name of skills) {
   });
 }
 
-test('four persistent roles and temporary helper assets exist', () => {
-  for (const role of ['product-scout', 'engineer', 'verifier', 'operator', 'temporary-subagent']) {
+test('three role types and temporary helper assets exist', () => {
+  const roles = ['product-scout', 'worker', 'verifier', 'temporary-subagent'];
+  const charters = readdirSync(resolve(root, 'roles'))
+    .filter(name => name.endsWith('.md') && !['README.md', 'team-boundaries.md'].includes(name))
+    .map(name => name.slice(0, -3));
+  assert.deepEqual(charters.sort(), [...roles].sort());
+  for (const role of roles) {
     const path = `roles/${role}.md`;
     assert.ok(existsSync(resolve(root, path)), `Missing ${path}`);
+  }
+  const worker = read('roles/worker.md');
+  for (const method of ['ship-feature', 'fix-bug', 'prepare-release', 'release-and-observe', 'handle-incident']) {
+    assert.ok(worker.includes(method), `Worker must own ${method}`);
   }
 });
 
@@ -222,7 +231,7 @@ test('Karpathy-inspired engineering discipline covers four actionable habits', (
     assert.ok(skill.includes(heading), heading);
   }
   assert.match(read('skills/surgical-dev/SKILL.md'), /engineering-discipline/);
-  assert.match(read('roles/engineer.md'), /smallest solution/);
+  assert.match(read('roles/worker.md'), /smallest solution/);
   assert.match(read('roles/verifier.md'), /unrelated changes/);
   assert.match(read('references/workflow.md'), /reproducing a bug/);
 });

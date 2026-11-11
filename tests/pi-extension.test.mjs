@@ -23,7 +23,7 @@ async function host(t, options = {}) {
   const idle = new Promise(resolve => { resolveIdle = resolve; });
   const ctx = {
     cwd, hasUI: false, mode: 'json', model: undefined,
-    sessionManager: { getSessionId: () => 'engineer-session', getEntries: () => records, getBranch: () => records },
+    sessionManager: { getSessionId: () => 'worker-session', getEntries: () => records, getBranch: () => records },
     isIdle: () => !busy, hasPendingMessages: () => false,
     waitForIdle: () => busy ? idle : Promise.resolve(),
     abort: () => {}, ui: { setStatus: () => {}, notify: () => {} },
@@ -63,7 +63,7 @@ test('command stays in its original session until review repair and final settle
   await h.settle(false);
   await running;
   assert.equal(h.state().status, 'PR_READY');
-  assert.equal(h.state().engineerSessionId, 'engineer-session');
+  assert.equal(h.state().workerSessionId, 'worker-session');
 });
 
 test('an aborted boundary never dispatches checks or a reviewer', async t => {
@@ -129,7 +129,7 @@ test('installation and status alone start no agent run', async t => {
   assert.equal(h.ctx.isIdle(), true);
 });
 
-test('stop during command preflight prevents starting the Engineer', async t => {
+test('stop during command preflight prevents starting the Worker', async t => {
   const h = await host(t);
   let incorrectlyStarted = false;
   h.started.then(async () => { incorrectlyStarted = true; await h.command('stop'); await h.settle(true); });

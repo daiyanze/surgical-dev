@@ -6,14 +6,14 @@ description: Use when planning, implementing, debugging or reviewing code to exp
 # Engineering discipline
 
 Adapt four habits from [Karpathy-inspired coding guidelines](https://github.com/multica-ai/andrej-karpathy-skills).
-Apply them inside Surgical Dev's existing Engineer and Verifier loop, not as a new agent or approval gate.
+Apply them inside Surgical Dev's existing Worker and Verifier loop, not as a new agent or approval gate.
 
 ## Think before coding
 
 Read relevant code and tests. Surface assumptions and tradeoffs affecting approved
 requirements, safety or public contracts rather than guessing silently. Resolve
 questions using existing project evidence or ask only when authority is missing.
-Routine implementation choices remain with Engineer.
+Routine implementation choices remain with Worker.
 
 ## Simplicity first
 
@@ -33,7 +33,7 @@ workstream contracts under a clear owner and revalidate their consumers.
 Translate the task into observable success criteria and actual checks. For bugs,
 prefer reproducing the failure before fixing it where feasible. For refactors,
 verify behavior before and after. Implement, test, inspect failures and repair
-within the authorized budget. Engineer self-checks; Verifier independently
+within the authorized budget. Worker self-checks; Verifier independently
 reviews the current snapshot. Combined changes still require integration review.
 
 ## Review guidance

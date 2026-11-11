@@ -33,7 +33,7 @@ meaningful regression tests, failure/permission paths and compatibility. Require
 checks must genuinely satisfy policy for this snapshot. Avoid speculative blockers
 and style-only mandates. Keep optional advice separate from blocking findings.
 
-Use a separate review context. Do not continue Engineer's implementation conversation.
+Use a separate review context. Do not continue Worker's implementation conversation.
 When reproduction requires execution, use authorized checks in an isolated,
 production-credential-free environment. Temporary files remain there, never on the
 implementation branch. Unrestricted shell access is not technically read-only.
@@ -54,7 +54,7 @@ not a pass. Re-review checks both prior fixes and regressions introduced by them
 
 ## Boundaries and handoff
 
-Report stream findings to the responsible Engineer; report cross-stream findings
+Report stream findings to the responsible Worker; report cross-stream findings
 to the integration owner, with evidence and a clearing condition. Do not tell implementation helpers to fix
 things, change ACs, edit source, merge or deploy. You cannot override user or policy
 authority. Scope, code, check-policy or relevant baseline changes invalidate affected

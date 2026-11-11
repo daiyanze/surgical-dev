@@ -1,18 +1,18 @@
 # Surgical Dev architecture
-## Goal-driven organization, four role types and elastic execution
+## Goal-driven organization, three role types and elastic execution
 
-**Design date:** 2026-11-08
+**Design date:** 2026-11-11
 
 **Primary deployment targets:** Pi and Codex (Skills hosts), with one verified coding runtime  
 **Status:** Target architecture with an opt-in Pi single-workstream development/check/review/repair implementation. See [Pi setup](adapters/pi/SETUP.md) for the shipped subset and [validation](VALIDATION.md) for evidence. Multi-stream scheduling, durable recovery and automated delivery are not implemented.
 
 ## 1. Decision and scope
 
-Use four persistent role types—**Product Scout, Engineer, Verifier, and Operator**—and an optional pool of temporary subagents. Do not create a permanent worker agent or a fifth manager agent. “Persistent” means durable responsibility and curated project knowledge, not a process that must run continuously or one conversation that grows forever.
+Use three persistent role types—**Product Scout, Worker, and Verifier**—and optional temporary subagents. Worker owns implementation, authorized delivery, observation and incident handling. “Persistent” means durable responsibility and curated project knowledge, not a process that must run continuously or one conversation that grows forever.
 
-Engineer remains the accountable owner of a software change. Reading code, technical planning, implementation, tests, and debugging stay in the same continuing coding session whenever possible. The other roles contribute an opportunity before implementation, independent judgment at acceptance, or operational responsibility after delivery. They do not take turns owning pieces of one tightly coupled implementation.
+Worker remains the accountable owner of a task across implementation and authorized operations. Reading code, technical planning, implementation, tests, debugging and related delivery work stay in the same continuing context when practical. Scout contributes problem and outcome evidence; Verifier supplies independent acceptance. A change of responsibility does not require another execution owner.
 
-This is our design choice, informed by Anthropic's context-boundary and progressive-disclosure guidance [S1]. Four roles are not an externally established optimum. The design must be evaluated against the simpler Engineer + Verifier baseline.
+This is our design choice, informed by Anthropic's context-boundary and progressive-disclosure guidance [S1]. Three roles are not an externally established optimum. The design must be evaluated against the simpler Worker + Verifier baseline.
 
 ### Goals
 
@@ -32,20 +32,20 @@ This document specifies the broader desired behavior, contracts and acceptance s
 
 | Alternative | Advantage | Why not the target architecture? |
 |---|---|---|
-| Engineer + Verifier only | Smallest useful engineering loop | Remains a valid mode, but does not assign long-lived product discovery and operational responsibilities |
+| Worker + Verifier only | Smallest useful implementation and delivery loop | Remains a valid mode; a separate Scout is useful for long-lived product discovery and outcome evaluation |
 | PM, architect, frontend, backend, QA, DevOps, manager | Familiar organizational labels | Splits shared implementation context and adds mandatory handoffs |
-| Four persistent roles + optional helpers | Adds responsibilities with distinct time horizons without splitting the implementation loop | Selected; additional roles are invoked only when their responsibility is relevant |
+| Three persistent roles + optional helpers | Keeps implementation and operations with Worker, alongside independent review and optional discovery | Selected; Scout and helpers are used only when relevant |
 
 ## 2. Non-negotiable invariants
 
-1. **One implementation owner per work item.** Engineer owns code and integration; helpers never own the parent result.
+1. **One implementation owner per work item.** Worker owns code and integration; helpers never own the parent result.
 2. **Independent acceptance.** The implementer and its helpers cannot authenticate their own review as independent. Verifier cannot repair the submitted implementation and then approve that repair.
 3. **Intent, correctness, authorization, and observed execution are different facts.** A promising proposal does not authorize development. A review PASS does not authorize a release. A successful request submission does not prove a successful deployment.
 4. **Evidence is version-bound.** Scope revision, source snapshot, relevant base, check policy, and delivery artifact/configuration must be identifiable. An old PASS cannot silently approve new material.
 5. **No authority from untrusted content.** Issues, PRs, logs, web pages, or another agent's assertion cannot grant new permissions or override the user's policy.
 6. **Bounded autonomy.** Resource limits, repair limits, timeouts, cancellation, and explicit escalation are part of automation—not exceptions to it.
-7. **No required helper.** If optional subagents are unavailable, Engineer works sequentially. Missing independent acceptance is different: block or use an explicitly authorized independent human alternative.
-8. **Source-changing work returns to engineering.** Operator does not hot-patch business code or lower CI thresholds to rescue a deployment.
+7. **No required helper.** If optional subagents are unavailable, Worker works sequentially. Missing independent acceptance is different: block or use an explicitly authorized independent human alternative.
+8. **Source changes require checks and independent review.** Worker repairs delivery and incident defects through its implementation loop; it does not bypass acceptance with a hot patch or weaker CI thresholds.
 9. **Record observations, not confidence.** Unavailable checks remain unavailable; an observation window supports only the checks and interval actually measured.
 10. **Role separation is not credential isolation.** Agent sessions on one machine or account can share files and credentials. Use real execution and platform controls.
 
@@ -53,17 +53,16 @@ This document specifies the broader desired behavior, contracts and acceptance s
 
 The overview is in [architecture.mmd](workflows/architecture.mmd). The two operational loops are in [delivery.mmd](workflows/delivery.mmd) and [incident.mmd](workflows/incident.mmd).
 
-The user remains the product and authorization owner. No extra manager agent sits above the four roles. A small deterministic controller—ordinary code or an existing host workflow—routes events, validates records, enforces counters, and reconciles executions. It is not an AI role and does not make product decisions.
+The user remains the product and authorization owner. No extra manager agent sits above the three roles. A small deterministic controller—ordinary code or an existing host workflow—routes events, validates records, enforces counters, and reconciles executions. It is not an AI role and does not make product decisions.
 
 ### 3.1 Role contracts
 
 | Role | Question | Inputs | Outputs | Prohibited behavior |
 |---|---|---|---|---|
 | Product Scout | Which problem deserves attention, and did the change help? | Authorized feedback, issues, research, usage evidence, outcome observations | Evidence-backed opportunity brief, priority recommendation, outcome assessment | Inventing user demand; approving its own new scope; silently changing accepted requirements; automatically creating an endless development backlog |
-| Engineer | How do we implement and repair this bounded change? | Authorized task, project rules, current code, review/incident findings | Code, tests, current check evidence, PR, integration and handoff records | Self-approving independent acceptance; expanding scope or privileges; bypassing gates; production mutation outside its role |
+| Worker | How do we implement, deliver and maintain this bounded outcome? | Authorized task, project rules, current code, review findings, release target, runbooks and telemetry | Code, tests, integration evidence, release plan, observed action results and incident recovery records | Self-approving acceptance; expanding scope or privileges; bypassing checks; unauthorized production actions or unsafe rollback |
 | Verifier | Does this exact change meet the approved contract? | Approved scope, source snapshot, actual diff, related code/tests, trusted checks | PASS / CHANGES_REQUIRED / BLOCKED with AC mapping and evidence | Implementing the reviewed fix; accepting the implementer's confidence as proof; granting release authorization |
-| Operator | Which version is running, and is authorized delivery operating as expected? | Accepted change, release candidate, environment policy, runbooks, telemetry | Release plan, observed action result, observation report, incident packet, containment status | Business-code hot fixes; overriding a negative review; inventing production authority; automatic destructive rollback |
-| Temporary subagent | What bounded piece can be completed independently? | Engineer's explicit subtask, sources, snapshot, boundaries, budget | Compact evidence, change references, limitations, completion/blocker status | Recursive delegation; new permanent agents; parent-task approval; shared-interface changes beyond assignment; release actions |
+| Temporary subagent | What bounded piece can be completed independently? | Worker's explicit subtask, sources, snapshot, boundaries, budget | Compact evidence, change references, limitations, completion/blocker status | Recursive delegation; new permanent agents; parent-task approval; shared-interface changes beyond assignment; release actions |
 
 Detailed charters are in [roles/](roles/README.md). They are design assets, not host-enforced permissions.
 
@@ -71,21 +70,21 @@ Detailed charters are in [roles/](roles/README.md). They are design assets, not 
 
 Scout may group duplicate feedback, investigate evidence, identify affected users, propose acceptance criteria, state non-goals, and compare opportunity value, confidence, cost, and risk. It must distinguish observed facts, interpretations, and hypotheses. A count of repeated reports is not proof of frequency in the whole user population.
 
-Every proposal includes evidence references, the problem, affected users, proposed outcome, testable acceptance criteria, exclusions, uncertainty, and a prioritization recommendation. Engineer may supply a feasibility estimate without opening a parallel detailed implementation plan.
+Every proposal includes evidence references, the problem, affected users, proposed outcome, testable acceptance criteria, exclusions, uncertainty, and a prioritization recommendation. Worker may supply a feasibility estimate without opening a parallel detailed implementation plan.
 
-Scout does not authorize its own proposals. A user decision or pre-existing, narrowly scoped admission policy must accept the work. A direct, clear user bug request bypasses Scout. An operational incident bypasses product discovery and goes to Engineer through Operator.
+Scout does not authorize its own proposals. A user decision or pre-existing, narrowly scoped admission policy must accept the work. Direct bugs and operational incidents go to Worker without waiting for product discovery.
 
 After delivery, Scout compares the agreed outcome measure with an appropriate baseline and observation window. Return SUPPORTED, INCONCLUSIVE, or REGRESSED; state data gaps and confounders. Technical success alone does not demonstrate business benefit or causality. A follow-up is another proposal, not automatic scope expansion.
 
-### 3.3 Engineer: the lead operator of the implementation loop
+### 3.3 Worker: implementation through authorized delivery
 
-Engineer receives either an accepted opportunity, a direct task, or a bounded incident repair. It owns scope interpretation, the smallest viable technical approach, code, tests, debugging, helper integration, and repair of review findings.
+Worker receives either an accepted opportunity, a direct task, or a bounded incident repair. It owns scope interpretation, the smallest viable technical approach, code, tests, debugging, helper integration, and repair of review findings.
 
 Use the same coding session through implementation and repairs. If a session is lost, resume from verified project/task checkpoints, record the new execution identity, and reconcile any old running job first. Do not describe resumed execution as literally the same context if it is not.
 
-Engineer remains the user's main development contact. It can perform a small amount of requirements clarification or technical research itself; Scout is not a prerequisite. Engineer never becomes a dispatcher that outsources every meaningful implementation step.
+Worker remains the user's main development contact. It can perform a small amount of requirements clarification or technical research itself; Scout is not a prerequisite. Worker never becomes a dispatcher that outsources every meaningful implementation step.
 
-After review, Engineer hands an accepted change and release-relevant notes to Operator. **prepare-release is primarily Operator's method**. Engineer supplies compatibility notes, data-safety constraints, build instructions, and proposed changelog edits as part of the reviewed change. Later source edits require refreshed checks/review.
+After independent acceptance, Worker continues with **prepare-release** when delivery is requested, then uses **release-and-observe** for authorized actions. It retains task ownership and records compatibility notes, data-safety constraints, build instructions and release notes. Later source edits require refreshed checks and independent review. No separate delivery role or mandatory session handoff is needed.
 
 ### 3.4 Verifier: independent acceptance, not another developer
 
@@ -103,49 +102,49 @@ Pending CI is not a successful check. Optional suggestions do not become invente
 
 A code or requirement change triggers re-evaluation; a report's claimed role is not proof of reviewer identity. The future runtime binds the report to the actual Verifier session/account. If the host cannot establish this, retain human verification and do not claim an enforced independent gate.
 
-### 3.5 Operator: delivery and operational responsibility
+### 3.5 Delivery and incidents within the Worker role
 
-Operator consumes an accepted change, prepares the release candidate and operational checks, and executes only through an already authorized action path. It records actual job IDs, source/artifact identity, environment, configuration revision, results, and observation scope.
+Worker consumes an accepted change, prepares the release candidate and operational checks, and executes only through an already authorized action path. It records actual job IDs, source/artifact identity, environment, configuration revision, results, and observation scope.
 
 It can pause a rollout or execute a named rollback only under a validated runbook and applicable authorization. A database migration, external side effect, or published package may not have a safe inverse. In those cases, stop/contain under the runbook and request a forward fix or a human decision; never assume “rollback” is universally safe.
 
-Operator may classify incidents, retrieve permitted logs, correlate symptoms with release versions, and open a bounded repair work item. It does not alter source code. Pipeline or infrastructure source changes also belong to Engineer and Verifier. Re-running an unchanged, approved workflow is operational execution; editing that workflow is engineering work.
+Worker classifies incidents, retrieves permitted logs, correlates symptoms with release versions, and performs bounded repairs. Keep the existing implementation context when it owns the affected work; route another workstream's defect to its existing owner. Source, pipeline and infrastructure edits go through checks and independent Verifier acceptance before delivery resumes. Re-running an unchanged, approved workflow is operational execution; editing it requires fresh implementation evidence.
 
 An incident may be CONTAINED while a permanent repair is still pending. “Resolved” requires the agreed recovery checks and sufficient observation; it does not require pretending an unknown root cause has been identified.
 
-## 4. Four roles, multiple short routes
+## 4. Three roles, multiple short routes
 
 | Entry | Route | Default endpoint |
 |---|---|---|
-| Unclear product opportunity | Scout → user/policy admission → Engineer ↔ Verifier → Operator when delivery is requested → Scout outcome follow-up | Accepted/deferred proposal, then the task's chosen delivery target |
-| Clear feature request | Engineer ↔ Verifier → Operator only when delivery is requested | PR_READY unless a delivery policy says more |
-| Small bug | Engineer ↔ Verifier | PR_READY; no Scout or helper required |
-| Runtime incident | Operator → containment if authorized; Operator → Engineer ↔ Verifier → Operator | Observed recovery plus linked follow-up work |
-| Release an already accepted version | Operator → checks/authentication of current evidence → authorized execution → observation | Verified result or explicit blocker |
-| Research only | Scout, or Engineer with an optional research subagent | Evidence report; no implied implementation |
+| Unclear product opportunity | Scout → user/policy admission → Worker ↔ Verifier → Worker when delivery is requested → Scout outcome follow-up | Accepted/deferred proposal, then the task's chosen delivery target |
+| Clear feature request | Worker implements and repairs with independent Verifier acceptance; the same Worker delivers when requested | PR_READY unless a delivery policy says more |
+| Small bug | Worker ↔ Verifier | PR_READY; no Scout or helper required |
+| Runtime incident | Worker triages, contains and repairs → Verifier → same Worker delivers and observes recovery | Observed recovery plus linked follow-up work |
+| Release an already accepted version | Worker → checks/authentication of current evidence → authorized execution → observation | Verified result or explicit blocker |
+| Research only | Scout, or Worker with an optional research subagent | Evidence report; no implied implementation |
 
-No route requires every role to speak. Scout and Operator may observe relevant facts while development proceeds, but must not change the active implementation scope. There is one current owner for each record, not one universal owner for every record in the system.
+No route requires every role to speak. Scout and Worker may observe relevant facts while development proceeds, but must not change the active implementation scope. There is one current owner for each record, not one universal owner for every record in the system.
 
 ## Automatic project organization and scaling
 
 The user supplies **goal, constraints, budget and permissions**, not a task graph or
-staff assignments. Engineer owns the technical organization. Record the plan as
+staff assignments. Worker owns the technical organization. Record the plan as
 an observable working artifact; routine in-scope partitioning, assignment and
 replanning do not require another human confirmation. Ask only for material
 business ambiguity, scope changes, additional authority/budget or persistent failure.
 
 ### One workstream, one lead implementer
 
-Choose one Engineer as the project's **integration owner**. This is an assignment
-within the Engineer role, not a fifth manager agent. It owns shared contracts, key
+Choose one Worker as the project's **integration owner**. This is an assignment
+within the Worker role, not an additional manager agent. It owns shared contracts, key
 implementation, the dependency map and overall integration; it does not absorb all
 peer implementation transcripts or independently approve code it authored.
 
-Split large goals into independently testable outcomes. A peer Engineer owns a
+Split large goals into independently testable outcomes. A peer Worker owns a
 complete workstream through planning, implementation, tests, review and repair.
 A temporary subagent only assists its parent with a bounded result. Do not split
 one tightly coupled feature into frontend, backend and test job titles merely to
-create parallelism. Small/coupled work uses one stream and one continuing Engineer.
+create parallelism. Small/coupled work uses one stream and one continuing Worker.
 
 The plan includes project ACs, stable workstream IDs, per-stream AC mapping,
 acyclic dependencies, accepted input snapshots, shared-contract owners/versions,
@@ -161,12 +160,12 @@ and whose global/project execution limits permit dispatch. Actual session IDs,
 workspaces and leases bind ownership; display names are insufficient. Leases or
 local timeouts do not establish that old jobs stopped: reconcile before reassignment.
 
-A conservative enabled pilot allows two active Engineers, one independent Verifier,
+A conservative enabled pilot allows two active Workers, one independent Verifier,
 up to two optional helpers across the project and a hard ceiling of four active
 executions overall. These are policy examples, not guaranteed host capacity. The
-integration owner counts toward Engineer capacity while implementing; helper and
-review use count toward the total. Scout/Operator active executions also consume
-that total. Automation and helper execution remain disabled in the distributed
+integration owner and every delivery/incident execution count toward Worker capacity;
+all Worker, Scout, Verifier and helper executions also consume the total cap.
+Automation and helper execution remain disabled in the distributed
 example. Users may authorize different caps; agents may not increase them.
 
 Keep one integration operation per shared target and one relevant release per
@@ -185,7 +184,7 @@ behavior against all required project ACs and binds its verdict to the plan,
 stream snapshots, contract versions and integrated/merge-test source.
 
 Several local PASS reports cannot substitute for this result. Send defects to the
-responsible Engineer; cross-stream defects belong to the integration owner for
+responsible Worker; cross-stream defects belong to the integration owner for
 repair, not self-approval. Refresh the repaired stream and combined evidence.
 For one stream, one independent review may cover both local and project ACs on
 an identical snapshot; do not require redundant reviewers merely to tick a stage.
@@ -210,9 +209,9 @@ Behavior outside the already authorized goal, material requirement ambiguity, or
 
 ### 5.2 Implementation and checks
 
-Admit workstreams under the current Engineer-owned project plan and policy caps. Each has a continuing Engineer session, accepted dependency versions and an isolated workspace. Conflicting write scopes or shared resources serialize. Temporary helpers only assist their parent; the project integration owner assembles accepted stream results. Multiple branches in one checkout are not isolation.
+Admit workstreams under the current Worker-owned project plan and policy caps. Each has a continuing Worker session, accepted dependency versions and an isolated workspace. Conflicting write scopes or shared resources serialize. Temporary helpers only assist their parent; the project integration owner assembles accepted stream results. Multiple branches in one checkout are not isolation.
 
-Engineer performs implementation and tests continuously. It may push a feature branch and open a draft PR only when authorized. A draft PR can precede PR-triggered CI; do not create a circular “CI before opening the PR” rule.
+Worker performs implementation and tests continuously. It may push a feature branch and open a draft PR only when authorized. A draft PR can precede PR-triggered CI; do not create a circular “CI before opening the PR” rule.
 
 Check evidence captures command/job, source, status, logs/reference, tested source or merge snapshot, and the applicable check-policy revision. If the policy requires a test to execute, SKIPPED or NEUTRAL is not evidence that it executed. Configure an aggregate CI check when necessary rather than assuming the platform's green appearance matches the intended semantics [S5].
 
@@ -223,7 +222,7 @@ Submit one snapshot-bound review request. The current implementation conversatio
 | Event | Automatic next step |
 |---|---|
 | PASS and evidence current | Mark the stream INTEGRATION_READY; project PR_READY additionally requires current independent integration acceptance |
-| CHANGES_REQUIRED within scope and budget | Resume Engineer's implementation session with findings; fix, rerun affected checks, and request review of the new snapshot |
+| CHANGES_REQUIRED within scope and budget | Resume Worker's implementation session with findings; fix, rerun affected checks, and request review of the new snapshot |
 | BLOCKED with a known pending CI run | Wait/reconcile the existing run within the configured timeout; do not start a new implementation or count a repair |
 | BLOCKED by missing access/decision | Preserve state and notify the appropriate owner/user |
 | Scope change needed | Return to scope/admission; preserve the previous version and review history |
@@ -239,7 +238,7 @@ Review reports live outside the reviewed source branch where possible. Saving a 
 
 PR_READY means a change is ready for a merge decision. It does not mean merged, built, released, deployed, or beneficial to users. A task may deliberately end there.
 
-Operator first determines which actions the delivery target actually requires: merge, tag, build, publish a package, deploy a preview, deploy production, or run a smoke test. Each consequential action is separately permitted by a specific user approval or trusted policy. One merge grant does not authorize npm publication or production deployment.
+Worker first determines which actions the delivery target actually requires: merge, tag, build, publish a package, deploy a preview, deploy production, or run a smoke test. Each consequential action is separately permitted by a specific user approval or trusted policy. One merge grant does not authorize npm publication or production deployment.
 
 ### 6.2 Avoid the pre-merge artifact trap
 
@@ -263,7 +262,7 @@ Observation reports include deployed version/digest, environment, checks actuall
 
 When delivery fails, distinguish build/infrastructure failure, source defect, configuration mismatch, external outage, and unknown cause. Reattempt unchanged operations only within their authorized retry budget and after checking partial effects.
 
-For a source defect, Operator sends a compact incident packet to Engineer, who owns the fix and submits it to Verifier. Operator may contain the incident using a pre-authorized runbook in parallel. The permanent repair still goes through review and its own delivery checks. Do not automatically re-release the same known-bad artifact after rollback.
+For a source defect, Worker records a bounded incident repair, implements it and submits it to Verifier. Worker may contain the incident using a pre-authorized runbook before permanent repair. It retains ownership through repair, fresh acceptance, delivery readiness and recovery observation. Do not automatically re-release the same known-bad artifact after rollback.
 
 Product Scout receives an evidence-backed operational/outcome summary, not raw production logs or credentials. A recurring incident may become an opportunity proposal, but is not automatically a new feature commitment.
 
@@ -273,21 +272,21 @@ These are the canonical gate names. Do not reuse ambiguous G2/G3 numbering.
 
 | Gate | Decision/evidence owner | Required fact | Failure behavior |
 |---|---|---|---|
-| Scope Ready | Engineer prepares; user/trusted policy admits | Current bounded scope and permitted actions | Return for clarification/admission |
+| Scope Ready | Worker prepares; user/trusted policy admits | Current bounded scope and permitted actions | Return for clarification/admission |
 | Checks Passed | CI/tools produce; controller validates provenance | Required checks genuinely satisfied for the submitted snapshot | Fix, wait, or block according to cause |
 | Review Passed | Verifier | Independent, current acceptance with no unresolved blockers | Repair loop or blocker |
-| Integration Passed | Independent Verifier; Engineer integration owner prepares candidate | Project ACs, actual combined snapshot, contract versions and integration checks | Repair affected streams/candidate and reverify; never sum local PASS reports |
-| Release Ready | Operator assesses candidate using trusted build/CI evidence | Correct deployable candidate, environment, observation and recovery readiness | Block delivery; source changes go back to Engineer |
+| Integration Passed | Independent Verifier; Worker integration owner prepares candidate | Project ACs, actual combined snapshot, contract versions and integration checks | Repair affected streams/candidate and reverify; never sum local PASS reports |
+| Release Ready | Worker assesses candidate using trusted build/CI evidence | Correct deployable candidate, environment, observation and recovery readiness | Block delivery; source changes go back to Worker |
 | Action Authorized | User/trusted policy; external executor verifies | This actor may perform this action on this target now | Wait or deny; no role can invent approval |
-| Outcome Observed | Operator for technical effects; Scout for later value assessment | The claimed effect was actually observed | Record unknown/failure and route appropriately |
+| Outcome Observed | Worker for technical effects; Scout for later value assessment | The claimed effect was actually observed | Record unknown/failure and route appropriately |
 
 Scope/Checks/Review/Integration govern engineering. Release Ready applies only to delivery. Action Authorized is checked at **each** relevant external operation, not just once at the end. Outcome Observed is a truthfulness requirement; product value may remain INCONCLUSIVE without invalidating a technically successful release.
 
-Operator's release-readiness judgment is not a substitute for Verifier's code review. If a release requires source/configuration changes that were not reviewed, reopen the engineering loop.
+Worker's release-readiness judgment is not a substitute for Verifier's code review. If a release requires source/configuration changes that were not reviewed, reopen the engineering loop.
 
 ## 8. Elastic subagents: capacity, not another permanent role
 
-In this design, **Temp Worker means a temporary subagent**. Engineer owns a bounded invocation, not a new long-lived agent. Do not create or delete persistent agents as a side effect of ordinary tasks.
+Temporary subagents are bounded helpers invoked by Worker. They do not own a full workstream or constitute another persistent role. Do not create or delete persistent agents as a side effect of ordinary tasks.
 
 ### Admission test for delegation
 
@@ -295,13 +294,13 @@ Delegate only when the subtask has a compact input contract, a checkable result,
 
 ### Lifecycle
 
-`REQUESTED → RUNNING → RETURNED → ACCEPTED_FOR_INTEGRATION / REJECTED`, with `BLOCKED`, `TIMED_OUT`, and `CANCELLED` outcomes. “Accepted for integration” is Engineer's decision about a helper result, **not independent acceptance of the parent task**.
+`REQUESTED → RUNNING → RETURNED → ACCEPTED_FOR_INTEGRATION / REJECTED`, with `BLOCKED`, `TIMED_OUT`, and `CANCELLED` outcomes. “Accepted for integration” is Worker's decision about a helper result, **not independent acceptance of the parent task**.
 
 Each invocation records parent task/scope, subtask ID, real runtime execution ID, pinned inputs, allowed files/interfaces, output contract, resource limit, deadline, and return destination. The runtime allocates an isolated workspace for writing and checks overlap before launch. If the parent changes relevant scope or source, pending child results must be revalidated or cancelled.
 
-Default settings: zero helpers until delegation is enabled; at most two concurrent helpers across a project after enablement, also subject to the total execution cap; no recursive delegation. Peer workstream Engineers are not helpers and have separate capacity limits. Engineer checks helper results; the integration owner assembles stream results serially and runs project checks. An inseparable helper returns remaining work to its parent.
+Default settings: zero helpers until delegation is enabled; at most two concurrent helpers across a project after enablement, also subject to the total execution cap; no recursive delegation. Peer workstream Workers are not helpers and have separate capacity limits. Worker checks helper results; the integration owner assembles stream results serially and runs project checks. An inseparable helper returns remaining work to its parent.
 
-Only Engineer initiates implementation helpers in this version. Scout and Operator do their own bounded analysis; additional read-only helper patterns are not required for the current design. Verifier may use host tooling for verification but cannot recruit the implementer's helpers to supply an independent approval.
+Only Worker initiates implementation helpers in this version. Scout does its own bounded analysis; additional helper patterns are not required for the current design. Verifier may use host tooling for verification but cannot recruit the implementer's helpers to supply an independent approval.
 
 Cancellation stops new child dispatch, requests cancellation of active jobs, and reconciles what actually stopped. Retain useful evidence; cleanup must not delete user work or erase audit records. Unsupported optional helper capability causes sequential execution, not a fictitious successful delegation.
 
@@ -326,7 +325,7 @@ Sensitive classes default to explicit human review: authentication/authorization
 
 ### Automatic continuation and stopping
 
-- Automatically deliver in-scope review findings to Engineer; no per-cycle “may I fix this?” question.
+- Automatically deliver in-scope review findings to Worker; no per-cycle “may I fix this?” question.
 - Wait for a known pending job with bounded polling/backoff. Network retries are not review cycles.
 - Cap transient retries (recommended starting value: three) and review repairs (two). Set a finite overall execution/time or usage budget before an unattended run; unavailable cost data is UNKNOWN, not zero.
 - Escalate incompatible requirements, source/evidence contradictions, repeated unresolved defects, missing trust/capability, or exhausted limits.
@@ -342,12 +341,12 @@ A host's own approval layer can independently ask for permission or deny an acti
 | Record | Owner | Key states |
 |---|---|---|
 | Opportunity | Product Scout | DRAFT, PROPOSED, ACCEPTED, DEFERRED, REJECTED |
-| Project | Engineer integration owner; independent acceptance by Verifier | GOAL, PLANNING, EXECUTING, INTEGRATING, INTEGRATION_VERIFYING, PR_READY |
-| Workstream | Assigned Engineer; review conclusion authored by Verifier | BRIEF, IMPLEMENTING, CHECKING, VERIFYING, INTEGRATION_READY |
-| Release/action run | Operator | PLANNED, PRECHECKING, READY, EXECUTING, OBSERVING, VERIFIED, FAILED, ROLLED_BACK |
-| Incident | Operator | OPEN, TRIAGED, MITIGATING, CONTAINED, RESOLVED |
+| Project | Worker integration owner; independent acceptance by Verifier | GOAL, PLANNING, EXECUTING, INTEGRATING, INTEGRATION_VERIFYING, PR_READY |
+| Workstream | Assigned Worker; review conclusion authored by Verifier | BRIEF, IMPLEMENTING, CHECKING, VERIFYING, INTEGRATION_READY |
+| Release/action run | Worker | PLANNED, PRECHECKING, READY, EXECUTING, OBSERVING, VERIFIED, FAILED, ROLLED_BACK |
+| Incident | Worker | OPEN, TRIAGED, MITIGATING, CONTAINED, RESOLVED |
 | Outcome assessment | Product Scout | PENDING, SUPPORTED, INCONCLUSIVE, REGRESSED |
-| Subagent invocation | Engineer via runtime | REQUESTED, RUNNING, RETURNED, ACCEPTED_FOR_INTEGRATION, REJECTED |
+| Subagent invocation | Worker via runtime | REQUESTED, RUNNING, RETURNED, ACCEPTED_FOR_INTEGRATION, REJECTED |
 
 BLOCKED, ESCALATED, CANCELLED and TIMED_OUT are applicable execution conditions with a saved prior state, reason, owner, and resumption rule; they are not successful gates. Opportunity acceptance comes from the authenticated user/policy event, not a Scout-authored status update. VERIFIED refers only to the release checks and observation window stated in the record.
 
@@ -365,7 +364,7 @@ Use the selected host's existing execution and storage capabilities first. Add a
 6. Record an intended external action before calling its trusted executor; reconcile its outcome afterward.
 7. Notify on completion, approval needs, or escalation; suppress duplicate progress chatter.
 
-Do not implement `approve_everything()` or accept arbitrary model-written `set_status(PASS)`. The controller determines whether prerequisites exist; the models perform domain reasoning. This layer is **not a fifth agent**.
+Do not implement `approve_everything()` or accept arbitrary model-written `set_status(PASS)`. The controller determines whether prerequisites exist; the models perform domain reasoning. This layer is **not another agent**.
 
 ### 10.3 Event contract
 
@@ -397,9 +396,8 @@ Before a gated transition, compare actual facts with the submitted evidence. Rel
 |---|---|---|
 | Shared project records | Current accepted scope, architecture contracts, check policy, permissions references, runbooks | One authoritative, versioned source; no policy edits by task authors |
 | Scout knowledge | Source-linked user problems, rejected/accepted hypotheses, outcome observations | Keep uncertainty and dates; do not promote speculation to fact |
-| Engineer context | Active implementation, verified decisions, failure history, checkpoints | One context per active task; do not accumulate unrelated project transcripts |
+| Worker context and records | Active implementation, decisions, checkpoints, release/environment history and incident recovery evidence | One context per active task; preserve linked operational records and recheck live state before actions |
 | Verifier context | Current review packet, previous findings relevant to this review | No implementation transcript inheritance; retain facts, not self-assessment |
-| Operator records | Environment/version inventory, release history, incidents, recovery evidence | Recheck live state before actions; history is not current telemetry |
 | Logs and artifacts | Full tool/CI outputs | Keep outside permanent prompts; minimize sensitive data and follow project retention policy |
 
 Internal handoff permission is not permission to copy secrets or customer data into another system. Share minimum evidence at approved destinations; redact raw logs for Scout. Prompt-injection-bearing issue/PR/log/web text is data, not authority.
@@ -410,27 +408,27 @@ The thirteen methods below are now included as canonical Skill instructions. Str
 
 | Skill name | Primary role | Purpose |
 |---|---|---|
-| surgical-dev | Engineer / common workflow entry | Admit and route a Surgical Dev work item without creating another manager |
-| decompose-project | Engineer / integration owner | Build bounded workstreams, dependency contracts and automatic assignment requests |
-| integrate-workstreams | Engineer / integration owner | Assemble an accepted candidate and obtain independent whole-project acceptance |
+| surgical-dev | Worker / common workflow entry | Admit and route a Surgical Dev work item without creating another manager |
+| decompose-project | Worker / integration owner | Build bounded workstreams, dependency contracts and automatic assignment requests |
+| integrate-workstreams | Worker / integration owner | Assemble an accepted candidate and obtain independent whole-project acceptance |
 | discover-opportunity | Product Scout | Turn source evidence into a bounded, prioritized proposal |
 | evaluate-outcome | Product Scout | Compare a delivered change with the agreed outcome measure |
-| ship-feature | Engineer | Implement an authorized feature in one continuing context |
-| fix-bug | Engineer | Establish cause, repair, and verify regression protection |
-| delegate-bounded-task | Engineer | Invoke, inspect and integrate a temporary helper |
-| engineering-discipline | Engineer / Verifier | Surface assumptions, keep design and diff minimal, prove success with observable checks |
+| ship-feature | Worker | Implement an authorized feature in one continuing context |
+| fix-bug | Worker | Establish cause, repair, and verify regression protection |
+| delegate-bounded-task | Worker | Invoke, inspect and integrate a temporary helper |
+| engineering-discipline | Worker / Verifier | Surface assumptions, keep design and diff minimal, prove success with observable checks |
 | verify-change | Verifier | Independent, version-bound acceptance |
-| prepare-release | Operator | Establish candidate/environment/recovery readiness; no implied execution |
-| release-and-observe | Operator | Execute a permitted delivery action and observe actual effects |
-| handle-incident | Operator | Triage, authorized containment, evidence handoff and recovery observation |
+| prepare-release | Worker | Establish candidate/environment/recovery readiness; no implied execution |
+| release-and-observe | Worker | Execute a permitted delivery action and observe actual effects |
+| handle-incident | Worker | Triage, authorized containment, bounded repair and recovery observation |
 
-Specialist frontend/backend/security/performance knowledge remains on-demand reference material, not new persistent job titles. An unavailable mandatory method or tool is reported, never invented. Small engineering-only tasks do not load Scout or Operator procedures.
+Specialist frontend/backend/security/performance knowledge remains on-demand reference material, not new persistent job titles. An unavailable mandatory method or tool is reported, never invented. Small implementation tasks do not need discovery, release or incident methods.
 
 The future runtime has to supply session creation, trusted evidence collection, action controls, and recovery; Skills only supply instructions. Prove a one-off process before automating it. No scheduled job is created by this package.
 
 ## 13. Host deployment model
 
-Install the Skills with Pi or Codex (see [distribution](docs/distribution.md), [Pi setup](adapters/pi/SETUP.md), [Codex setup](adapters/codex/SETUP.md)). Four role types do not impose a four-session limit; reuse supported sessions for peer workstreams. Do not create a fifth worker agent.
+Install the Skills with Pi, Codex or Claude Code (see [distribution](docs/distribution.md) and the host setup guides). Three role types do not impose a three-session limit; reuse supported sessions for peer workstreams within project capacity. Ordinary tasks do not create additional permanent agents.
 
 Before enabling autonomous handoffs, probe actual host capability: role addressing, receipt/reply correlation, coding executor launch/resume/status/cancel, independent review, CI access, and deployment actions. Documented collaboration features do not establish reliable delivery or authorization semantics for this project's adapters.
 
@@ -447,12 +445,12 @@ No implementation is executed by this document. A later implementation can proce
 
 | Increment | Scope | Required exit evidence |
 |---|---|---|
-| A. Content and capability pilot | Four roles, proposed methods, one project, draft-only/read-only setup | Actual role routing and access gaps observed; known tasks can be traced |
-| B. Automated engineering loop | One Engineer session, independent review, event/state binding, repair budgets, cancellation | Review failure/repair, stale evidence, duplicate event and recovery scenarios demonstrated |
-| C. Operator in non-production | Trusted artifact handoff, one preview environment, observation, safe recovery runbook | Actual version observed; timeout reconciled; unsafe/unauthorized actions blocked |
+| A. Content and capability pilot | Three roles, proposed methods, one project, draft-only/read-only setup | Actual role routing and access gaps observed; known tasks can be traced |
+| B. Automated engineering loop | One Worker session, independent review, event/state binding, repair budgets, cancellation | Review failure/repair, stale evidence, duplicate event and recovery scenarios demonstrated |
+| C. Worker in non-production | Trusted artifact handoff, one preview environment, observation, safe recovery runbook | Actual version observed; timeout reconciled; unsafe/unauthorized actions blocked |
 | D. Discovery and narrow production autonomy | Scout proposals/outcomes and selected release allowlist | Proposals cannot self-authorize; release policy and provenance enforced; explicit rollback limits verified |
 
-Keep production actions manual until the relevant enforcement and failure scenarios have been demonstrated. Four role definitions can exist from the start while some remain read-only or inactive; do not equate roster completeness with automation readiness.
+Keep production actions manual until the relevant enforcement and failure scenarios have been demonstrated. Three role definitions can exist from the start while some remain read-only or inactive; do not equate roster completeness with automation readiness.
 
 ### Required evaluation scenarios
 
@@ -460,7 +458,7 @@ The detailed checklist is in [acceptance-scenarios.md](tests/acceptance-scenario
 
 1. A direct bug bypasses Scout and optional helpers.
 2. Scout's proposal does not start coding without valid admission.
-3. A seeded defect generates CHANGES_REQUIRED and returns automatically to Engineer.
+3. A seeded defect generates CHANGES_REQUIRED and returns automatically to Worker.
 4. A correct repair is rechecked and reviewed against its new snapshot.
 5. Pending/unavailable required CI cannot become PASS or PR_READY.
 6. Source/scope/base/check-policy drift invalidates affected evidence.
@@ -469,7 +467,7 @@ The detailed checklist is in [acceptance-scenarios.md](tests/acceptance-scenario
 9. Duplicate handoffs and lost deployment replies do not duplicate side effects.
 10. Two repair cycles or an execution budget limit causes escalation, not a silent counter reset.
 11. A changed artifact/environment/configuration cannot use an earlier delivery grant outside its constraints.
-12. A source change required for release returns to Engineer and Verifier.
+12. Worker handles source changes required for release through checks and fresh independent Verifier acceptance, then resumes authorized delivery.
 13. Non-invertible migrations or external side effects do not trigger an assumed safe rollback.
 14. An incident can be contained before a permanent reviewed repair is released.
 15. Insufficient outcome data produces INCONCLUSIVE, not a success claim or unauthorized feature task.
@@ -477,11 +475,11 @@ The detailed checklist is in [acceptance-scenarios.md](tests/acceptance-scenario
 17. Prompt-injection content cannot alter permissions or force disclosure.
 18. All delivered states correspond to observable results rather than success messages.
 
-Compare Engineer + Verifier with the four-role topology on comparable tasks; use original baselines and fixed checks, and repeat representative cases. Measure valid completion, false passes, false-positive review findings, manual interventions, end-to-end duration, duplicate work, incident recovery, and available resource usage. Do not invent unavailable cost metrics or claim that a small pilot proves general reliability.
+Compare Worker + Verifier with the three-role topology on comparable tasks; use original baselines and fixed checks, and repeat representative cases. Measure valid completion, false passes, false-positive review findings, manual interventions, end-to-end duration, duplicate work, incident recovery, and available resource usage. Do not invent unavailable cost metrics or claim that a small pilot proves general reliability.
 
 ## 15. Design status and references
 
-This architecture and its supporting templates are complete as a **design draft for adoption and implementation**. Runtime enforcement, behavior evaluations, platform installation, and actual production delivery remain unperformed. The accompanying static checks validate document links, examples and archive consistency only.
+The broader architecture remains a **design for adoption and implementation**. The Pi adapter implements the bounded single-workstream check/review/repair loop; automated delivery and the other future controller capabilities are not implemented. See [validation](VALIDATION.md) for structural checks, actual Pi lifecycle coverage and remaining real-model evaluation.
 
 Sources and consultation dates are listed in [references/sources.md](references/sources.md):
 

@@ -12,26 +12,25 @@ workflow_owner: host_native  # Or runtime_owned, never two competing controllers
 
 role_destinations:
   product_scout: null
-  engineer: null
+  worker: null
   verifier: null
-  operator: null
 
 concurrency:
   max_active_projects_per_repo: 1
-  max_active_engineers: 2  # Includes an integration owner while implementing.
+  max_active_workers: 2  # Includes integration, delivery and incident executions.
   max_active_verifiers: 1
   max_total_active_executions: 4  # All active role/helper executions combined.
   max_active_integrations_per_target: 1
   max_active_releases_per_environment: 1
   temporary_subagents_enabled: false
-  max_active_subagents_project: 2  # Not multiplied by the Engineer count.
+  max_active_subagents_project: 2  # Not multiplied by the Worker count.
   recursive_delegation: false
   serial_fallback: true
 
 organization:
-  decomposition_owner: engineer
+  decomposition_owner: worker
   assignment_owner: verified_controller
-  integration_owner: engineer_assignment
+  integration_owner: worker_assignment
   routine_technical_plan_approval: false
   require_acyclic_dependencies: true
   require_dependency_snapshots: true

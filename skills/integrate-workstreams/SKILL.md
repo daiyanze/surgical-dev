@@ -5,7 +5,7 @@ description: Use when independently reviewed Surgical Dev workstreams must be as
 
 # Integrate workstreams
 
-Use the [Engineer role](references/roles/engineer.md),
+Use the [Worker role](references/roles/worker.md),
 [project contract](references/contracts/project-plan.md) and
 [integration review template](references/templates/integration-review.md).
 The integration owner prepares the candidate; independent Verifier judges it.
@@ -22,7 +22,7 @@ The integration owner prepares the candidate; independent Verifier judges it.
    combined snapshot. For multiple repositories, record the exact commit/artifact
    map, compatibility assumptions and delivery order; do not assume atomic release.
 4. Request an independent project review with the complete project ACs and evidence.
-   An Engineer or helper that authored any included change cannot independently
+   A Worker or helper that authored any included change cannot independently
    approve that change. Source changes made during integration also need review.
 5. Route failures to the stream owner; handle cross-stream issues as integration
    work. Fix, recheck affected streams and reverify the combined candidate within
@@ -30,8 +30,9 @@ The integration owner prepares the candidate; independent Verifier judges it.
 6. Mark project PR_READY only when Integration Passed is current and the required
    scope is complete. A single-stream review may cover both levels on the same
    snapshot when it explicitly checks all project ACs; avoid duplicate ceremony.
-7. Send Operator only the accepted integrated candidate and applicable delivery
-   target. Any merge, publication or deployment still needs its own action grant.
+7. When delivery is in scope, continue as Worker with the accepted integrated
+   candidate and delivery target. Any merge, publication or deployment still needs
+   its own action grant. Otherwise return the PR_READY evidence.
 
 ## Return
 

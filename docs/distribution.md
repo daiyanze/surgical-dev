@@ -2,7 +2,7 @@
 
 Surgical Dev distributes **portable Skills and an opt-in Pi extension**. Installing
 the Pi package registers the methods and `/surgical` command. Running `/surgical run`
-starts one Engineer/check/review/repair loop. Installing individual Skills through
+starts one Worker/check/review/repair loop. Installing individual Skills through
 the skills CLI provides instructions; the extension requires the full Pi package.
 
 ## 1. Install with Pi (GitHub source)
@@ -69,7 +69,7 @@ Codex and Claude Code can automate work; the absence of a bundled adapter does n
 make them manual-only hosts. Their complete Surgical Dev workflows have not been
 runtime-tested here. Follow their setup guides for official sources and limitations.
 
-The current Pi loop has one Engineer. Hosts supporting parallel execution still
+The current Pi loop has one Worker. Hosts supporting parallel execution still
 need an isolated workspace for each editing stream and must respect the caps in
 [default limits](../contracts/README.md#default-limits); otherwise work serially.
 A host without a separate reviewer needs an external review context before it can

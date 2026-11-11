@@ -1,20 +1,20 @@
 flowchart TD
-    A["Alert or observed operational failure"] --> O["Operator: deduplicate and capture version, impact and evidence"]
-    O --> C{"Applicable containment runbook and valid grant?"}
-    C -->|"Yes"| M["Run bounded containment<br/>Observe result and partial effects"]
+    A["Alert or observed operational failure"] --> TRIAGE["Worker: deduplicate and capture version, impact and evidence"]
+    TRIAGE --> C{"Applicable containment runbook and valid grant?"}
+    C -->|"Yes"| M["Run bounded containment: Observe result and partial effects"]
     C -->|"No"| H["Escalate required operational decision"]
     M --> T["Record CONTAINED only when observed"]
-    O --> D{"Source repair required?"}
-    D -->|"Yes"| E["Engineer: bounded repair work item"]
+    TRIAGE --> D{"Source repair required?"}
+    D -->|"Yes"| E["Same Worker: implement bounded repair and run checks"]
     D -->|"Unknown"| I["Collect permitted evidence or report BLOCKED"]
     I --> D
     E --> V["Independent Verifier"]
     V -->|"Changes required within budget"| E
-    V -->|"PASS"| R["Operator: fresh release readiness and authorization"]
+    V -->|"PASS"| R["Same Worker: fresh release readiness and authorization"]
     V -->|"Blocked or budget exhausted"| H
     R --> P["Deliver approved repair and observe recovery"]
     T -.-> P
     P --> Q{"Recovery criteria and window satisfied?"}
-    Q -->|"Yes"| CLOSE["RESOLVED with evidence<br/>Retain follow-ups and unknown root causes"]
+    Q -->|"Yes"| CLOSE["RESOLVED with evidence: Retain follow-ups and unknown root causes"]
     Q -->|"No"| H
-    CLOSE --> S["Scout: recurring-problem insight<br/>New proposal requires admission"]
+    CLOSE --> S["Scout: recurring-problem insight: New proposal requires admission"]

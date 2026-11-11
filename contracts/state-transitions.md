@@ -7,13 +7,13 @@ stage. Only observed, authorized events can resume or advance it.
 ## Project
 
 GOAL -> PLANNING -> EXECUTING -> INTEGRATING -> INTEGRATION_VERIFYING -> PR_READY.
-User scope/authority admission precedes execution. Engineer automatically supplies
+User scope/authority admission precedes execution. Worker automatically supplies
 technical partitions and assignments under that scope. PLANNING admission checks
 an acyclic dependency graph, accepted input versions, conflicts and budget.
 
 Project PR_READY requires required streams INTEGRATION_READY, a current combined
 candidate, actual project-level checks and independent Integration Passed. A failed
-integration returns affected work to its Engineer without resetting project usage.
+integration returns affected work to its Worker without resetting project usage.
 Scope changes require applicable admission; routine in-scope technical replanning
 only records a new plan revision and invalidates affected downstream evidence.
 One stream may use the same review for local and integrated ACs on an identical
@@ -34,7 +34,7 @@ snapshot; independent acceptance cannot be bypassed by selecting serial mode.
 | VERIFYING | Repair limit exhausted or repeated unresolved failure | ESCALATED condition |
 | Any active stage | Accepted scope changes | BRIEF; new revision, preserve history and budget accounting |
 | INTEGRATION_READY | Relevant source/check-policy/baseline/dependency changes | Reopen affected checks/review; invalidate downstream acceptance |
-| Project PR_READY | Delivery requested and integrated evidence current | Create/link Operator release record; PR_READY is not an action grant |
+| Project PR_READY | Delivery requested and integrated evidence current | Create/link Worker release record; PR_READY is not an action grant |
 
 Increment a repair cycle when review-driven fixes are made and resubmitted, not
 for a pending-CI wait or duplicate review message. Persist the increment atomically.
@@ -57,7 +57,7 @@ EXECUTING with an unknown remote outcome is BLOCKED pending reconciliation, not
 FAILED-by-assumption and not permission to retry. Observed failure records FAILED
 and links an incident. A separate authorized successful recovery may mark the
 release ROLLED_BACK; a safe rollback is never assumed. Source changes reopen an
-Engineer work item; policy/env/artifact changes require fresh applicable guards.
+Worker work item; policy/env/artifact changes require fresh applicable guards.
 
 ## Incident
 
