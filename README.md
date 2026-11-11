@@ -29,15 +29,11 @@ One **Engineer** owns implementation from reading the repository through debuggi
 and repair. A separate **Verifier** inspects the result against the goal and actual
 check evidence. Findings return to the Engineer that already understands the work.
 
-```mermaid
-flowchart TD
-    G["Goal and constraints"] --> E["Engineer: implement or repair"]
-    E --> C["Run project checks"]
-    C -->|Fail| E
-    C -->|Pass| V["Verifier: independent review"]
-    V -->|Required fixes| E
-    V -->|Pass| R["Ready for a PR"]
-```
+![Surgical Dev workflow: a goal enters one Engineer context; failed project checks and required review fixes return to that same Engineer. Passing checks sends a fixed snapshot to a fresh Verifier. Passing independent review leads to PR Ready.](docs/images/workflow.png)
+
+This is the loop for **one workstream**. Every repair goes through checks and a
+fresh review again. Missing evidence or exhausted limits stops the loop with a
+visible reason. Larger projects also need decomposition and integration acceptance.
 
 The name comes from a surgical team: a lead practitioner stays with the task while
 others provide focused support. Most changes need only Engineer and Verifier.
@@ -65,29 +61,118 @@ instructions; the host supplies tools, sessions, isolation, and execution contro
 
 ## Get started
 
-### Use the Skills
+### Install for your agent
 
-Install the entry Skill from your project directory and select your coding agent:
+Run the matching command from your project directory:
 
 ```bash
-npx skills add daiyanze/surgical-dev --skill surgical-dev
+# Codex: all thirteen Skills
+npx skills add daiyanze/surgical-dev --skill '*' -a codex -y
+
+# Claude Code: all thirteen Skills
+npx skills add daiyanze/surgical-dev --skill '*' -a claude-code -y
+
+# Pi: all thirteen Skills plus the optional loop extension
+pi install git:github.com/daiyanze/surgical-dev
 ```
 
-Then give it a concrete goal, for example:
+The [skills CLI](https://github.com/vercel-labs/skills) requires Node 22.20+.
+Pi has its own [requirements and setup](adapters/pi/SETUP.md).
+For just the entry Skill, replace `--skill '*'` with `--skill surgical-dev`.
+See [installation options](docs/distribution.md) for scope and other hosts.
+
+### Start with a concrete goal
+
+The Skill name is the same across hosts; the invocation syntax differs:
+
+| Host | Example in an interactive session |
+|---|---|
+| Codex CLI / IDE | `$surgical-dev Fix duplicate form submissions. Keep the API and add a regression test.` |
+| Claude Code | `/surgical-dev Fix duplicate form submissions. Keep the API and add a regression test.` |
+| Pi | `/skill:surgical-dev Fix duplicate form submissions. Keep the API and add a regression test.` |
+
+You can also select a specific method. These examples use Codex syntax; use `/name`
+in Claude Code or `/skill:name` in Pi:
 
 ```text
-Use Surgical Dev to fix duplicate form submissions.
-Keep the existing API and add a regression test.
+$ship-feature Add search pagination. Cover empty results and the final page.
+$fix-bug Submitting the checkout form twice creates two orders. Preserve the API.
+$decompose-project Add team invitations with expiry, acceptance, and audit history.
 ```
 
-See [installation options](docs/distribution.md) for all thirteen Skills and
-[Codex setup](adapters/codex/SETUP.md) for host-specific configuration.
+Give the agent the outcome, constraints, and observable success criteria. For a
+larger project, Engineer organizes the workstreams and dependencies.
+
+## Which Skill should I use?
+
+All thirteen Skills can be requested directly. **Start with `surgical-dev` for
+everyday work**, or select a method when you already know what you need. They are
+reusable methods, not thirteen stages that every task must pass through.
+
+| Skill | When to use it | What it produces |
+|---|---|---|
+| [surgical-dev](skills/surgical-dev/SKILL.md) | Start from a development goal | Selects the relevant responsibility and methods, then guides the work |
+| [ship-feature](skills/ship-feature/SKILL.md) | Add a feature or change behavior | Acceptance criteria, focused implementation, tests, and a review handoff |
+| [fix-bug](skills/fix-bug/SKILL.md) | Investigate and repair a defect | Reproduction evidence, a supported cause, a minimal fix, and regression checks |
+| [decompose-project](skills/decompose-project/SKILL.md) | Organize a goal with several outcomes | Testable workstreams, dependencies, interface boundaries, and integration ownership |
+| [engineering-discipline](skills/engineering-discipline/SKILL.md) | Keep any coding task focused | Explicit assumptions, simple design, scoped edits, and observable checks |
+| [verify-change](skills/verify-change/SKILL.md) | Independently assess a candidate | `PASS`, `CHANGES_REQUIRED`, or `BLOCKED`, with evidence and actionable findings |
+| [delegate-bounded-task](skills/delegate-bounded-task/SKILL.md) | Hand off an independent question or isolated subtask | A bounded helper assignment and usable findings; requires enabled delegation |
+| [integrate-workstreams](skills/integrate-workstreams/SKILL.md) | Combine accepted workstreams | An integrated candidate, whole-project checks, and independent acceptance |
+| [discover-opportunity](skills/discover-opportunity/SKILL.md) | Decide what is worth building | A sourced problem proposal, priority, and measurable outcome |
+| [evaluate-outcome](skills/evaluate-outcome/SKILL.md) | Assess a shipped change against its goal | A baseline-based assessment: supported, inconclusive, or regressed |
+| [prepare-release](skills/prepare-release/SKILL.md) | Check whether a candidate is ready to release | Readiness evidence, observation and recovery plans; no release execution |
+| [release-and-observe](skills/release-and-observe/SKILL.md) | Perform an already authorized release | Execution evidence, health observations, and the actual release outcome |
+| [handle-incident](skills/handle-incident/SKILL.md) | Respond to a production incident | Triage, authorized containment, repair handoffs, and recovery evidence |
+
+**Independent review needs a separate context.** Run `verify-change` in a fresh
+reviewer session or subagent that did not write the change. Supply the goal, fixed
+source snapshot, and check results using the [review request](templates/review-request.md).
+Invoking it inside the author's conversation does not establish independent acceptance.
+See the [Codex](adapters/codex/SETUP.md) and [Claude Code](adapters/claude/SETUP.md)
+guides for examples.
+
+`decompose-project` supplies a plan; the host supplies execution and scheduling.
+Release methods operate within the task's existing authorization. Using
+`ship-feature` does not itself authorize deployment.
+
+## Which agents can run an automatic loop?
+
+**Pi, Codex, and Claude Code can all automate work.** The distinction is what the
+host provides and which Surgical Dev controller this repository includes:
+
+| Host | Native automation / available execution | Surgical Dev support here |
+|---|---|---|
+| **Pi** | Extensions can control the session and launch a reviewer | **Implemented:** `/surgical run` drives checks, fresh review, repair, and bounded stopping for one workstream |
+| **Codex** | `codex exec` runs non-interactively; the SDK continues or resumes threads; subagents support separate review | All Skills and an optional reviewer configuration. No bundled Surgical Dev loop controller |
+| **Claude Code** | `/goal` continues toward a completion condition; `/loop` repeats prompts on a schedule; subagents support separate review | All Skills and setup guidance. No bundled Surgical Dev loop controller |
+
+Claude Code's `/goal` evaluator reads the conversation; it does not independently
+inspect source or run checks. Request a separate Verifier for Surgical Dev acceptance.
+`/loop` is useful for periodic checks such as monitoring CI; it is a scheduling
+mechanism, not a definition of when a development task is complete.
+
+Host commands and examples: [Pi setup](adapters/pi/SETUP.md),
+[Codex setup](adapters/codex/SETUP.md), and [Claude Code setup](adapters/claude/SETUP.md).
+Codex and Claude guidance is based on official documentation; their complete
+Surgical Dev workflows have not been runtime-tested here. Pi's lifecycle has been
+tested with real Pi processes and a local deterministic model; see
+[validation](VALIDATION.md) for the remaining real-model evaluation work.
 
 ### Automate the loop with Pi
 
 The full Pi package includes an optional extension that runs project checks,
 starts a fresh Verifier, and returns failures to the original Engineer automatically.
-With Pi 1.5.2+ and your repository's check commands configured, use:
+With Pi 1.5.2+, first create and commit `.surgical-dev.json` in your target repository:
+
+```json
+{
+  "checks": [["npm", "test"]]
+}
+```
+
+Use checks that actually exist in your project. Start from a clean Git repository
+root, then run:
 
 ```text
 /surgical run Fix duplicate form submissions and add a regression test.
@@ -96,21 +181,33 @@ With Pi 1.5.2+ and your repository's check commands configured, use:
 ```
 
 Follow [Pi setup](adapters/pi/SETUP.md) to install the package and configure checks.
-The current extension handles one workstream and stops at `PR_READY`: the change
-has passed checks and independent review. Automatic PR creation, merge, deployment,
-parallel scheduling, and crash recovery remain future work. Installing Skills
-alone does not activate this loop.
+The extension stops at `PR_READY`: checks and independent review passed for the
+recorded snapshot. It leaves the implementation in your checkout. Automatic commit,
+PR creation, merge, deployment, parallel scheduling, and crash recovery remain future
+work. Installing Skills alone does not activate this loop.
 
 ## Further reading
 
-- [Architecture](ARCHITECTURE.en.md) · [中文摘要](ARCHITECTURE.zh-CN.md) — roles and the broader design.
-- [Validation](VALIDATION.md) — what has been tested, including the distinction between runtime integration tests and real-model evaluation.
-- [Next steps](docs/runtime-next.md) — remaining automation work.
+- [Installation and distribution](docs/distribution.md) — install one Skill or the full collection; understand host capabilities and package scope.
+- [Pi setup](adapters/pi/SETUP.md) — configure checks, start and stop the automatic loop, and understand limits and recovery.
+- [Codex setup](adapters/codex/SETUP.md) — invoke Skills, arrange independent review, and use non-interactive execution.
+- [Claude Code setup](adapters/claude/SETUP.md) — invoke Skills, set up a fresh reviewer, and distinguish `/goal` from `/loop`.
+- [Roles](roles/README.md) and [team boundaries](roles/team-boundaries.md) — who owns implementation, acceptance, discovery, and delivery.
+- [Detailed workflow](references/workflow.md) — handoffs, repair cycles, and project-level integration.
+- [Project goal](templates/project-goal.md) and [review request](templates/review-request.md) — reusable starting points for a task and its independent acceptance.
+- [Contracts and limits](contracts/README.md) — evidence records, state transitions, and execution budgets.
+- [Architecture](ARCHITECTURE.en.md) · [中文摘要](ARCHITECTURE.zh-CN.md) — the broader design and its rationale.
+- [Validation](VALIDATION.md) — completed checks, host integration coverage, and the limits of current evidence.
+- [Automation roadmap](docs/runtime-next.md) — remaining work toward unattended delivery and recovery.
 
-Design influences include [Anthropic's guidance on agent context and delegation](https://claude.com/resources/articles/building-agents-when-to-fold-subagents-into-your-main-agent-loop),
-[Karpathy's coding observations](https://x.com/karpathy/status/2015883857489522876) and their
-[community Skill implementation](https://github.com/multica-ai/andrej-karpathy-skills),
-[Superpowers](https://github.com/obra/superpowers),
-[Multica Best Practices](https://github.com/it235/multica-best-practices), and
-[Beyond Division of Labor](https://arxiv.org/abs/2611.03931).
-See [sources and scope](references/sources.md) for how these informed the design.
+## References
+
+- [Anthropic: When to fold subagents into your main agent loop](https://claude.com/resources/articles/building-agents-when-to-fold-subagents-into-your-main-agent-loop) — context continuity and selective delegation.
+- [Andrej Karpathy's coding observations](https://x.com/karpathy/status/2015883857489522876) and [community Skill implementation](https://github.com/multica-ai/andrej-karpathy-skills) — assumptions, simplicity, focused changes, and verifiable outcomes.
+- [Superpowers](https://github.com/obra/superpowers) — reusable engineering methods, review, and verification.
+- [Multica Best Practices](https://github.com/it235/multica-best-practices) — role boundaries, handoffs, and evidence.
+- [Beyond Division of Labor: How Roles Shape Feedback and Recovery in Multi-Agent Systems](https://arxiv.org/abs/2611.03931) — feedback access and recovery as design considerations; this is not a software productivity benchmark.
+- [Agent Skills specification](https://agentskills.io/specification) — the portable Skill format.
+
+See [sources and verification scope](references/sources.md) for source details,
+official host documentation, and the limits of the claims drawn from them.

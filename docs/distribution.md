@@ -36,7 +36,8 @@ Use `-a pi`, `-a claude-code`, `-a opencode`, etc. for a different supported age
 Codex and Pi both read the repository-level `.agents/skills/` directory, as do
 several other agents; see the CLI's
 [supported agents](https://github.com/vercel-labs/skills/blob/main/docs/agents.md)
-table for each agent's path. Codex details: [Codex setup](../adapters/codex/SETUP.md).
+table for each agent's path. Host details: [Codex setup](../adapters/codex/SETUP.md)
+and [Claude Code setup](../adapters/claude/SETUP.md).
 Add `-g` only if you want user-level rather than project-level installation.
 Do not use `--all` unless you really intend to install for every supported agent.
 
@@ -56,18 +57,24 @@ host can meet the workflow's requirements. Pi's single-workstream lifecycle is
 tested with actual Pi processes and a local deterministic model. Real-model behavior
 and the broader target architecture require separate evaluation.
 
-| Requirement | Pi | Codex |
-|---|---|---|
-| Skill loading | `/skill:name`, reads `.agents/skills/` | `$name` or `/skills`, reads `.agents/skills/` |
-| Independent Verifier | Extension launches a fresh read-tool Pi process on a Git snapshot | Reviewer subagent or separate session; see [Codex setup](../adapters/codex/SETUP.md) |
-| Parallel Engineers | Single Engineer in the shipped loop | Subagents exist, workspace isolation not documented; stay serial unless each stream has its own worktree |
-| Handoff between sessions | Automatic checks/review feedback with `/surgical run` | Manual |
+| Requirement | Pi | Codex | Claude Code |
+|---|---|---|---|
+| Skill invocation | `/skill:name` | `$name` or `/skills` | `/name` |
+| Project Skill directory | Package installation or `.agents/skills/` | `.agents/skills/` | `.claude/skills/` |
+| Independent Verifier | Extension launches a fresh read-tool Pi process on a Git snapshot | Separate reviewer subagent or session | Fresh non-fork reviewer subagent or session; explicitly supply review instructions |
+| Native automation | Extension APIs | `codex exec`, SDK continuation/resume, and subagents | `/goal`, scheduled `/loop`, and subagents |
+| Bundled Surgical Dev loop | Automatic checks, review feedback, repair, and bounded stopping through `/surgical run` | No dedicated controller; Skills guide native execution | No dedicated controller; Skills guide native execution |
 
-Single-session hosts use serial work and a human-routed review. Hosts with
-multi-session support may run bounded parallel streams only with isolated
-workspaces and the caps in [default limits](../contracts/README.md#default-limits).
-An agent not listed here: check the same four rows against its documentation
-before claiming more than serial work with a separate reviewer.
+Codex and Claude Code can automate work; the absence of a bundled adapter does not
+make them manual-only hosts. Their complete Surgical Dev workflows have not been
+runtime-tested here. Follow their setup guides for official sources and limitations.
+
+The current Pi loop has one Engineer. Hosts supporting parallel execution still
+need an isolated workspace for each editing stream and must respect the caps in
+[default limits](../contracts/README.md#default-limits); otherwise work serially.
+A host without a separate reviewer needs an external review context before it can
+satisfy independent acceptance. Check an unlisted host against these capabilities
+before claiming automation support.
 
 ## 3. GitHub Releases
 

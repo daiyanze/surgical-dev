@@ -42,7 +42,8 @@ The roles, state names, budgets and formats are design choices, not vendor APIs.
 
 ## Skill format and host documentation
 
-Checked on 2026-11-07 (Codex and skills CLI entries: 2026-11-10). These support file formats and setup instructions, not
+Checked on 2026-11-07; Codex, Claude Code, and skills CLI documentation rechecked
+on 2026-11-11. These support file formats and setup instructions, not
 the reliability of this workflow. No provider endorsement is implied. Account UI
 and runtime versions still need local verification.
 
@@ -51,4 +52,17 @@ and runtime versions still need local verification.
 - [Pi Skills](https://pi.dev/docs/latest/skills): discovery, resource-relative paths, and `/skill:name`.
 - [Codex skills](https://learn.chatgpt.com/docs/build-skills) (formerly `developers.openai.com/codex/skills`): `.agents/skills/` discovery, `$name` / `/skills` invocation.
 - [Codex subagents](https://learn.chatgpt.com/docs/agent-configuration/subagents): `.codex/agents/*.toml`, `agents.max_concurrent_threads_per_session`, sandbox inheritance.
+- [Codex non-interactive mode](https://learn.chatgpt.com/docs/non-interactive-mode): `codex exec`, workspace access, structured output, and continuation.
+- [Codex SDK](https://learn.chatgpt.com/docs/codex-sdk): starting, continuing, and resuming threads for programmatic workflows.
+- [Claude Code Skills](https://code.claude.com/docs/en/skills): project and personal Skill discovery and `/name` invocation.
+- [Claude Code subagents](https://code.claude.com/docs/en/sub-agents): separate contexts, fork behavior, explicit Skill instructions, and tool configuration.
+- [Claude Code goals](https://code.claude.com/docs/en/goal): automatic continuation toward a condition; the evaluator reads conversation evidence rather than independently inspecting files.
+- [Claude Code scheduled tasks](https://code.claude.com/docs/en/scheduled-tasks): `/loop` scheduling and execution conditions.
+- [skills CLI](https://github.com/vercel-labs/skills): installation commands, agent selection, and Node requirements.
 - [skills CLI supported agents](https://github.com/vercel-labs/skills/blob/main/docs/agents.md): per-agent install paths.
+
+The Codex CLI's local help was inspected, but no Codex or Claude Code model session
+was run. Native host automation capabilities are documentation-backed; this is not
+evidence that a dedicated Surgical Dev controller exists for either host. Pi's
+implemented lifecycle and separate evaluation limits are recorded in
+[validation](../VALIDATION.md).
