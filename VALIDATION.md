@@ -2,7 +2,12 @@
 
 Package: `surgical-dev` · 2026-11-12.
 Scope: portable Skills, record contracts and the opt-in Pi goal-driven single-workstream loop.
-Implementation baseline: repository branch `feat/surgical-guided-entry` on main `5acf53e` (review findings addressed and final checks repeated).
+Historical test snapshot: guided-entry implementation on branch
+`feat/surgical-guided-entry` based on main `5acf53e` (review findings addressed
+and checks repeated at that time). The results below are evidence for that
+snapshot, not a continuously updated claim about the current HEAD. Re-run the
+commands in **Reproduce** after changes; the Learning Loop's later coverage is
+not included in these historical totals.
 
 ## Observed checks
 
