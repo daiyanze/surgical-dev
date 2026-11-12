@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { isExplicitConfirmation, registerSurgicalLoop } from '../adapters/pi/extension.mjs';
 import { loadRepositoryState, saveRepositoryState } from '../adapters/pi/persist.mjs';
+import { loadLearning } from '../adapters/pi/learning.mjs';
 
 const reviewer = fileURLToPath(new URL('./fixtures/pi-reviewer.mjs', import.meta.url));
 
@@ -89,6 +90,7 @@ async function draftOnly(h, goal, acceptance = [{ id: 'AC-1', text: goal }]) {
   await h.command(`import ${path}`);
 }
 // A normal final assistant response is not continuable until feedback is added.
+// Learning candidates are never promoted by tools; only a persisted accepted run can promote them.
 const boundary = extra => ({ entries: [], continue: false, outcome: 'completed', context: { contextEntries: [], contextMessages: [], llmMessages: [], pendingMessages: [], canContinue: false }, ...extra });
 
 async function waitFor(predicate, timeoutMs = 3000) {
@@ -107,6 +109,37 @@ async function finishGuidedRun(h) {
   await h.settle(false);
   await running;
 }
+
+test('extension promotes an evidenced recurring lesson only after persisted PR_READY', async t => {
+  const rule = [process.execPath, '-e', 'if(require("fs").readFileSync("answer.txt","utf8").trim()!=="42"){console.error("expected 42");process.exit(1)}'];
+  const h = await host(t, { config: { checks: [rule] } });
+  const running = start(h, 'Put 42 in answer.txt');
+  await h.started;
+  const first = await h.emit('agent_before_settle', boundary());
+  const second = await h.emit('agent_before_settle', boundary());
+  assert.equal(first.continue, true);
+  assert.equal(second.continue, true);
+  const observations = await loadLearning(h.cwd);
+  assert.equal(observations.records[0].status, 'RECURRING');
+  const proposal = await h.tools.get('surgical_lesson').execute('learn-test', {
+    record_id: observations.records[0].id,
+    root_cause: 'answer remained incorrect', preventative_rule: 'Verify answer before completion',
+    scope: 'answer.txt', validation: 'Run the configured check', tags: ['answer'],
+  }, null, null, h.ctx);
+  assert.equal(proposal.details.status, 'CANDIDATE');
+  assert.equal((await loadLearning(h.cwd)).records[0].status, 'CANDIDATE');
+  await writeFile(join(h.cwd, 'answer.txt'), '42');
+  await h.emit('agent_before_settle', boundary());
+  assert.equal((await loadLearning(h.cwd)).records[0].status, 'CANDIDATE');
+  await h.settle(false);
+  await running;
+  assert.equal(h.state().status, 'PR_READY');
+  assert.equal((await loadLearning(h.cwd)).records[0].status, 'ACTIVE');
+  assert.ok(h.messages.some(message => message.customType === 'surgical-learning'));
+  await h.command('lessons');
+  assert.ok(h.messages.at(-1).content.includes('ACTIVE'));
+  assert.ok(h.messages.at(-1).content.includes(observations.records[0].id));
+});
 
 test('command stays in its original session until review repair and final settlement finish', async t => {
   const h = await host(t);

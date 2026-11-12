@@ -1,6 +1,6 @@
 # Pi setup — goal-driven autonomous development
 
-The package exposes thirteen Skills and one opt-in extension. The extension runs a
+The package exposes fourteen Skills and one opt-in extension. The extension runs a
 goal-driven single-workstream loop: requirement discussion/import → explicit user
 confirmation → Todo planning → one persistent Worker → actual checks → independent
 final Verifier → additive repair. The Worker session owns implementation throughout.
@@ -73,6 +73,25 @@ context; the controller does not reinject the full chat history. `maxTurns`,
 `maxCheckAttempts` and `maxReviewRepairCycles` are cumulative across all Todos in
 one run.
 
+## Learning Loop (advisory)
+
+The Pi extension recognizes repeated actual check failures and independent
+Verifier blocking findings by signature. On the second matching observation,
+the Worker gets an advisory record ID and may use the `surgical_lesson` tool to
+propose a supported `root_cause`, `preventative_rule`, `scope`, `tags`, and
+`validation`. It is saved as CANDIDATE, not approval. Only when the **same run**
+reaches PR_READY with current checks and independent PASS does it become ACTIVE.
+
+Later relevant goals load at most three short active lessons as lower-trust hints.
+If an issue recurs despite a lesson, that lesson becomes NEEDS_REVISION and is no
+longer used until it is revalidated. Learning data is local to Git's common dir at
+`<git-common-dir>/surgical-dev/learning.json`, outside the source tree, and is not
+copied to other clones. Learning-store issues are reported as warnings, not
+PR_READY blockers. No new role, required step or model call is added per run.
+For other hosts and Product Scout patterns, use the portable
+[learn-from-failures](../../skills/learn-from-failures/SKILL.md) Skill manually.
+Use `/surgical lessons` to inspect the latest local observations and statuses.
+
 ## Run
 
 Start at a clean Git repository root with an existing commit. Commit the
@@ -110,6 +129,7 @@ commands remain available for the advanced flow:
 /surgical discuss <goal>
 /surgical import requirements.md
 /surgical status
+/surgical lessons
 /surgical confirm
 /surgical run
 /surgical stop

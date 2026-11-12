@@ -1,6 +1,6 @@
 # Runtime work still needed
 
-The package provides three role types, thirteen methods, goal/plan/integration
+The package provides three role types, fourteen methods, goal/plan/integration
 templates and record/state specifications. The Pi adapter implements a goal-driven
 single-workstream loop: guided `/surgical <goal>` discussion or imported requirement
 preparation, exact user-boundary confirmation or the advanced command, a validated
@@ -9,6 +9,10 @@ sequentially, actual checks, one independent final combined review, additive rep
 finite cumulative budgets and a version-bound `PR_READY` result. Compact plan/memory
 state is file-backed under Git metadata and survives Pi compaction. See
 [Pi setup](../adapters/pi/SETUP.md) and [validation](../VALIDATION.md).
+
+The optional Learning Loop records recurring check/review failures locally in
+Git common-dir metadata and surfaces scoped advisory lessons after acceptance;
+it does not sync history between clones or collect Product Scout research automatically.
 
 ## Next phases
 

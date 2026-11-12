@@ -90,6 +90,11 @@ be reported as absent, not simulated.
 - Incident: Worker uses handle-incident and keeps bounded repairs in its implementation
   context, followed by independent Verifier acceptance and observed recovery.
 - Product results: Scout uses evaluate-outcome; new follow-ups need separate admission.
+- Recurring evidence: Scout, Worker and Verifier use learn-from-failures when
+  repeated problems are supported by source-linked evidence. Pi records repeated
+  check/review failures automatically; the Worker may propose a grounded lesson
+  with `surgical_lesson`. It becomes reusable only after normal PR_READY; none of
+  these hints add a new gate or grant Verifier implementation authority.
 
 ## Continue the engineering loop
 

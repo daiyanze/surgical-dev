@@ -42,7 +42,7 @@ a model through Pi's normal setup first. Details: [Pi setup](adapters/pi/SETUP.m
 pi install git:github.com/daiyanze/surgical-dev
 ```
 
-This installs the thirteen Skills and the `/surgical` extension. Installing the
+This installs the fourteen Skills and the `/surgical` extension. Installing the
 Skills alone does **not** activate the automatic loop.
 
 ### 2. Configure the repository
@@ -103,10 +103,10 @@ in this repository.
 Run from your project directory:
 
 ```bash
-# Codex: all thirteen Skills
+# Codex: all fourteen Skills
 npx skills add daiyanze/surgical-dev --skill '*' -a codex -y
 
-# Claude Code: all thirteen Skills
+# Claude Code: all fourteen Skills
 npx skills add daiyanze/surgical-dev --skill '*' -a claude-code -y
 ```
 
@@ -173,14 +173,39 @@ deciding whether the problem is worth solving. The Worker agrees the empty-resul
 and final-page behavior with you, then implements and tests it. The Verifier checks
 both behaviors on the actual candidate and returns any findings to that same Worker.
 
-## 📚 The thirteen methods
+## 🧠 Learning Loop — avoid repeating the same mistake
+
+Surgical Dev learns from **recurring, evidenced failures**, without adding a
+fourth role or another approval gate. When the same project check failure or
+independent Verifier finding is observed at least twice, the Pi extension
+retains a small occurrence record and suggests a learning pass. The Worker can
+then submit a concrete root cause, prevention rule, applicability and validation
+using `surgical_lesson`. **The lesson is only a candidate until the current run
+reaches `PR_READY` with real checks and independent Verifier acceptance.**
+
+The next relevant `/surgical <goal>` injects up to three short validated lessons
+as *advisory* context, not instructions that override the confirmed goal. If an
+active lesson does not prevent recurrence, it is marked for revision and excluded
+from subsequent hints. Product Scout contributes evidence about recurring product
+assumptions; Verifier contributes actionable findings; only Worker implements and
+proposes fixes. There is no extra model call on every run.
+
+Learning records live locally in `<git-common-dir>/surgical-dev/learning.json`,
+outside source snapshots. **They are not synchronized across different clones.**
+Use the [Learning Loop method](skills/learn-from-failures/SKILL.md) and
+[lesson template](templates/lesson.md) to review and deliberately share sanitized
+lessons with collaborators. Other Skills hosts use the method manually; the
+Pi extension supplies automatic check/review observation.
+To inspect the local history at any time, use `/surgical lessons`.
+
+## 📚 The fourteen methods
 
 Start with **`surgical-dev`** for everyday work. It selects the relevant methods, so
-you need not learn a thirteen-step sequence; request a specific Skill when you
+you need not learn a fourteen-step sequence; request a specific Skill when you
 already know what you need.
 
 <details>
-<summary>All thirteen Skills</summary>
+<summary>All fourteen Skills</summary>
 
 | Skill | When to use it | What it produces |
 |---|---|---|
@@ -189,6 +214,7 @@ already know what you need.
 | [fix-bug](skills/fix-bug/SKILL.md) | Investigate and repair a defect | Reproduction evidence, a supported cause, a minimal fix, and regression checks |
 | [decompose-project](skills/decompose-project/SKILL.md) | Organize a goal with several outcomes | Testable workstreams, dependencies, interface boundaries, and integration ownership |
 | [engineering-discipline](skills/engineering-discipline/SKILL.md) | Keep any coding task focused | Explicit assumptions, simple design, scoped edits, and observable checks |
+| [learn-from-failures](skills/learn-from-failures/SKILL.md) | Prevent repeated defects and failed assumptions | Evidence-backed lesson candidates, verified prevention rules, and revision on relapse |
 | [verify-change](skills/verify-change/SKILL.md) | Independently assess a candidate | `PASS`, `CHANGES_REQUIRED`, or `BLOCKED`, with evidence and actionable findings |
 | [delegate-bounded-task](skills/delegate-bounded-task/SKILL.md) | Hand off an independent question or isolated subtask | A bounded helper assignment and usable findings; requires enabled delegation |
 | [integrate-workstreams](skills/integrate-workstreams/SKILL.md) | Combine accepted workstreams | An integrated candidate, whole-project checks, and independent acceptance |

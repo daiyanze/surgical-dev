@@ -41,6 +41,12 @@ outcome observations in the project record. Raw customer data stays in approved
 sources. Hand off a concise versioned brief to Worker after admission, not your
 entire research conversation. Mark unresolved contradictions explicitly.
 
+When a user problem or assumption is repeatedly disproved, use
+learn-from-failures to preserve source-linked observations, uncertainty and a
+suggested preventive question for future discovery. Product evidence is not a
+code defect and is **not** automatically collected by Pi's check/review observer.
+No Scout observation changes implementation scope or creates an acceptance veto.
+
 ## Stop conditions
 
 Missing essential evidence or access, unclear target users/outcome, conflicting
