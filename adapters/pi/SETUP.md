@@ -1,6 +1,6 @@
 # Pi setup — goal-driven autonomous development
 
-The package exposes fourteen Skills and one opt-in extension. The extension runs a
+The package exposes nine Skills and one opt-in extension. The extension runs a
 goal-driven single-workstream loop: requirement discussion/import → explicit user
 confirmation → Todo planning → one persistent Worker → actual checks → independent
 final Verifier → additive repair. The Worker session owns implementation throughout.
@@ -75,22 +75,21 @@ one run.
 
 ## Learning Loop (advisory)
 
-The Pi extension recognizes repeated actual check failures and independent
-Verifier blocking findings by signature. On the second matching observation,
-the Worker gets an advisory record ID and may use the `surgical_lesson` tool to
-propose a supported `root_cause`, `preventative_rule`, `scope`, `tags`, and
-`validation`. It is saved as CANDIDATE, not approval. Only when the **same run**
-reaches PR_READY with current checks and independent PASS does it become ACTIVE.
+The extension counts repeated configured check failures and blocking Verifier
+findings by normalized signature in `<git-common-dir>/surgical-dev/learning.json`,
+outside the source tree. When a signature reaches **2** occurrences, the Worker's
+repair feedback includes one advisory line: "LEARNING (advisory, not a gate)".
+The hint never changes scope, checks, review or acceptance, and no lesson is
+proposed or promoted by the Worker.
 
-Later relevant goals load at most three short active lessons as lower-trust hints.
-If an issue recurs despite a lesson, that lesson becomes NEEDS_REVISION and is no
-longer used until it is revalidated. Learning data is local to Git's common dir at
-`<git-common-dir>/surgical-dev/learning.json`, outside the source tree, and is not
-copied to other clones. Learning-store issues are reported as warnings, not
-PR_READY blockers. No new role, required step or model call is added per run.
-For other hosts and Product Scout patterns, use the portable
+Records are redacted and bounded to 50 entries and do not sync to other clones.
+A file with an unsupported `schema_version`, invalid JSON or unrecognized records
+is treated as empty and replaced by the next successful write; valid records in a
+partly unrecognized file are kept. Learning I/O errors, such as a locked store, are
+reported as warnings and never block PR_READY. No new role, required step or model
+call is added per run. Use `/surgical lessons` to list the latest 20 records with
+kind, count and last-seen time. Other hosts use the portable
 [learn-from-failures](../../skills/learn-from-failures/SKILL.md) Skill manually.
-Use `/surgical lessons` to inspect the latest local observations and statuses.
 
 ## Run
 

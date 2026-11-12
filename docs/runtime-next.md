@@ -1,7 +1,7 @@
 # Runtime work still needed
 
-The package provides three role types, fourteen methods, goal/plan/integration
-templates and record/state specifications. The Pi adapter implements a goal-driven
+The package provides nine Skills, two roles (Worker and Verifier) plus an optional
+temporary helper charter, goal/plan/integration templates and record/state specifications. The Pi adapter implements a goal-driven
 single-workstream loop: guided `/surgical <goal>` discussion or imported requirement
 preparation, exact user-boundary confirmation or the advanced command, a validated
 Todo DAG, one persistent Worker handling Todos
@@ -10,9 +10,10 @@ finite cumulative budgets and a version-bound `PR_READY` result. Compact plan/me
 state is file-backed under Git metadata and survives Pi compaction. See
 [Pi setup](../adapters/pi/SETUP.md) and [validation](../VALIDATION.md).
 
-The optional Learning Loop records recurring check/review failures locally in
-Git common-dir metadata and surfaces scoped advisory lessons after acceptance;
-it does not sync history between clones or collect Product Scout research automatically.
+The optional Learning Loop counts recurring check/review failure signatures locally
+in `<git-common-dir>/surgical-dev/learning.json`, redacts secrets, and shows one
+advisory `LEARNING` line at the second occurrence. It has no lifecycle, promotion or
+lesson tool, and it does not sync history between clones.
 
 ## Next phases
 
@@ -34,8 +35,6 @@ host/CI facilities; the controller is ordinary code, not another agent.
 
 Required controller behavior for the broader architecture:
 
-- Accept goals and authority, then have Worker generate the technical plan; do
-  not require user-written task partitions or assignments.
 - Validate an acyclic dependency graph and accepted input snapshots; resolve real
   Worker/Verifier execution identities and safe workspaces.
 - Claim ready streams atomically within project/global capacity. Check file,
@@ -44,8 +43,6 @@ Required controller behavior for the broader architecture:
   Helpers are auxiliary jobs under the same aggregate budget, not recursive teams.
 - Persist plan/task/event/action IDs, leases, counters and cancellation. An expired
   lease or timeout requires job reconciliation before rescheduling, not duplication.
-- Collect actual stream checks and independent reviews; then require version-bound
-  project integration evidence before PR_READY. Reject stale/self-authored approvals.
 - Preserve scope, repair history and total usage during replanning/reassignment.
   Unsupported parallel execution falls back to serial; absent review blocks.
 - Use scoped external action executors and observed delivery outcomes; no merge or

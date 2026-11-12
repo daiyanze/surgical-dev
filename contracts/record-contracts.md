@@ -12,13 +12,6 @@ A blocked condition additionally requires `resume_from`, `reason`,
 `responsible_party`, `resume_condition` and a deadline/budget rule.
 `owner` is descriptive; trusted execution identity is captured by the adapter.
 
-## Opportunity
-
-`opportunity_id`, evidence links and dates, affected users, observed problem,
-hypothesis, proposed outcome/metric, baseline availability, ACs, non-goals,
-confidence, risk, priority recommendation, decision source, linked task IDs.
-Scout may propose; acceptance must refer to original user or trusted-policy authority.
-
 ## Project plan and workstreams
 
 The user provides goal/constraints/budget/permissions. Worker supplies the plan,
@@ -30,7 +23,7 @@ Technical in-scope replanning is not a new product approval or budget grant.
 
 ## Work item
 
-`task_id`, originating request/opportunity/incident, scope revision and snapshot,
+`task_id`, originating request or confirmed goal, scope revision and snapshot,
 original authority reference, ACs, non-goals, allowed actions, repository,
 base/head/source snapshot, required-check policy, Worker execution ID,
 active subtask IDs, repair-cycle count, budgets, current evidence and next action.
@@ -51,30 +44,6 @@ Schema-valid task/review records alone do not validate these project-level guard
 Every blocker includes ID, location, evidence, impact and clearance condition.
 A model-supplied reviewer name is not identity verification. A well-formed PASS
 must still be substantively supported by current evidence.
-
-## Release/action run
-
-`release_id`, `action_id`, task/review references, operation, original action grant,
-policy revision, actual release source/build/test identities, artifact digest,
-provenance reference, target environment/config revision, preconditions, health
-checks/window, recovery/runbook revision, intended action, platform job ID,
-observed effects, partial effects, reconciliation history, final evidence.
-Merge/tag/package/deployment actions may require separate action IDs and grants.
-Store the actual source-to-artifact mapping after protected merge/build.
-
-## Incident
-
-`incident_id`, detected time, affected environment/version/artifact, symptoms,
-impact/severity evidence, confirmed facts vs hypotheses, relevant logs, containment
-authority/runbook, actual containment results, linked repair task, recovery
-criteria/window, residual risks and unresolved follow-up. CONTAINED != RESOLVED.
-
-## Outcome assessment
-
-`outcome_id`, accepted opportunity and release references, metric/measurement method,
-baseline, observed window and values, data limitations, confounders, verdict
-SUPPORTED/INCONCLUSIVE/REGRESSED, rationale, optional follow-up proposal reference.
-An operational smoke test is not proof of product adoption or causal impact.
 
 ## Temporary subagent invocation
 

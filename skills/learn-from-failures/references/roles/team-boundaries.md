@@ -1,6 +1,6 @@
 # Shared team boundaries
 
-These instructions govern explicitly activated Surgeon work. Actual host rules,
+These instructions govern explicitly activated Surgical Dev work. Actual host rules,
 user authorization, repository protections and execution permissions still apply.
 They do not grant access, create tools, or provide a security sandbox.
 

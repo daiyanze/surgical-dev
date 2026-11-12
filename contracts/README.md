@@ -50,11 +50,10 @@ default (`temporary_subagents_enabled: false`). All limits apply together.
 | Policy key | Default | Meaning |
 |---|---|---|
 | `max_active_projects_per_repo` | 1 | Active projects per repository |
-| `max_active_workers` | 2 | All active Worker executions, including integration, delivery and incident handling |
+| `max_active_workers` | 2 | All active Worker executions, including integration |
 | `max_active_verifiers` | 1 | Active Verifier executions |
 | `max_total_active_executions` | 4 | All active role and helper executions combined |
 | `max_active_integrations_per_target` | 1 | Active integrations per shared target |
-| `max_active_releases_per_environment` | 1 | Active releases per environment |
 | `max_active_subagents_project` | 2 | Active temporary subagents across the project, not multiplied by Worker count |
 | `max_review_repair_cycles` | 2 | Fix-and-reverify cycles per review target |
 | `max_transient_retries` | 3 | Retries after transient failures |

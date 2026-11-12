@@ -4,7 +4,7 @@ Plan ID / revision / workstream ID:
 Integration owner / mapped project ACs:
 Dependencies and pinned accepted input snapshots:
 Shared contract versions and owners:
-Origin: direct request / admitted opportunity / incident:
+Origin: direct request / confirmed goal:
 Original scope authority and applicable policy:
 Objective:
 AC-1:

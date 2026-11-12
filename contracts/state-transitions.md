@@ -34,44 +34,10 @@ snapshot; independent acceptance cannot be bypassed by selecting serial mode.
 | VERIFYING | Repair limit exhausted or repeated unresolved failure | ESCALATED condition |
 | Any active stage | Accepted scope changes | BRIEF; new revision, preserve history and budget accounting |
 | INTEGRATION_READY | Relevant source/check-policy/baseline/dependency changes | Reopen affected checks/review; invalidate downstream acceptance |
-| Project PR_READY | Delivery requested and integrated evidence current | Create/link Worker release record; PR_READY is not an action grant |
+| Project PR_READY | Required checks and independent Integration Passed current | Record PR_READY; it is not an action grant |
 
 Increment a repair cycle when review-driven fixes are made and resubmitted, not
 for a pending-CI wait or duplicate review message. Persist the increment atomically.
-
-## Opportunity
-
-DRAFT -> PROPOSED when the evidence brief is ready. A trusted admission decision
-sets ACCEPTED, DEFERRED or REJECTED. Only ACCEPTED may produce authorized engineering
-work, subject to project scope. An outcome observation may produce a new proposal,
-not automatic acceptance. Direct tasks need no opportunity record.
-
-## Release/action run
-
-PLANNED -> PRECHECKING -> READY -> EXECUTING -> OBSERVING -> VERIFIED.
-Each transition requires current inputs. READY requires the checks appropriate to
-that operation; execution additionally requires its action-specific grant.
-An early merge/build action and a later deployment can be separate linked runs.
-
-EXECUTING with an unknown remote outcome is BLOCKED pending reconciliation, not
-FAILED-by-assumption and not permission to retry. Observed failure records FAILED
-and links an incident. A separate authorized successful recovery may mark the
-release ROLLED_BACK; a safe rollback is never assumed. Source changes reopen an
-Worker work item; policy/env/artifact changes require fresh applicable guards.
-
-## Incident
-
-OPEN -> TRIAGED -> MITIGATING -> CONTAINED -> RESOLVED is one possible path, not
-mandatory escalation theater. CONTAINED requires observed mitigation. RESOLVED
-requires recovery criteria and window; unresolved permanent fixes stay linked.
-An incident may skip mitigation when only observation or a source fix is needed.
-It may stay TRIAGED/BLOCKED when no safe recovery action is authorized.
-
-## Outcome
-
-PENDING -> SUPPORTED / INCONCLUSIVE / REGRESSED from observed data and the agreed
-measurement method. Assessment changes are new revisions. They do not rewrite
-historical technical review or authorize new development by themselves.
 
 ## Final-action freshness
 

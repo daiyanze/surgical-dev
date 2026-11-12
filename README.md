@@ -7,8 +7,7 @@
 Surgical Dev is a goal-driven workflow for coding agents. You describe the outcome;
 the agent discusses it, writes a full acceptance draft, plans Todo dependencies, then
 implements, checks, repairs, and reviews the work — without you coordinating roles or
-repeatedly saying "continue". When the same evidenced problem keeps recurring,
-it can turn a verified fix into guidance for future tasks.
+repeatedly saying "continue".
 
 The methods are portable Agent Skills. The bundled **enforced automatic loop** is
 currently implemented for **Pi only**: discussion and confirmation, Todo execution,
@@ -25,13 +24,11 @@ outcome:
   contexts. You restore missing context and relay feedback between roles.
 - **"Done" is hard to verify.** The author reviews its own work, checks refer to an
   earlier revision, or separately passing pieces fail when combined.
-- **The same mistakes keep returning.** Failed checks and review findings get
-  fixed once, but the next task starts without the lessons those failures taught.
 
 Surgical Dev makes the goal executable: a confirmed specification with scope,
-non-goals, constraints and independent acceptance criteria; one Worker that stays
-with the implementation; real project checks; and a fresh independent Verifier for
-the final combined candidate. Findings go back to the Worker that understands the change.
+non-goals, constraints and acceptance criteria; one Worker that stays with the
+implementation; real project checks; and a fresh independent Verifier for the final
+candidate. Findings go back to the Worker that understands the change.
 
 ## 🚀 Quickstart with Pi
 
@@ -47,8 +44,8 @@ a model through Pi's normal setup first. Details: [Pi setup](adapters/pi/SETUP.m
 pi install git:github.com/daiyanze/surgical-dev
 ```
 
-This installs the fourteen Skills and the `/surgical` extension. Installing the
-Skills alone does **not** activate the automatic loop.
+This installs the nine Skills and the `/surgical` extension. Installing the Skills
+alone does **not** activate the automatic loop.
 
 ### 2. Configure the repository
 
@@ -87,10 +84,6 @@ The confirmation freezes the displayed revision and starts the loop automaticall
 `/surgical confirm` followed by `/surgical run` is the advanced equivalent. See
 [Pi setup](adapters/pi/SETUP.md) for the full command reference and recovery details.
 
-That's all you need for future goals, too: **Learning Loop runs within the same
-`/surgical <goal>` flow**. No fourth agent, extra setup step, or additional
-approval is required.
-
 ## 🤖 Supported agent runtimes
 
 Any host that can read Agent Skills can load the methods. What differs is how much
@@ -98,7 +91,7 @@ of the loop the host can enforce.
 
 | Runtime | What you get | Independent review |
 |---|---|---|
-| **Pi** | Package with the actual bundled guided automatic loop: requirement discussion, explicit confirmation, Todo dependency planning, sequential implementation, project checks, repairs, fresh final review and bounded stopping | The extension launches a fresh read-tool Pi reviewer on a Git snapshot |
+| **Pi** | Package with the bundled guided automatic loop: requirement discussion, explicit confirmation, Todo dependency planning, sequential implementation, project checks, repairs, fresh final review and bounded stopping | The extension launches a fresh read-tool Pi reviewer on a Git snapshot |
 | **Codex** | Portable Skills and setup guidance; no bundled Surgical Dev loop controller | Separate reviewer subagent or session; see [Codex setup](adapters/codex/SETUP.md) |
 | **Claude Code** | Portable Skills and setup guidance; no bundled Surgical Dev loop controller | Fresh non-fork reviewer subagent or session; see [Claude Code setup](adapters/claude/SETUP.md) |
 | **Other Agent Skills hosts** | The methods can be loaded through the portable Skill format | Runtime integration is untested and host-dependent; provide an independent review context |
@@ -112,10 +105,10 @@ in this repository.
 Run from your project directory:
 
 ```bash
-# Codex: all fourteen Skills
+# Codex: all nine Skills
 npx skills add daiyanze/surgical-dev --skill '*' -a codex -y
 
-# Claude Code: all fourteen Skills
+# Claude Code: all nine Skills
 npx skills add daiyanze/surgical-dev --skill '*' -a claude-code -y
 ```
 
@@ -137,8 +130,8 @@ A typical Pi run, simplified and illustrative rather than a transcript of a real
 session:
 
 1. You ask for search pagination and clarify which API must stay stable.
-2. The agent proposes a full draft with scope, non-goals and independent acceptance
-   criteria. You review it and reply `确认，开始`.
+2. The agent proposes a full draft with scope, non-goals and acceptance criteria.
+   You review it and reply `确认，开始`.
 3. The agent plans Todo dependencies and implements eligible Todos sequentially in
    the same Worker session, running real project checks after each.
 4. A fresh independent Verifier reviews the final combined source snapshot and the
@@ -162,130 +155,61 @@ state and safety behavior.
 
 ## 👥 Roles
 
-Surgical Dev separates three responsibilities. They are conceptual roles, not three
-agents you must create or coordinate: each role uses the relevant methods (Skills)
-for its part of the work.
+Surgical Dev uses two roles. They are conceptual responsibilities, not agents you must
+create or coordinate.
 
 | Role | What it owns | When it participates |
 |---|---|---|
-| **Product Scout** | Discovers and validates user problems and worthwhile goals. Proposes outcomes before implementation and evaluates effects after delivery. Does not approve new scope. | Optional when the goal is already known; useful when deciding whether a problem is worth solving. See [Product Scout](roles/product-scout.md). |
-| **Worker** | User-facing owner for requirement clarification, specification, Todo planning and dependencies, implementation, tests, fixes and evidence. The same Worker retains context. It can also own separately authorized delivery and operations, though the current Pi automatic loop stops at `PR_READY`. | For every task. See [Worker](roles/worker.md). |
-| **Verifier** | Uses a fresh, independent context to inspect the actual code snapshot and evidence against each agreed acceptance criterion. Returns `PASS`, `CHANGES_REQUIRED` or `BLOCKED`, with actionable findings sent directly to the same Worker. Never implements or expands scope, and does not withhold diagnostic feedback. | After implementation, for independent acceptance. See [Verifier](roles/verifier.md). |
+| **Worker** | Requirement clarification, Todo planning, implementation, tests, fixes and evidence. The same Worker keeps its context across repairs. | For every task. See [Worker](roles/worker.md). |
+| **Verifier** | A fresh, independent context that inspects the actual code snapshot and evidence against each agreed acceptance criterion. Returns `PASS`, `CHANGES_REQUIRED` or `BLOCKED`, with findings sent to the same Worker. It never implements or expands scope. | After implementation, for independent acceptance. See [Verifier](roles/verifier.md). |
 
-You give the goal and confirm the acceptance draft; the entry Skill handles the relevant
-methods. Pi bundles one persistent Worker and a fresh reviewer; it does not
-automatically spawn three persistent agents or a Product Scout service. Most tasks
-with a known goal need only a Worker and a Verifier.
+Pi bundles one persistent Worker and a fresh reviewer process. Most tasks with a known
+goal need only these two roles.
 
-For the search pagination goal above, a Product Scout is useful if you are still
-deciding whether the problem is worth solving. The Worker agrees the empty-results
-and final-page behavior with you, then implements and tests it. The Verifier checks
-both behaviors on the actual candidate and returns any findings to that same Worker.
+Product Scout, delivery (release, publish, deploy) and incident-response roles and
+their Skills are not part of this package. The earlier target design that included them
+is in git history at commit `5399c29`.
 
-For recurring problems, Scout can contribute patterns from user feedback, Worker
-investigates the cause and proposes prevention, and Verifier supplies independent
-findings and the normal final acceptance. Learning doesn't change their authority.
+## 🧠 Learning Loop — an advisory hint for repeated failures
 
-## 🧠 Learning Loop — make the next run smarter
+When the same check failure or blocking Verifier finding recurs in one repository,
+the Pi extension counts it locally. It is advisory context, not a gate.
 
-A fix should outlive the conversation that discovered it. Learning Loop records
-**repeatable evidence**, asks the Worker to identify the cause, and reuses only
-lessons that survived normal acceptance. It works in the background of the same
-`/surgical <goal>` workflow; you do **not** need to invoke a learning Skill manually.
-
-```mermaid
-flowchart LR
-    A["Project check fails<br/>or Verifier finds a defect"] --> B{"Same issue<br/>at least twice?"}
-    B -- No --> C["Keep observation"]
-    B -- Yes --> D["Worker diagnoses cause<br/>and proposes prevention"]
-    D --> E["Candidate lesson"]
-    E --> F{"Current checks +<br/>independent review pass?"}
-    F -- No --> G["Remain unverified"]
-    F -- "Yes: PR_READY" --> H["Active lesson<br/>for relevant future tasks"]
-    H -- "Issue recurs" --> I["Needs revision"]
-    I --> D
-```
-
-**Example: a pagination bug that keeps returning.** Suppose a configured check
-repeatedly catches empty-page handling, or an independent Verifier repeatedly
-reports the same missing boundary case. On the **second matching occurrence**,
-Pi shows a recurring-issue ID to the Worker. The Worker can diagnose the issue
-and propose a scoped rule such as *"Test empty results and final-page cursors
-before changing pagination."* It also specifies how to verify that rule. Pi
-does **not** infer a trustworthy root cause just because two failures look alike.
-
-After the Worker fixes the code, project checks and a fresh independent Verifier
-must still pass. Only a successfully persisted `PR_READY` promotes that
-proposal from **CANDIDATE** to **ACTIVE**. Later, when you run:
+On the second occurrence, the Worker's repair feedback includes one line such as:
 
 ```text
-/surgical Add cursor-based pagination to search. Preserve the existing API.
+LEARNING (advisory, not a gate): this failure has occurred 2 times in this repository: <label>.
 ```
 
-the Worker receives the relevant prevention rule as advisory context and still
-runs the project's actual checks. If the same failure returns, the old rule is
-marked **NEEDS_REVISION** rather than silently trusted again.
+- **What is counted:** a configured project check that fails, and a blocking finding
+  from the independent Verifier. Each is keyed by a normalized signature with a label and count.
+- **Where it lives:** `<git-common-dir>/surgical-dev/learning.json`, outside the source
+  snapshot. Secrets are redacted before storage.
+- **Scope:** records stay in that local repository. They do not sync between clones
+  and are never committed.
+- **What it does not do:** it does not change acceptance criteria, checks, scope or
+  budgets, and it cannot block `PR_READY`. There is no lesson lifecycle or promotion step.
+- **Inspect:** `/surgical lessons` lists the latest 20 records.
+- **Other hosts:** the manual [learn-from-failures](skills/learn-from-failures/SKILL.md)
+  Skill covers observations Pi does not see. Details: [learning reference](references/learning.md).
 
-### View your project's lessons
-
-```text
-/surgical lessons
-```
-
-This optional command displays up to 20 recent local records, with their status
-and occurrence count. The lifecycle is `OBSERVED` → `RECURRING` →
-`CANDIDATE` → `ACTIVE` (or `NEEDS_REVISION` after recurrence). A repeated
-failure only **suggests** learning; a Worker must supply evidence and a concrete
-preventive action. You can keep using `/surgical <goal>` without managing these
-records yourself.
-
-### What is automatic — and what isn't?
-
-- **Pi extension:** Automatically observes actual configured check failures and
-  independent `CHANGES_REQUIRED` blocking findings. It injects at most **3
-  relevant active lessons**, within **1,200 characters**, without a separate
-  model call. Worker proposals use the internal `surgical_lesson` tool.
-- **Product Scout / other runtimes:** The portable
-  [learn-from-failures](skills/learn-from-failures/SKILL.md) method can capture
-  repeated product misunderstandings and non-Pi incidents, but their evidence
-  collection and curation are **manual**, not an automatic observer.
-- **Storage and trust:** Pi stores learning records locally in
-  `<git-common-dir>/surgical-dev/learning.json`, outside the source snapshot.
-  Records survive runs in the same local Git repository but **do not sync
-  between clones**. To share them, review and deliberately commit a sanitized
-  [lesson template](templates/lesson.md). Lessons are suggestions, not new
-  acceptance criteria, permissions, or Verifier vetoes.
-
-See the [full learning workflow](references/learning.md) and
-[Pi configuration](adapters/pi/SETUP.md).
-
-## 📚 The fourteen methods
+## 📚 The nine Skills
 
 Start with **`surgical-dev`** for everyday work. It selects the relevant methods, so
-you need not learn a fourteen-step sequence; request a specific Skill when you
-already know what you need.
-
-<details>
-<summary>All fourteen Skills</summary>
+you do not need to learn a sequence; request a specific Skill when you already know
+what you need.
 
 | Skill | When to use it | What it produces |
 |---|---|---|
-| [surgical-dev](skills/surgical-dev/SKILL.md) | Start from a development goal | Selects the relevant responsibility and methods, then guides the work |
+| [surgical-dev](skills/surgical-dev/SKILL.md) | Start from a development goal | Selects the relevant method, then guides the work |
 | [ship-feature](skills/ship-feature/SKILL.md) | Add a feature or change behavior | Acceptance criteria, focused implementation, tests, and a review handoff |
 | [fix-bug](skills/fix-bug/SKILL.md) | Investigate and repair a defect | Reproduction evidence, a supported cause, a minimal fix, and regression checks |
 | [decompose-project](skills/decompose-project/SKILL.md) | Organize a goal with several outcomes | Testable workstreams, dependencies, interface boundaries, and integration ownership |
-| [engineering-discipline](skills/engineering-discipline/SKILL.md) | Keep any coding task focused | Explicit assumptions, simple design, scoped edits, and observable checks |
-| [learn-from-failures](skills/learn-from-failures/SKILL.md) | Prevent repeated defects and failed assumptions | Evidence-backed lesson candidates, verified prevention rules, and revision on relapse |
-| [verify-change](skills/verify-change/SKILL.md) | Independently assess a candidate | `PASS`, `CHANGES_REQUIRED`, or `BLOCKED`, with evidence and actionable findings |
-| [delegate-bounded-task](skills/delegate-bounded-task/SKILL.md) | Hand off an independent question or isolated subtask | A bounded helper assignment and usable findings; requires enabled delegation |
 | [integrate-workstreams](skills/integrate-workstreams/SKILL.md) | Combine accepted workstreams | An integrated candidate, whole-project checks, and independent acceptance |
-| [discover-opportunity](skills/discover-opportunity/SKILL.md) | Decide what is worth building | A sourced problem proposal, priority, and measurable outcome |
-| [evaluate-outcome](skills/evaluate-outcome/SKILL.md) | Assess a shipped change against its goal | A baseline-based assessment: supported, inconclusive, or regressed |
-| [prepare-release](skills/prepare-release/SKILL.md) | Check whether a candidate is ready to release | Readiness evidence, observation and recovery plans; no release execution |
-| [release-and-observe](skills/release-and-observe/SKILL.md) | Perform an already authorized release | Execution evidence, health observations, and the actual release outcome |
-| [handle-incident](skills/handle-incident/SKILL.md) | Respond to a production incident | Triage, authorized containment, bounded repair, and recovery evidence |
-
-</details>
+| [delegate-bounded-task](skills/delegate-bounded-task/SKILL.md) | Hand off an independent question or isolated subtask | A bounded helper assignment and usable findings; requires enabled delegation |
+| [engineering-discipline](skills/engineering-discipline/SKILL.md) | Keep any coding task focused | Explicit assumptions, simple design, scoped edits, and observable checks |
+| [verify-change](skills/verify-change/SKILL.md) | Independently assess a candidate | `PASS`, `CHANGES_REQUIRED`, or `BLOCKED`, with evidence and actionable findings |
+| [learn-from-failures](skills/learn-from-failures/SKILL.md) | Review recurring failures by hand | A manual signature review and a prevention note; no automatic gate |
 
 **Independent review needs a separate context.** Run `verify-change` in a fresh
 reviewer session or subagent that did not write the change. Supply the goal, fixed
@@ -320,8 +244,9 @@ for a separate review context. See [validation](VALIDATION.md) for exact coverag
 - [Installation and distribution](docs/distribution.md) — package scope, Skills CLI options and host capability tiers.
 - [Pi setup](adapters/pi/SETUP.md), [Codex setup](adapters/codex/SETUP.md) and [Claude Code setup](adapters/claude/SETUP.md) — commands, configuration and reviewer setup.
 - [Detailed workflow](references/workflow.md), [project goal](templates/project-goal.md) and [review request](templates/review-request.md) — handoffs, repair cycles, and reusable task/acceptance starting points.
-- [Contracts and limits](contracts/README.md) — evidence records, state transitions and execution budgets; [architecture](ARCHITECTURE.en.md) · [中文摘要](ARCHITECTURE.zh-CN.md) — design rationale.
-- [Validation](VALIDATION.md) — completed checks and evidence limits; [automation roadmap](docs/runtime-next.md) — remaining work toward unattended delivery and recovery.
+- [Contracts and limits](contracts/README.md) — evidence records, state transitions and execution budgets.
+- [Architecture](ARCHITECTURE.en.md) · [中文摘要](ARCHITECTURE.zh-CN.md) — implemented scope and not-yet-implemented work.
+- [Validation](VALIDATION.md) — completed checks and evidence limits; [remaining runtime work](docs/runtime-next.md) — multi-workstream, delivery and recovery.
 
 ## References
 

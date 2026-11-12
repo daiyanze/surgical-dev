@@ -17,7 +17,7 @@ From the target project:
 npx skills add daiyanze/surgical-dev --skill '*' -a codex -y
 ```
 
-This copies the fourteen Skills, with their bundled references, into
+This copies the nine Skills, with their bundled references, into
 `.agents/skills/` (the repository-level Codex skills directory). Add `-g` for the
 user-level `~/.agents/skills/`. Restart Codex if a Skill does not appear.
 

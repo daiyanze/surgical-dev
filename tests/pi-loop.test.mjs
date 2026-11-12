@@ -2,10 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, writeFile, readFile, rm, mkdir, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { adjustRunPlan, createRun, advanceRun, parseReviewerOutput, planTodos, validateConfig } from '../adapters/pi/loop.mjs';
+import { learningPath } from '../adapters/pi/learning.mjs';
 import { confirmSpec, createDraftSpec } from '../adapters/pi/spec.mjs';
 import { captureSnapshot, runProcess } from '../adapters/pi/process.mjs';
 
@@ -601,4 +602,44 @@ test('mixed reviewer usage exposes a subtotal but keeps the aggregate total UNKN
   assert.equal(run.state.usage.reviewer.total, 15);
   assert.equal(run.state.usage.reviewer_usage_complete, false);
   assert.equal(run.state.usage.total_tokens, 'UNKNOWN');
+});
+
+test('an unsupported learning store is replaced on failure without a warning or hint, and acceptance proceeds', async t => {
+  const cwd = await repository(t);
+  const path = await learningPath(cwd);
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(path, '{"schema_version":0,"records":[]}');
+  const check = [process.execPath, '-e', 'if(require("fs").readFileSync("answer.txt","utf8").trim()!=="42"){console.error("expected 42");process.exit(1)}'];
+  const run = await createRun({ cwd, spec: oneSpec('Put 42 in answer.txt'), config: config({ checks: [check] }), workerSessionId: 'learning-replace' });
+  t.after(() => run.close());
+  assert.deepEqual(run.state.learningWarnings, []);
+  const failed = await advanceRun(run);
+  assert.equal(failed.action, 'continue');
+  assert.match(failed.feedback, /expected 42/);
+  assert.doesNotMatch(failed.feedback, /LEARNING/, 'a first observation after replacement is not yet recurring');
+  assert.equal(run.state.status, 'IMPLEMENTING');
+  assert.equal(JSON.parse(await readFile(path, 'utf8')).schema_version, 1);
+  await writeFile(join(cwd, 'answer.txt'), '42');
+  assert.equal((await advanceRun(run)).action, 'ready');
+  await run.finish();
+  assert.equal(run.state.status, 'PR_READY');
+});
+
+test('a learning write that fails (store locked) is a bounded warning and never blocks acceptance', async t => {
+  const cwd = await repository(t);
+  const path = await learningPath(cwd);
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(join(dirname(path), 'learning.lock'), 'held');
+  const check = [process.execPath, '-e', 'if(require("fs").readFileSync("answer.txt","utf8").trim()!=="42"){console.error("expected 42");process.exit(1)}'];
+  const run = await createRun({ cwd, spec: oneSpec('Put 42 in answer.txt'), config: config({ checks: [check] }), workerSessionId: 'learning-lock' });
+  t.after(() => run.close());
+  const failed = await advanceRun(run);
+  assert.equal(failed.action, 'continue');
+  assert.doesNotMatch(failed.feedback, /LEARNING/);
+  assert.match(run.state.learningWarnings.at(-1), /locked by another session/);
+  await rm(join(dirname(path), 'learning.lock'));
+  await writeFile(join(cwd, 'answer.txt'), '42');
+  assert.equal((await advanceRun(run)).action, 'ready');
+  await run.finish();
+  assert.equal(run.state.status, 'PR_READY');
 });

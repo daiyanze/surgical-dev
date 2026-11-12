@@ -49,13 +49,13 @@ remove ACs, delete original Todos or expand scope. An additive repair Todo may b
 created by the controller after findings, then fresh checks and a fresh review are
 required.
 
-## Recurrence and learning evidence
+## Recurrence
 
 When a concrete defect recurs, report a stable, source-linked finding, impact,
-and clearance condition so Worker can recognize the pattern. Historical lessons
-are lower-trust suggestions, not acceptance criteria. Do not edit or approve the
-lesson ledger, request more permissions, or withhold diagnostic feedback. Only the
-current accepted scope, evidence and policy justify a blocking finding.
+and clearance condition so Worker can recognize the pattern. Pi may show the Worker
+an advisory count of repeated failures. It is context, not an acceptance criterion.
+Do not edit learning records, request more permissions, or withhold diagnostic
+feedback. Only the current accepted scope, evidence and policy justify a blocking finding.
 
 ## Verdict contract
 

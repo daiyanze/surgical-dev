@@ -31,8 +31,7 @@
     "tests",
     "scripts",
     "ARCHITECTURE.en.md",
-    "ARCHITECTURE.zh-CN.md",
-    "workflows"
+    "ARCHITECTURE.zh-CN.md"
   ],
   "scripts": {
     "test": "node --test tests/*.test.mjs",

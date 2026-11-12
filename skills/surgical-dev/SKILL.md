@@ -1,6 +1,6 @@
 ---
 name: surgical-dev
-description: Use when the user invokes Surgical Dev with a goal or resumes its three-role workflow for project organization, implementation, independent acceptance, delivery or incidents.
+description: Use when the user invokes Surgical Dev with a development goal and needs requirement confirmation, implementation, project checks and independent acceptance.
 ---
 
 # Surgical Dev
@@ -69,32 +69,23 @@ be reported as absent, not simulated.
 
 ## Route only the responsibility needed
 
-- Research/opportunity: Product Scout uses discover-opportunity. A proposal cannot
-  admit itself; retain original user or trusted-policy authorization before coding.
-- Clear feature/bug: Worker uses ship-feature or fix-bug directly. Keep reading,
+- Clear feature or behavior change: Worker uses ship-feature directly. Keep reading,
   planning, implementation and debugging in the same conversation and coding session.
-- Multi-outcome goal: Worker uses decompose-project. The user supplies goal,
-  constraints, budget and permissions, not assignments. A Worker integration
-  owner establishes minimal workstreams, dependencies, shared contracts and project
-  ACs. A verified host/controller assigns ready work to peer Worker sessions within
-  policy caps. Small/coupled work and unsupported parallelism stay sequential.
-- Optional bounded work: Worker uses delegate-bounded-task only if enabled, with
-  at most two temporary subagents across the project, isolated workspaces and no
+- Clear defect: Worker uses fix-bug directly, in the same conversation and coding session.
+- Multi-outcome goal: Worker uses decompose-project to plan streams, shared contracts
+  and integration. The Pi loop runs such a plan sequentially in one Worker session; it
+  does not schedule peer Workers. Small or tightly coupled work stays in one stream.
+- Combined candidate: Worker uses integrate-workstreams only after the streams have
+  been reviewed and assembled on a pinned candidate.
+- Optional bounded work: Worker uses delegate-bounded-task only if enabled, with at
+  most two temporary subagents across the project, isolated workspaces and no
   recursive delegation. Helpers are not peer workstream owners.
 - Acceptance: a genuinely separate Verifier uses verify-change. Never switch persona
   to approve your own work. Missing independent review is BLOCKED; a documented human
   alternative is allowed. PASS does not authorize delivery.
-- Delivery: Worker continues with prepare-release, then release-and-observe for
-  authorized actions, retaining task ownership. Preparation does not grant merge,
-  tag, package or deployment permission.
-- Incident: Worker uses handle-incident and keeps bounded repairs in its implementation
-  context, followed by independent Verifier acceptance and observed recovery.
-- Product results: Scout uses evaluate-outcome; new follow-ups need separate admission.
-- Recurring evidence: Scout, Worker and Verifier use learn-from-failures when
-  repeated problems are supported by source-linked evidence. Pi records repeated
-  check/review failures automatically; the Worker may propose a grounded lesson
-  with `surgical_lesson`. It becomes reusable only after normal PR_READY; none of
-  these hints add a new gate or grant Verifier implementation authority.
+- Recurring evidence: on hosts without the Pi extension, use learn-from-failures by hand.
+  In Pi, the Worker may see one advisory learning line in repair feedback. It never
+  changes acceptance.
 
 ## Continue the engineering loop
 
@@ -103,17 +94,15 @@ check evidence, then request independent review. CHANGES_REQUIRED returns to the
 original Worker session automatically when a verified handoff exists. Permit at
 most two repair/reverify cycles after initial review; preserve total budgets across
 Todos, new IDs and restarts. BLOCKED retains owner, reason, prior phase and resume
-condition. Use integrate-workstreams for the combined candidate. Local stream
-acceptance is INTEGRATION_READY, not project completion. Project PR_READY needs
-current project checks and independent Integration Passed. One stream may reuse one
-review covering all project ACs on the same snapshot. Stop at PR_READY unless
-delivery is in scope. No mandatory Scout pass, no separate delivery role, and no
-automatic permanent-agent creation. In-scope technical replanning/allocation is
+condition. A stream's accepted result is INTEGRATION_READY, not project completion.
+Project PR_READY needs current project checks and independent Integration Passed.
+Stop at PR_READY. Delivery (commit, push, pull request, merge, publish or deploy) is
+outside this Skill and needs its own explicit grant. In-scope technical replanning is
 automatic; new scope, authority or budget requires a decision. Unsupported runtime
 operations must not be presented as executed.
 
 ## Return
 
-Actual project/workstream state and responsible role; plan/task/review/release/incident IDs;
-current scope/source/check evidence; verdict or absence; unresolved risks and next
-authorized action. Never invent agent runs, approvals, telemetry or product impact.
+Actual project or workstream state and responsible role; plan, task and review IDs;
+current scope, source and check evidence; verdict or its absence; unresolved risks and
+next authorized action. Never invent agent runs, approvals, telemetry or product impact.

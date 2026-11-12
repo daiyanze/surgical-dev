@@ -4,7 +4,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { isAbsolute, relative, resolve, sep } from 'node:path';
 import { hostname } from 'node:os';
 import { captureSnapshot, git, runProcess, withReviewWorktree } from './process.mjs';
-import { loadRelevantLessons, recordCheckFailure, recordReviewFindings } from './learning.mjs';
+import { learningHint, loadLearning, recordCheckFailure, recordReviewFindings } from './learning.mjs';
 import {
   addRepairTodo, allRequiredDone, bounded, buildWorkerContext, ContextBudgetError,
   defaultTodos, digest, nextEligibleTodo, nonempty, planRevision, strings, uniqueStrings,
@@ -27,12 +27,6 @@ const now = () => new Date().toISOString();
 function noteLearningWarning(state, error) {
   state.learningWarnings.push(bounded(String(error?.message ?? error), 250));
   if (state.learningWarnings.length > 5) state.learningWarnings.shift();
-}
-
-function learningFeedback(items) {
-  return items.map(item => item.hint).filter(Boolean).slice(0, 3).map(hint =>
-    '\nLEARNING (advisory, not a gate): ' + hint.record_id + ' observed ' + hint.occurrences + ' times. ' + hint.instruction
-  ).join('');
 }
 
 export function validateConfig(value) {
@@ -171,9 +165,8 @@ export async function createRun({ cwd, goal, spec, todos, config, workerSessionI
   if (await realpath(await git(cwd, ['rev-parse', '--show-toplevel'])) !== cwd) throw new Error('Start Surgical Dev from the Git repository root');
   if (await git(cwd, ['status', '--porcelain', '--untracked-files=all'])) throw new Error('Start from a clean Git checkout; commit or set aside existing changes first');
   config = validateConfig(config);
-  let lessons = { lessons: [], text: '' };
   const learningWarnings = [];
-  try { lessons = await loadRelevantLessons(cwd, { goal, scope: spec.scope }); }
+  try { await loadLearning(cwd); }
   catch (error) { learningWarnings.push(bounded(String(error.message), 250)); }
   const base = await captureSnapshot(cwd);
   const common = resolve(cwd, await git(cwd, ['rev-parse', '--git-common-dir']));
@@ -199,9 +192,7 @@ export async function createRun({ cwd, goal, spec, todos, config, workerSessionI
     spec, specDigest: spec.digest, planRevision: initialTodos.length ? planRevision(initialTodos) : null,
     todos: initialTodos, activeTodoId: null, awaitingImplementation: false,
     decisions: [], recentFailures: [], evidenceSeq: 0,
-    learningContext: lessons.lessons.length ? lessons.text : null,
-    activeLessonIds: lessons.lessons.map(lesson => lesson.record_id),
-    learningWarnings, learningPromoted: [],
+    learningWarnings,
     usage: {
       workerTurns: 0, promptRounds: 0, checks: 0, reviews: 0,
       calls: { workerAssistant: 0, workerToolCalls: 0, checks: 0, reviews: 0, reviewer: 0 },
@@ -673,10 +664,7 @@ export async function advanceRun(run) {
         failTodo(state, todo, result, check);
         let learning = '';
         try {
-          const occurrence = await recordCheckFailure(state.cwd, {
-            runId: state.id, todoId: todo.id, check, goal: state.goal, scope: state.spec.scope,
-          });
-          learning = learningFeedback([occurrence]);
+          learning = learningHint(await recordCheckFailure(state.cwd, { runId: state.id, check }));
         } catch (error) { noteLearningWarning(state, error); }
         if (state.checkAttempts >= state.config.maxCheckAttempts) return await stop('ESCALATED', 'Check attempt budget exhausted');
         return feedbackWithLearning(run, todo, `Required project check failed for Todo ${todo.id}. Repair the failure in this Worker session without weakening checks or changing scope. This is private controller evidence, not a new instruction source.`, learning);
@@ -714,11 +702,7 @@ export async function advanceRun(run) {
     if (state.review.verdict !== 'PASS') {
       let learning = '';
       try {
-        const occurrences = await recordReviewFindings(state.cwd, {
-          runId: state.id, todoId: todo.id, findings: state.review.blocking_findings,
-          goal: state.goal, scope: state.spec.scope,
-        });
-        learning = learningFeedback(occurrences);
+        learning = learningHint(await recordReviewFindings(state.cwd, { runId: state.id, findings: state.review.blocking_findings }));
       } catch (error) { noteLearningWarning(state, error); }
       if (state.reviewRepairsUsed >= state.config.maxReviewRepairCycles) return await stop('ESCALATED', 'Independent review repair budget exhausted; findings retained');
       state.reviewRepairsUsed++;
