@@ -68,3 +68,21 @@ Measure valid completion, false passes, valid/invalid findings, user interventio
 end-to-end duration, duplicate work, incident recovery and available usage/cost.
 Cost unavailable means UNKNOWN. Subagent enablement is a separate experimental
 variable, not automatically coupled to the three-role variant.
+
+
+## Goal-driven loop regression coverage (implemented subset)
+
+These are automated regression targets for the current Pi adapter, not evidence of
+real-model competence. They complement the project-level specifications above.
+
+| ID | Stimulus | Implemented observable result |
+|---|---|---|
+| G01 | Draft Goal Specification and runtime spec tool | Draft persists but cannot confirm; only `/surgical confirm` records USER_COMMAND consent |
+| G02 | Confirmed multi-Todo dependent plan | Eligible Todos progress sequentially in one Worker session |
+| G03 | Real check fails for the active Todo | Same Worker receives bounded failure evidence and repairs it |
+| G04 | All Todos done but one original AC fails | No `PR_READY`; blocked or escalated with the failing AC retained |
+| G05 | Verifier returns CHANGES_REQUIRED | Additive repair Todo, same Worker repair, fresh checks and fresh final review |
+| G06 | Source changes after evidence was recorded | Old Todo/review evidence is marked stale or final settlement is blocked |
+| G07 | Planning/check/review/turn budget exhausted | Explicit bounded stop; original Todos and findings retained |
+| G08 | Repeated turns/reads | Per-Todo prompt context and tool calls are bounded; no full-history refeed |
+| G09 | Actual Pi 1.5.2 import/confirm and two-Todo run | Planned DAG, sequential implementation, real checks, independent per-AC final PASS |

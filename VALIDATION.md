@@ -1,42 +1,58 @@
 # Validation report
 
-Package: `surgical-dev` · 2026-11-11.
-Scope: portable Skills, record contracts and the opt-in Pi single-workstream loop.
-Implementation baseline: `ec8d56a`.
+Package: `surgical-dev` · 2026-11-12.
+Scope: portable Skills, record contracts and the opt-in Pi goal-driven single-workstream loop.
+Implementation baseline: repository branch `feat/goal-driven-autonomous-development` (review findings addressed and independently checked).
 
 ## Observed checks
 
 | Check | Result | What it establishes |
 |---|---|---|
-| `npm test` | 64 passed | 29 package checks and 35 runtime regressions using real Git and subprocesses |
-| `python3 tests/contracts_test.py` | 19 passed | Existing task, review and project-plan schema constraints |
+| `npm test` | 107 passed, 1 platform skip (macOS) | Package checks plus spec/state, loop and extension regressions using real Git and subprocesses |
+| `python3 tests/contracts_test.py` | 20 passed | Existing task, review and project-plan schema constraints |
 | `python3 scripts/sync_skill_references.py --check` | Passed | Standalone Skills match canonical Markdown references |
-| `npm run test:pi-host` with Pi 1.5.2 | 1 passed | Local package installation and actual Pi Worker/reviewer lifecycle with a deterministic local model |
-| Independent code review | Findings resolved | Five reproduced lifecycle, ownership, snapshot and cancellation issues were fixed and regression-tested |
+| `npm run test:pi-host` with Pi 1.5.2 | 1 passed | Actual Pi import/confirm commands then a planned two-Todo Worker/final-review lifecycle with a deterministic local model |
+| Independent code review | Findings addressed | Separate Pi/DeepSeek review plus parent inspection and regression checks of the final fixes |
 
-The Node regression suite checks real failure evidence returning to Worker,
-review findings returning for repair, fresh reviewer identities and candidate
-snapshots, two-cycle repair limits, cumulative check/turn limits, changed policy,
-failed/malformed model output, stale acceptance, cancellation, process deadlines,
-project locks and staging preservation. It includes newly force-added ignored
-files and cancellation of subprocess descendants. The Pi event harness is a test
-double; subprocess reviewer fixtures are not live model evaluations.
+The Node regression suite checks confirmation persistence and draft-only runtime
+tools; imported requirement documents; Goal Specification digest/tamper/revision
+binding; exclusive-lock state CAS with exactly one concurrent winner and visible
+persistence failure; shown-revision confirmation and observational startup without
+shared-run mutation; Todo DAG/coverage validation; multi-Todo dependency progression;
+real-check-based Todo completion; same-Worker repair; AC evidence requirements;
+evidence path:line existence, terminal-newline line bounds and Git-control-file
+rejection; malformed or partial review rejection; additive repair Todos and fresh
+re-review; transactional pending-only plan adjustments and decision notes that leave
+state unchanged on rejection; stale per-Todo evidence plus final integration evidence;
+cumulative turn/check/review budgets; bounded valid-JSON per-Todo context containing
+only current ACs and prioritizing the current failure; native compaction with one
+post-compaction context injection; mixed Worker/reviewer usage accounting with
+UNKNOWN aggregate totals; deadline checks before subprocess spawn; cancellation,
+locks and staging preservation.
+The Pi event harness is a test double; subprocess reviewer fixtures are not live
+model evaluations.
 
 ## Actual Pi host integration
 
-The host test uses the released `@earendil-works/pi-coding-agent@1.5.2`, Node 24
-and Git on Linux. It installs this package into a temporary Pi configuration and
-loads the extension through `pi.extensions`. It then starts an actual Pi Worker
-with a local OpenAI-compatible model fixture:
+The host test uses the released `@earendil-works/pi-coding-agent@1.5.2`. It installs
+this package into a temporary Pi configuration and loads the extension through
+`pi.extensions`. It then runs real Pi processes with a local OpenAI-compatible model
+fixture:
 
-1. The first candidate fails a real check on `answer.txt`.
-2. The extension adds failure evidence and Pi continues in the original session.
-3. Pi executes a real write tool to repair the file; the next check passes.
-4. The controller starts a separate Pi process in a detached Git worktree, with
-   read tools only. Pi performs an actual read and returns the structured review.
-5. Final settlement records `PR_READY`, two check attempts, one independent review
-   and distinct Worker/Verifier session IDs. The real index stays unchanged and
-   the disposable worktree is removed.
+1. A separate user-command process imports a two-AC requirements document.
+2. A separate user-command process confirms it; the confirmation session differs
+   from the Worker session and no runtime tool supplied consent.
+3. A Worker process calls the real `surgical_plan` tool with a dependent two-Todo
+   DAG and implements only the current Todo in one continuing session.
+4. The controller runs real project checks after each Todo and marks completion.
+5. All Todos done, a fresh Pi reviewer process reads both changed files in a
+   detached worktree and returns CHANGES_REQUIRED with validated path:line evidence.
+6. The same Worker receives the findings, adds an additive repair Todo, writes the
+   repair, passes checks, and a fresh reviewer returns per-AC PASS.
+7. Final settlement records `PR_READY`, final integration evidence for each Todo,
+   distinct Worker/Verifier session IDs and persisted file-backed state; exact model
+   call counts and one initial plan submission are asserted. The real index stays
+   unchanged and the disposable worktree is removed.
 
 The model responses in this test are deterministic. This proves the actual host's
 installation, event, tool and process integration; it does not establish DeepSeek
@@ -78,8 +94,11 @@ CI checks that regeneration leaves the working tree unchanged.
   long-duration run or live production task was performed.
 - The full behavioral acceptance matrix is still a specification; this report
   claims only the explicitly tested single-workstream subset.
-- Durable crash recovery, multi-stream scheduling, automatic PR creation, merge,
-  publication, deployment and incident response are not implemented by this loop.
+- Durable crash recovery/automatic background resume, parallel multi-Worker
+  scheduling, automatic PR creation, merge, publication, deployment and incident
+  response are not implemented by this loop.
+- The host test uses a deterministic model; it does not establish competence or
+  acceptance quality for DeepSeek or any real model.
 - Native Escape is observed at settlement during verification; `/surgical stop`
   is the immediate subprocess cancellation path. See [Pi setup](adapters/pi/SETUP.md).
 - Read-tool restrictions are not an OS sandbox or a production authorization

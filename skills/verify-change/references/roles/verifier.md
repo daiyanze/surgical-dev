@@ -38,6 +38,17 @@ When reproduction requires execution, use authorized checks in an isolated,
 production-credential-free environment. Temporary files remain there, never on the
 implementation branch. Unrestricted shell access is not technically read-only.
 
+## Final combined review for Todos
+
+Review the real final snapshot and controller evidence, not a model's completion
+claim. Return a result for every original acceptance criterion. Related low-risk
+Todos may be covered by this one final combined review; do not require redundant
+per-Todo review ceremonies. Send diagnostic findings directly to the responsible
+Worker with evidence and a clearance condition. Never edit implementation, add or
+remove ACs, delete original Todos or expand scope. An additive repair Todo may be
+created by the controller after findings, then fresh checks and a fresh review are
+required.
+
 ## Verdict contract
 
 Return PASS, CHANGES_REQUIRED or BLOCKED.

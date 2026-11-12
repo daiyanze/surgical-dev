@@ -195,6 +195,48 @@
         "type": "string",
         "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
       }
+    },
+    "source_tree": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "spec_digest": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "reviewer_usage": {
+      "anyOf": [
+        {
+          "type": "object"
+        },
+        {
+          "const": "UNKNOWN"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "reviewer_usage_complete": {
+      "type": "boolean"
+    },
+    "reviewer_calls": {
+      "type": "integer",
+      "minimum": 0
     }
   },
   "allOf": [

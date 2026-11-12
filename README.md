@@ -145,7 +145,7 @@ host provides and which Surgical Dev controller this repository includes:
 
 | Host | Native automation / available execution | Surgical Dev support here |
 |---|---|---|
-| **Pi** | Extensions can control the session and launch a reviewer | **Implemented:** `/surgical run` drives checks, fresh review, repair, and bounded stopping for one workstream |
+| **Pi** | Extensions can control the session and launch a reviewer | **Implemented:** requirement discussion/import, explicit confirmation, Todo planning, one persistent Worker, checks, independent final review, repairs, and bounded stopping for one workstream |
 | **Codex** | `codex exec` runs non-interactively; the SDK continues or resumes threads; subagents support separate review | All Skills and an optional reviewer configuration. No bundled Surgical Dev loop controller |
 | **Claude Code** | `/goal` continues toward a completion condition; `/loop` repeats prompts on a schedule; subagents support separate review | All Skills and setup guidance. No bundled Surgical Dev loop controller |
 
@@ -163,9 +163,37 @@ tested with real Pi processes and a local deterministic model; see
 
 ### Automate the loop with Pi
 
-The full Pi package includes an optional extension that runs project checks,
-starts a fresh Verifier, and returns failures to the original Worker automatically.
-With Pi 1.5.2+, first create and commit `.surgical-dev.json` in your target repository:
+The full Pi package includes an optional extension for goal-driven autonomous
+development. The normal path is **discuss → confirm → run → final acceptance**:
+
+```text
+# 1. Discuss requirements. This turn is read-only and must not implement.
+/surgical discuss Fix duplicate form submissions. Keep the public API.
+
+# Or import a complete requirements document without redundant discussion.
+/surgical import requirements.md
+
+# 2. Review the structured Goal Specification, then confirm it yourself.
+/surgical status
+/surgical confirm
+
+# 3. Start planning and implementation; the Worker stays in one session.
+/surgical run
+
+# Inspect or stop at any time.
+/surgical status
+/surgical stop
+```
+
+The confirmed specification freezes scope, non-goals, constraints and multiple
+independent acceptance criteria. Worker then plans a validated Todo DAG, implements
+eligible Todos sequentially in the same Pi session, and lets the controller mark a
+Todo done only after real project checks pass. A fresh independent Verifier reviews
+the final combined source snapshot and evidence per original AC. Findings return
+directly to that Worker for an additive repair Todo, followed by fresh checks and a
+fresh review.
+
+With Pi 1.5.2+, create and commit `.surgical-dev.json` in the target repository:
 
 ```json
 {
@@ -174,19 +202,21 @@ With Pi 1.5.2+, first create and commit `.surgical-dev.json` in your target repo
 ```
 
 Use checks that actually exist in your project. Start from a clean Git repository
-root, then run:
+root. `/surgical confirm` is an idle user command bound to the latest displayed draft
+revision; no model tool or Worker turn can supply that confirmation. The extension
+stores its compact, revision-checked plan/memory state under Git metadata
+(`.git/surgical-dev/state.json`), outside the reviewed source snapshot. Snapshots
+cover Git-tracked plus nonignored working-tree source; files excluded by `.gitignore`
+remain outside that boundary.
 
-```text
-/surgical run Fix duplicate form submissions and add a regression test.
-/surgical status
-/surgical stop
-```
-
-Follow [Pi setup](adapters/pi/SETUP.md) to install the package and configure checks.
-The extension stops at `PR_READY`: checks and independent review passed for the
-recorded snapshot. It leaves the implementation in your checkout. Automatic commit,
-PR creation, merge, deployment, parallel scheduling, and crash recovery remain future
-work. Installing Skills alone does not activate this loop.
+`PR_READY` requires every required Todo done, every original AC independently
+evidenced, configured project checks passing on the current tree, and a final
+combined independent review PASS. The extension leaves the implementation in your
+checkout. It does **not** commit, create a PR, merge, publish or deploy. It runs one
+Worker sequentially, does not run parallel Workers, and does not automatically resume
+after an interruption. Token/cost statistics are reported as `UNKNOWN` unless the Pi
+host supplies usage. Follow [Pi setup](adapters/pi/SETUP.md) for configuration,
+persistence and limits. Installing Skills alone does not activate this loop.
 
 ## Further reading
 
