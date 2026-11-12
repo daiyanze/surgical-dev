@@ -404,7 +404,7 @@ Internal handoff permission is not permission to copy secrets or customer data i
 
 ## 12. Skill allocation — included content, not installed capabilities
 
-The thirteen methods below are now included as canonical Skill instructions. Structural validation does not prove runtime behavior; no method is installed in a host.
+The fourteen methods below are now included as canonical Skill instructions. Structural validation does not prove runtime behavior; no method is installed in a host.
 
 | Skill name | Primary role | Purpose |
 |---|---|---|
@@ -417,6 +417,7 @@ The thirteen methods below are now included as canonical Skill instructions. Str
 | fix-bug | Worker | Establish cause, repair, and verify regression protection |
 | delegate-bounded-task | Worker | Invoke, inspect and integrate a temporary helper |
 | engineering-discipline | Worker / Verifier | Surface assumptions, keep design and diff minimal, prove success with observable checks |
+| learn-from-failures | Product Scout / Worker / Verifier | Turn recurring evidenced failures into scoped and revisable prevention; no additional gate |
 | verify-change | Verifier | Independent, version-bound acceptance |
 | prepare-release | Worker | Establish candidate/environment/recovery readiness; no implied execution |
 | release-and-observe | Worker | Execute a permitted delivery action and observe actual effects |
@@ -425,6 +426,19 @@ The thirteen methods below are now included as canonical Skill instructions. Str
 Specialist frontend/backend/security/performance knowledge remains on-demand reference material, not new persistent job titles. An unavailable mandatory method or tool is reported, never invented. Small implementation tasks do not need discovery, release or incident methods.
 
 The future runtime has to supply session creation, trusted evidence collection, action controls, and recovery; Skills only supply instructions. Prove a one-off process before automating it. No scheduled job is created by this package.
+
+### Cross-role Learning Loop
+
+The Pi controller stores bounded, sanitized check/review observations in Git's
+common metadata directory, not the working tree. Two matching occurrences only
+trigger a learning opportunity. The Worker proposes a supported root cause,
+prevention rule, scope and validation. The proposal is not reusable until the
+existing current-tree checks and independent final PASS yield PR_READY.
+Relevant active lessons are small advisory Worker hints; recurrence marks them
+NEEDS_REVISION. Scout's research patterns and other runtime observations use the
+same portable method with manual evidence, not an invented runtime collector.
+Historical rules never veto new work or widen Verifier authority. See
+[learning workflow](references/learning.md).
 
 ## 13. Host deployment model
 

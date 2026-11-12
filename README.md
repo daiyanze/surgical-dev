@@ -7,7 +7,8 @@
 Surgical Dev is a goal-driven workflow for coding agents. You describe the outcome;
 the agent discusses it, writes a full acceptance draft, plans Todo dependencies, then
 implements, checks, repairs, and reviews the work — without you coordinating roles or
-repeatedly saying "continue".
+repeatedly saying "continue". When the same evidenced problem keeps recurring,
+it can turn a verified fix into guidance for future tasks.
 
 The methods are portable Agent Skills. The bundled **enforced automatic loop** is
 currently implemented for **Pi only**: discussion and confirmation, Todo execution,
@@ -24,6 +25,8 @@ outcome:
   contexts. You restore missing context and relay feedback between roles.
 - **"Done" is hard to verify.** The author reviews its own work, checks refer to an
   earlier revision, or separately passing pieces fail when combined.
+- **The same mistakes keep returning.** Failed checks and review findings get
+  fixed once, but the next task starts without the lessons those failures taught.
 
 Surgical Dev makes the goal executable: a confirmed specification with scope,
 non-goals, constraints and independent acceptance criteria; one Worker that stays
@@ -44,7 +47,7 @@ a model through Pi's normal setup first. Details: [Pi setup](adapters/pi/SETUP.m
 pi install git:github.com/daiyanze/surgical-dev
 ```
 
-This installs the thirteen Skills and the `/surgical` extension. Installing the
+This installs the fourteen Skills and the `/surgical` extension. Installing the
 Skills alone does **not** activate the automatic loop.
 
 ### 2. Configure the repository
@@ -84,6 +87,10 @@ The confirmation freezes the displayed revision and starts the loop automaticall
 `/surgical confirm` followed by `/surgical run` is the advanced equivalent. See
 [Pi setup](adapters/pi/SETUP.md) for the full command reference and recovery details.
 
+That's all you need for future goals, too: **Learning Loop runs within the same
+`/surgical <goal>` flow**. No fourth agent, extra setup step, or additional
+approval is required.
+
 ## 🤖 Supported agent runtimes
 
 Any host that can read Agent Skills can load the methods. What differs is how much
@@ -105,10 +112,10 @@ in this repository.
 Run from your project directory:
 
 ```bash
-# Codex: all thirteen Skills
+# Codex: all fourteen Skills
 npx skills add daiyanze/surgical-dev --skill '*' -a codex -y
 
-# Claude Code: all thirteen Skills
+# Claude Code: all fourteen Skills
 npx skills add daiyanze/surgical-dev --skill '*' -a claude-code -y
 ```
 
@@ -175,14 +182,91 @@ deciding whether the problem is worth solving. The Worker agrees the empty-resul
 and final-page behavior with you, then implements and tests it. The Verifier checks
 both behaviors on the actual candidate and returns any findings to that same Worker.
 
-## 📚 The thirteen methods
+For recurring problems, Scout can contribute patterns from user feedback, Worker
+investigates the cause and proposes prevention, and Verifier supplies independent
+findings and the normal final acceptance. Learning doesn't change their authority.
+
+## 🧠 Learning Loop — make the next run smarter
+
+A fix should outlive the conversation that discovered it. Learning Loop records
+**repeatable evidence**, asks the Worker to identify the cause, and reuses only
+lessons that survived normal acceptance. It works in the background of the same
+`/surgical <goal>` workflow; you do **not** need to invoke a learning Skill manually.
+
+```mermaid
+flowchart LR
+    A["Project check fails<br/>or Verifier finds a defect"] --> B{"Same issue<br/>at least twice?"}
+    B -- No --> C["Keep observation"]
+    B -- Yes --> D["Worker diagnoses cause<br/>and proposes prevention"]
+    D --> E["Candidate lesson"]
+    E --> F{"Current checks +<br/>independent review pass?"}
+    F -- No --> G["Remain unverified"]
+    F -- "Yes: PR_READY" --> H["Active lesson<br/>for relevant future tasks"]
+    H -- "Issue recurs" --> I["Needs revision"]
+    I --> D
+```
+
+**Example: a pagination bug that keeps returning.** Suppose a configured check
+repeatedly catches empty-page handling, or an independent Verifier repeatedly
+reports the same missing boundary case. On the **second matching occurrence**,
+Pi shows a recurring-issue ID to the Worker. The Worker can diagnose the issue
+and propose a scoped rule such as *"Test empty results and final-page cursors
+before changing pagination."* It also specifies how to verify that rule. Pi
+does **not** infer a trustworthy root cause just because two failures look alike.
+
+After the Worker fixes the code, project checks and a fresh independent Verifier
+must still pass. Only a successfully persisted `PR_READY` promotes that
+proposal from **CANDIDATE** to **ACTIVE**. Later, when you run:
+
+```text
+/surgical Add cursor-based pagination to search. Preserve the existing API.
+```
+
+the Worker receives the relevant prevention rule as advisory context and still
+runs the project's actual checks. If the same failure returns, the old rule is
+marked **NEEDS_REVISION** rather than silently trusted again.
+
+### View your project's lessons
+
+```text
+/surgical lessons
+```
+
+This optional command displays up to 20 recent local records, with their status
+and occurrence count. The lifecycle is `OBSERVED` → `RECURRING` →
+`CANDIDATE` → `ACTIVE` (or `NEEDS_REVISION` after recurrence). A repeated
+failure only **suggests** learning; a Worker must supply evidence and a concrete
+preventive action. You can keep using `/surgical <goal>` without managing these
+records yourself.
+
+### What is automatic — and what isn't?
+
+- **Pi extension:** Automatically observes actual configured check failures and
+  independent `CHANGES_REQUIRED` blocking findings. It injects at most **3
+  relevant active lessons**, within **1,200 characters**, without a separate
+  model call. Worker proposals use the internal `surgical_lesson` tool.
+- **Product Scout / other runtimes:** The portable
+  [learn-from-failures](skills/learn-from-failures/SKILL.md) method can capture
+  repeated product misunderstandings and non-Pi incidents, but their evidence
+  collection and curation are **manual**, not an automatic observer.
+- **Storage and trust:** Pi stores learning records locally in
+  `<git-common-dir>/surgical-dev/learning.json`, outside the source snapshot.
+  Records survive runs in the same local Git repository but **do not sync
+  between clones**. To share them, review and deliberately commit a sanitized
+  [lesson template](templates/lesson.md). Lessons are suggestions, not new
+  acceptance criteria, permissions, or Verifier vetoes.
+
+See the [full learning workflow](references/learning.md) and
+[Pi configuration](adapters/pi/SETUP.md).
+
+## 📚 The fourteen methods
 
 Start with **`surgical-dev`** for everyday work. It selects the relevant methods, so
-you need not learn a thirteen-step sequence; request a specific Skill when you
+you need not learn a fourteen-step sequence; request a specific Skill when you
 already know what you need.
 
 <details>
-<summary>All thirteen Skills</summary>
+<summary>All fourteen Skills</summary>
 
 | Skill | When to use it | What it produces |
 |---|---|---|
@@ -191,6 +275,7 @@ already know what you need.
 | [fix-bug](skills/fix-bug/SKILL.md) | Investigate and repair a defect | Reproduction evidence, a supported cause, a minimal fix, and regression checks |
 | [decompose-project](skills/decompose-project/SKILL.md) | Organize a goal with several outcomes | Testable workstreams, dependencies, interface boundaries, and integration ownership |
 | [engineering-discipline](skills/engineering-discipline/SKILL.md) | Keep any coding task focused | Explicit assumptions, simple design, scoped edits, and observable checks |
+| [learn-from-failures](skills/learn-from-failures/SKILL.md) | Prevent repeated defects and failed assumptions | Evidence-backed lesson candidates, verified prevention rules, and revision on relapse |
 | [verify-change](skills/verify-change/SKILL.md) | Independently assess a candidate | `PASS`, `CHANGES_REQUIRED`, or `BLOCKED`, with evidence and actionable findings |
 | [delegate-bounded-task](skills/delegate-bounded-task/SKILL.md) | Hand off an independent question or isolated subtask | A bounded helper assignment and usable findings; requires enabled delegation |
 | [integrate-workstreams](skills/integrate-workstreams/SKILL.md) | Combine accepted workstreams | An integrated candidate, whole-project checks, and independent acceptance |

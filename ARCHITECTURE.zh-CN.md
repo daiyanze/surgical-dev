@@ -167,7 +167,7 @@ BLOCKED、ESCALATED、CANCELLED 等保存原阶段、原因、责任人与恢复
 
 ## 8. Skills 和记忆分配
 
-方法清单为 **13 个**，仓库已提供 canonical Skills；尚未在真实运行时验证：
+方法清单为 **14 个**，仓库已提供 canonical Skills；尚未在真实运行时验证：
 
 | 角色 | 方法 |
 |---|---|
@@ -175,11 +175,16 @@ BLOCKED、ESCALATED、CANCELLED 等保存原阶段、原因、责任人与恢复
 | Product Scout | discover-opportunity、evaluate-outcome |
 | Worker | decompose-project、ship-feature、fix-bug、delegate-bounded-task、integrate-workstreams、prepare-release、release-and-observe、handle-incident |
 | Worker／Verifier | engineering-discipline |
+| 跨角色：Scout／Worker／Verifier | learn-from-failures |
 | Verifier | verify-change |
 
 Worker 使用已经验收的集成候选、兼容信息和 release notes 继续准备发布；只执行任务实际授权的动作。实现、发布和事故处理共用同一责任主体，独立验收由 Verifier 完成。
 
 共享项目记录只保存当前事实与明确决策。Scout 保留用户问题及假设证据；Worker 保留本次任务的实现、checkpoint 和关联的环境、版本、发布及事故记录；Verifier 保留当前受审材料及相关发现。完整日志在外部记录中，敏感数据最小化传递。
+
+### Learning Loop：从重复问题到可验证的预防经验
+
+Pi 在 Git common-dir 下保存有限且经过脱敏的测试失败与独立审查问题，不改变工作树。相同问题出现两次时仅建议调查，不直接宣称根因一致。Worker 在有证据时提出根因、适用范围、预防规则与验证方法；只有当前任务检查通过并由独立 Verifier 验收达到 PR_READY 后，候选经验才可在后续相关任务中以少量提示形式复用。若问题再次出现，该经验被标记为 NEEDS_REVISION，而不是增加新的门禁。Product Scout 的业务假设反馈需通过手工记录，目前 Pi 不会自动采集。历史经验不扩大 Verifier 权限、不覆盖用户确认的验收边界。详见 [Learning Loop](references/learning.md)。
 
 ## 9. 在 Pi 与 Codex 上如何采用
 

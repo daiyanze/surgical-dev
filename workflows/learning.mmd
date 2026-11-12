@@ -1,0 +1,14 @@
+flowchart LR
+  A["Scout / Worker / Verifier<br/>observe real evidence"] --> B{"Same problem<br/>observed ≥2 times?"}
+  B -->|No| C["Keep small observation"]
+  B -->|Yes| D["Worker diagnoses cause<br/>and proposes prevention"]
+  D --> E["CANDIDATE (not trusted)"]
+  E --> F{"Current checks PASS<br/>and independent Verifier PASS?"}
+  F -->|No| G["Keep unresolved candidate<br/>without new gate"]
+  F -->|Yes, PR_READY| H["ACTIVE lesson"]
+  H --> I["Next relevant /surgical goal:<br/>bounded advisory hint"]
+  I --> J{"Same issue recurs?"}
+  J -->|No| K["Keep using with evidence"]
+  J -->|Yes| L["NEEDS_REVISION<br/>exclude from future hints"]
+  L --> D
+  C -. "new occurrence" .-> B

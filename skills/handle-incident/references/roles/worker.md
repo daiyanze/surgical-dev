@@ -73,6 +73,17 @@ two repair/reverify cycles after the first review. Missing required inputs or
 evidence is BLOCKED. Repeated unresolved findings or exhausted limits escalate.
 New task IDs, scope revisions or responsibility changes do not reset budgets.
 
+## Recurring problem learning
+
+When the same project check failure or independent review finding recurs, use
+learn-from-failures to inspect the actual evidence and isolate a supported cause.
+Propose a concise, scoped prevention rule and an observable regression check only
+when grounded. In the full Pi extension use `surgical_lesson` with the recurring
+record ID during implementation; the candidate becomes reusable after the normal
+PR_READY checks and independent acceptance. Existing lessons are *advisory*, not
+scope changes or approval authority. If a prior rule did not work, revise it based
+on new evidence instead of strengthening an unsupported gate.
+
 ## Delivery and observation
 
 When delivery is requested, continue with prepare-release, then release-and-observe

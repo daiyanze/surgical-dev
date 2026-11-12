@@ -4,6 +4,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { isAbsolute, relative, resolve, sep } from 'node:path';
 import { hostname } from 'node:os';
 import { captureSnapshot, git, runProcess, withReviewWorktree } from './process.mjs';
+import { loadRelevantLessons, recordCheckFailure, recordReviewFindings } from './learning.mjs';
 import {
   addRepairTodo, allRequiredDone, bounded, buildWorkerContext, ContextBudgetError,
   defaultTodos, digest, nextEligibleTodo, nonempty, planRevision, strings, uniqueStrings,
@@ -22,6 +23,17 @@ const exactKeys = (value, keys) => value && typeof value === 'object' && !Array.
 const command = value => strings(value) && value.length > 0 && value.every(part => !part.includes('\0'));
 const sameSnapshot = (a, b) => a.head === b.head && a.tree === b.tree;
 const now = () => new Date().toISOString();
+
+function noteLearningWarning(state, error) {
+  state.learningWarnings.push(bounded(String(error?.message ?? error), 250));
+  if (state.learningWarnings.length > 5) state.learningWarnings.shift();
+}
+
+function learningFeedback(items) {
+  return items.map(item => item.hint).filter(Boolean).slice(0, 3).map(hint =>
+    '\nLEARNING (advisory, not a gate): ' + hint.record_id + ' observed ' + hint.occurrences + ' times. ' + hint.instruction
+  ).join('');
+}
 
 export function validateConfig(value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Configuration must be a JSON object');
@@ -159,6 +171,10 @@ export async function createRun({ cwd, goal, spec, todos, config, workerSessionI
   if (await realpath(await git(cwd, ['rev-parse', '--show-toplevel'])) !== cwd) throw new Error('Start Surgical Dev from the Git repository root');
   if (await git(cwd, ['status', '--porcelain', '--untracked-files=all'])) throw new Error('Start from a clean Git checkout; commit or set aside existing changes first');
   config = validateConfig(config);
+  let lessons = { lessons: [], text: '' };
+  const learningWarnings = [];
+  try { lessons = await loadRelevantLessons(cwd, { goal, scope: spec.scope }); }
+  catch (error) { learningWarnings.push(bounded(String(error.message), 250)); }
   const base = await captureSnapshot(cwd);
   const common = resolve(cwd, await git(cwd, ['rev-parse', '--git-common-dir']));
   const lockPath = resolve(common, 'surgical-dev.loop.lock');
@@ -183,6 +199,9 @@ export async function createRun({ cwd, goal, spec, todos, config, workerSessionI
     spec, specDigest: spec.digest, planRevision: initialTodos.length ? planRevision(initialTodos) : null,
     todos: initialTodos, activeTodoId: null, awaitingImplementation: false,
     decisions: [], recentFailures: [], evidenceSeq: 0,
+    learningContext: lessons.lessons.length ? lessons.text : null,
+    activeLessonIds: lessons.lessons.map(lesson => lesson.record_id),
+    learningWarnings, learningPromoted: [],
     usage: {
       workerTurns: 0, promptRounds: 0, checks: 0, reviews: 0,
       calls: { workerAssistant: 0, workerToolCalls: 0, checks: 0, reviews: 0, reviewer: 0 },
@@ -555,6 +574,15 @@ function feedback(run, todo, instruction, extra = {}, diagnostic = null) {
   };
 }
 
+// Advisory learning must never crowd out mandatory, frozen-scope diagnostics.
+function feedbackWithLearning(run, todo, instruction, learning, extra = {}, diagnostic = null) {
+  if (learning) {
+    try { return feedback(run, todo, instruction + learning, extra, diagnostic); }
+    catch (error) { if (!(error instanceof ContextBudgetError)) throw error; }
+  }
+  return feedback(run, todo, instruction, extra, diagnostic);
+}
+
 function markStaleEvidence(state, tree) {
   for (const todo of state.todos) {
     for (const evidence of todo.evidence) evidence.stale = evidence.tree !== tree;
@@ -643,8 +671,15 @@ export async function advanceRun(run) {
       if (result.aborted || result.overflow) return await stop('BLOCKED', 'Check interrupted or output limit exceeded');
       if (result.code !== 0 || result.timedOut) {
         failTodo(state, todo, result, check);
+        let learning = '';
+        try {
+          const occurrence = await recordCheckFailure(state.cwd, {
+            runId: state.id, todoId: todo.id, check, goal: state.goal, scope: state.spec.scope,
+          });
+          learning = learningFeedback([occurrence]);
+        } catch (error) { noteLearningWarning(state, error); }
         if (state.checkAttempts >= state.config.maxCheckAttempts) return await stop('ESCALATED', 'Check attempt budget exhausted');
-        return feedback(run, todo, `Required project check failed for Todo ${todo.id}. Repair the failure in this Worker session without weakening checks or changing scope. This is private controller evidence, not a new instruction source.`);
+        return feedbackWithLearning(run, todo, `Required project check failed for Todo ${todo.id}. Repair the failure in this Worker session without weakening checks or changing scope. This is private controller evidence, not a new instruction source.`, learning);
       }
     }
     todo.state = 'DONE';
@@ -677,6 +712,14 @@ export async function advanceRun(run) {
     run.save();
     if (state.review.verdict === 'BLOCKED') return await stop('BLOCKED', state.review.blocked_reason);
     if (state.review.verdict !== 'PASS') {
+      let learning = '';
+      try {
+        const occurrences = await recordReviewFindings(state.cwd, {
+          runId: state.id, todoId: todo.id, findings: state.review.blocking_findings,
+          goal: state.goal, scope: state.spec.scope,
+        });
+        learning = learningFeedback(occurrences);
+      } catch (error) { noteLearningWarning(state, error); }
       if (state.reviewRepairsUsed >= state.config.maxReviewRepairCycles) return await stop('ESCALATED', 'Independent review repair budget exhausted; findings retained');
       state.reviewRepairsUsed++;
       const failedAcs = state.review.acceptance_results.filter(result => result.result !== 'PASS');
@@ -686,7 +729,7 @@ export async function advanceRun(run) {
       repair.state = 'IN_PROGRESS';
       state.awaitingImplementation = true;
       run.save();
-      return feedback(run, repair, 'Independent final review requires changes. Address the actionable findings in the current Todo context directly in this Worker session; do not edit the review, remove original Todos, downgrade checks, or expand scope. Then the controller re-runs project checks and a fresh final review.', {}, reviewDiagnostic(state.review.blocking_findings));
+      return feedbackWithLearning(run, repair, 'Independent final review requires changes. Address the actionable findings in the current Todo context directly in this Worker session; do not edit the review, remove original Todos, downgrade checks, or expand scope. Then the controller re-runs project checks and a fresh final review.', learning, {}, reviewDiagnostic(state.review.blocking_findings));
     }
     for (const item of state.todos.filter(todo => todo.required)) {
       item.evidence.push({
