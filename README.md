@@ -1,71 +1,106 @@
 # Surgical Dev
 
-**Give your coding agent a clear way to build, verify, and repair.**
+**Give your coding agent a goal, agree on success, and let it work.**
 
-Surgical Dev is a collection of Skills for coding agents. It gives them a repeatable
-way to understand a goal, make focused changes, get independent review, and work
-through the findings. Use it with Pi, Codex, Claude Code, or other hosts that support
-Agent Skills.
+Surgical Dev is a goal-driven workflow for coding agents. You describe the outcome;
+the agent discusses it, writes a full acceptance draft, plans Todo dependencies, then
+implements, checks, repairs, and reviews the work — without you coordinating roles or
+repeatedly saying "continue".
 
-## Why it exists
+The methods are portable Agent Skills. The bundled **enforced automatic loop** is
+currently implemented for **Pi only**: discussion and confirmation, Todo execution,
+checks, independent review, repair, and bounded stopping.
 
-Generating code is one part of delivering a working change. A task can still go
-wrong when:
+## 🎯 The problem it solves
 
-- **The scope drifts.** A small fix grows into a rewrite, assumptions go unstated,
-  and unrelated code changes along the way.
-- **The context gets fragmented.** Planning, coding, and debugging bounce between
-  agents. You end up restoring context and relaying feedback yourself.
-- **“Done” is hard to trust.** The author reviews its own work, checks refer to an
-  earlier revision, or individually passing pieces fail when combined.
+Coding agents can generate a plausible change and still leave you with a fragile
+outcome:
 
-Surgical Dev addresses these problems through explicit working habits, ownership,
-and acceptance criteria. The aim is to reduce the coordination you need to do
-between giving an agent a goal and receiving a verified change.
+- **Acceptance and scope stay unclear.** Assumptions are not written down, the task
+  quietly grows, and unrelated code changes along the way.
+- **You become the coordinator.** Planning, implementation, and review bounce between
+  contexts. You restore missing context and relay feedback between roles.
+- **"Done" is hard to verify.** The author reviews its own work, checks refer to an
+  earlier revision, or separately passing pieces fail when combined.
 
-## How it works
+Surgical Dev makes the goal executable: a confirmed specification with scope,
+non-goals, constraints and independent acceptance criteria; one Worker that stays
+with the implementation; real project checks; and a fresh independent Verifier for
+the final combined candidate. Findings go back to the Worker that understands the change.
 
-One **Worker** owns implementation from reading the repository through debugging
-and repair. A separate **Verifier** inspects the result against the goal and actual
-check evidence. Findings return to the Worker that already understands the work.
+## 🚀 Quickstart with Pi
 
-![Surgical Dev workflow: a goal enters one Worker context; failed project checks and required review fixes return to that same Worker. Passing checks sends a fixed snapshot to a fresh Verifier. Passing independent review leads to PR Ready.](docs/images/workflow.png)
+Pi runs the complete guided loop. You still supply two things: a repository whose
+checks work, and one explicit confirmation of the full acceptance draft.
 
-This is the loop for **one workstream**. Every repair goes through checks and a
-fresh review again. Missing evidence or exhausted limits stops the loop with a
-visible reason. Larger projects also need decomposition and integration acceptance.
+**Requirements:** Pi **1.5.2+**, Node **22.19+**, Git, and Linux or macOS. Authenticate
+a model through Pi's normal setup first. Details: [Pi setup](adapters/pi/SETUP.md).
 
-The name comes from a surgical team: a lead practitioner stays with the task while
-others provide focused support. There are three roles: **Product Scout** investigates
-what to build and evaluates outcomes; **Worker** implements, repairs, and handles
-authorized delivery and incidents; **Verifier** independently checks the result.
-Most changes need only Worker and Verifier. Worker keeps ownership when the task
-continues into delivery or operations.
+### 1. Install the full package
 
-## What makes it different
+```bash
+pi install git:github.com/daiyanze/surgical-dev
+```
 
-- **Keep the implementation context together.** Reading, planning, coding, testing,
-  and repairs stay in one Worker session per workstream. Delegate independent
-  questions or separable outcomes when the host can support them safely.
-- **Make the smallest sufficient change.** Surface consequential assumptions,
-  follow the existing codebase, and keep edits tied to the requested outcome.
-  Verification should demonstrate the behavior the user asked for.
-- **Make review independent and actionable.** The Verifier uses a separate context
-  and inspects current source and evidence. Blocking findings explain the defect,
-  its impact, and what resolves it; optional style preferences remain advisory.
-- **Work from goals, with explicit limits.** You provide the goal and constraints;
-  Worker organizes the technical work. The methods define bounded repair cycles
-  and require a visible blocker when inputs, evidence, or execution capacity are missing.
+This installs the thirteen Skills and the `/surgical` extension. Installing the
+Skills alone does **not** activate the automatic loop.
 
-The [thirteen Skills](skills/) cover features, bug fixes, project decomposition,
-integration, review, and delivery. Load the methods a task needs. They provide
-instructions; the host supplies tools, sessions, isolation, and execution control.
+### 2. Configure the repository
 
-## Get started
+In the target repository, create `.surgical-dev.json` with checks that already exist
+in your project:
 
-### Install for your agent
+```json
+{
+  "checks": [["npm", "test"]]
+}
+```
 
-Run the matching command from your project directory:
+The example is a template, not proof that `npm test` verifies your goal. Use the
+real commands your project needs. Commit this configuration and any prior work, then
+start a fresh Pi session at a clean Git repository root with an existing commit.
+
+### 3. State the goal and confirm the draft
+
+```text
+/surgical Add search pagination. Keep the API; cover empty results and the final page.
+```
+
+The agent reads the project in a read-only discussion, asks only material questions,
+and shows the complete draft goal, scope, non-goals, constraints and acceptance
+criteria. No implementation starts yet.
+
+Review the full draft, then reply with the supported confirmation phrase:
+
+```text
+confirm and start
+```
+
+Chinese: reply with `确认，开始` instead.
+
+The confirmation freezes the displayed revision and starts the loop automatically.
+`/surgical confirm` followed by `/surgical run` is the advanced equivalent. See
+[Pi setup](adapters/pi/SETUP.md) for the full command reference and recovery details.
+
+## 🤖 Supported agent runtimes
+
+Any host that can read Agent Skills can load the methods. What differs is how much
+of the loop the host can enforce.
+
+| Runtime | What you get | Independent review |
+|---|---|---|
+| **Pi** | Package with the actual bundled guided automatic loop: requirement discussion, explicit confirmation, Todo dependency planning, sequential implementation, project checks, repairs, fresh final review and bounded stopping | The extension launches a fresh read-tool Pi reviewer on a Git snapshot |
+| **Codex** | Portable Skills and setup guidance; no bundled Surgical Dev loop controller | Separate reviewer subagent or session; see [Codex setup](adapters/codex/SETUP.md) |
+| **Claude Code** | Portable Skills and setup guidance; no bundled Surgical Dev loop controller | Fresh non-fork reviewer subagent or session; see [Claude Code setup](adapters/claude/SETUP.md) |
+| **Other Agent Skills hosts** | The methods can be loaded through the portable Skill format | Runtime integration is untested and host-dependent; provide an independent review context |
+
+Codex and Claude Code can automate parts of their own execution, but they do not
+ship Surgical Dev's controller. Their complete workflows have not been runtime-tested
+in this repository.
+
+### Install and invoke
+
+Run from your project directory:
 
 ```bash
 # Codex: all thirteen Skills
@@ -73,44 +108,63 @@ npx skills add daiyanze/surgical-dev --skill '*' -a codex -y
 
 # Claude Code: all thirteen Skills
 npx skills add daiyanze/surgical-dev --skill '*' -a claude-code -y
-
-# Pi: all thirteen Skills plus the optional loop extension
-pi install git:github.com/daiyanze/surgical-dev
 ```
 
-The [skills CLI](https://github.com/vercel-labs/skills) requires Node 22.20+.
-Pi has its own [requirements and setup](adapters/pi/SETUP.md).
-For just the entry Skill, replace `--skill '*'` with `--skill surgical-dev`.
-See [installation options](docs/distribution.md) for scope and other hosts.
+Then invoke the entry Skill in an interactive session:
 
-### Start with a concrete goal
-
-The Skill name is the same across hosts; the invocation syntax differs:
-
-| Host | Example in an interactive session |
+| Runtime | Invocation |
 |---|---|
-| Codex CLI / IDE | `$surgical-dev Fix duplicate form submissions. Keep the API and add a regression test.` |
+| Codex | `$surgical-dev Fix duplicate form submissions. Keep the API and add a regression test.` |
 | Claude Code | `/surgical-dev Fix duplicate form submissions. Keep the API and add a regression test.` |
-| Pi | `/skill:surgical-dev Fix duplicate form submissions. Keep the API and add a regression test.` |
+| Pi | `/skill:surgical-dev <goal>` loads the instructions only; `/surgical <goal>` uses the extension |
 
-You can also select a specific method. These examples use Codex syntax; use `/name`
-in Claude Code or `/skill:name` in Pi:
+For just the entry Skill, replace `--skill '*'` with `--skill surgical-dev`. The
+[skills CLI](https://github.com/vercel-labs/skills) requires Node 22.20+. See
+[installation options](docs/distribution.md) for scope and other hosts.
 
-```text
-$ship-feature Add search pagination. Cover empty results and the final page.
-$fix-bug Submitting the checkout form twice creates two orders. Preserve the API.
-$decompose-project Add team invitations with expiry, acceptance, and audit history.
-```
+## 🔄 What a run looks like
 
-Give the agent the outcome, constraints, and observable success criteria. For a
-larger project, Worker organizes the workstreams and dependencies.
+A typical Pi run, simplified and illustrative rather than a transcript of a real
+session:
 
-## Which Skill should I use?
+1. You ask for search pagination and clarify which API must stay stable.
+2. The agent proposes a full draft with scope, non-goals and independent acceptance
+   criteria. You review it and reply `确认，开始`.
+3. The agent plans Todo dependencies and implements eligible Todos sequentially in
+   the same Worker session, running real project checks after each.
+4. A fresh independent Verifier reviews the final combined source snapshot and the
+   evidence for every original acceptance criterion.
+5. A failed project check returns to the same Worker and is repaired in the current
+   Todo before checks run again. Verifier findings produce an additive repair Todo,
+   followed by fresh checks and a renewed final review.
+6. The run ends at `PR_READY` when every required Todo, criterion, check and final
+   review passes — or stops visibly at `BLOCKED`, `ESCALATED`, `CANCELLED` or `TIMED_OUT`.
 
-All thirteen Skills can be requested directly. **Start with `surgical-dev` for
-everyday work**, or select a method when you already know what you need. They are
-reusable methods, not thirteen stages that every task must pass through.
+![Surgical Dev workflow: a goal enters one Worker context; failed project checks and required review fixes return to that same Worker. Passing checks sends a fixed snapshot to a fresh Verifier. Passing independent review leads to PR Ready.](docs/images/workflow.png)
 
+The image illustrates the inner execution loop; the guided flow also includes
+discussion, an explicit confirmation boundary, and Todo planning before it runs.
+
+Use `/surgical status` for the current state and `/surgical stop` to interrupt an
+active run. Optional advanced control: `/surgical import requirements.md`, then
+`/surgical status`, `/surgical confirm`, and `/surgical run`. `/surgical` alone shows
+status and guidance; the [Pi setup guide](adapters/pi/SETUP.md) documents commands,
+state and safety behavior.
+
+**Product Scout** investigates what to build and evaluates outcomes. **Worker** owns
+implementation, repair, and authorized delivery within one persistent context.
+**Verifier** independently checks the current result against the goal and actual
+evidence. Most changes need only Worker and Verifier; Worker keeps ownership into
+delivery or operations. See [roles](roles/README.md) and [team boundaries](roles/team-boundaries.md).
+
+## 📚 The thirteen methods
+
+Start with **`surgical-dev`** for everyday work. It selects the relevant methods, so
+you need not learn a thirteen-step sequence; request a specific Skill when you
+already know what you need.
+
+<details>
+<summary>All thirteen Skills</summary>
 | Skill | When to use it | What it produces |
 |---|---|---|
 | [surgical-dev](skills/surgical-dev/SKILL.md) | Start from a development goal | Selects the relevant responsibility and methods, then guides the work |
@@ -126,132 +180,43 @@ reusable methods, not thirteen stages that every task must pass through.
 | [prepare-release](skills/prepare-release/SKILL.md) | Check whether a candidate is ready to release | Readiness evidence, observation and recovery plans; no release execution |
 | [release-and-observe](skills/release-and-observe/SKILL.md) | Perform an already authorized release | Execution evidence, health observations, and the actual release outcome |
 | [handle-incident](skills/handle-incident/SKILL.md) | Respond to a production incident | Triage, authorized containment, bounded repair, and recovery evidence |
+</details>
 
 **Independent review needs a separate context.** Run `verify-change` in a fresh
 reviewer session or subagent that did not write the change. Supply the goal, fixed
-source snapshot, and check results using the [review request](templates/review-request.md).
-Invoking it inside the author's conversation does not establish independent acceptance.
-See the [Codex](adapters/codex/SETUP.md) and [Claude Code](adapters/claude/SETUP.md)
-guides for examples.
+source snapshot, and check results using the [review request](templates/review-request.md);
+running it inside the author's conversation does not establish independent acceptance.
 
-`decompose-project` supplies a plan; the host supplies execution and scheduling.
-Release methods operate within the task's existing authorization. Using
-`ship-feature` does not itself authorize deployment.
+## 🛡️ Boundaries and evidence
 
-## Which agents can run an automatic loop?
+`PR_READY` means the current candidate has been checked and independently reviewed
+for the confirmed specification. It is not perpetual approval: later edits need
+another run.
 
-**Pi, Codex, and Claude Code can all automate work.** The distinction is what the
-host provides and which Surgical Dev controller this repository includes:
+- **No automatic delivery.** The loop does not commit, create a pull request, merge,
+  publish or deploy. Implementation stays in your checkout.
+- **One Worker, sequentially.** Parallel Workers are not run.
+- **Bounded recovery.** Interrupted runs are not resumed automatically; use
+  `/surgical stop` for immediate cancellation.
+- **Your checks, your project.** Runs your configured project checks; Worker can add
+  tests needed for the goal without replacing your test setup.
+- **Explicit limits.** Turns, check attempts, review/repair cycles, planning rounds
+  and time are bounded. Missing evidence or exhausted limits stop visibly.
+- **Usage may be unknown.** Token and cost totals are `UNKNOWN` when unreported;
+  measured subtotals are never presented as zero.
 
-| Host | Native automation / available execution | Surgical Dev support here |
-|---|---|---|
-| **Pi** | Extensions can control the session and launch a reviewer | **Implemented:** requirement discussion/import, explicit confirmation, Todo planning, one persistent Worker, checks, independent final review, repairs, and bounded stopping for one workstream |
-| **Codex** | `codex exec` runs non-interactively; the SDK continues or resumes threads; subagents support separate review | All Skills and an optional reviewer configuration. No bundled Surgical Dev loop controller |
-| **Claude Code** | `/goal` continues toward a completion condition; `/loop` repeats prompts on a schedule; subagents support separate review | All Skills and setup guidance. No bundled Surgical Dev loop controller |
-
-Claude Code's `/goal` evaluator reads the conversation; it does not independently
-inspect source or run checks. Request a separate Verifier for Surgical Dev acceptance.
-`/loop` is useful for periodic checks such as monitoring CI; it is a scheduling
-mechanism, not a definition of when a development task is complete.
-
-Host commands and examples: [Pi setup](adapters/pi/SETUP.md),
-[Codex setup](adapters/codex/SETUP.md), and [Claude Code setup](adapters/claude/SETUP.md).
-Codex and Claude guidance is based on official documentation; their complete
-Surgical Dev workflows have not been runtime-tested here. Pi's lifecycle has been
-tested with real Pi processes and a local deterministic model; see
-[validation](VALIDATION.md) for the remaining real-model evaluation work.
-
-### Automate the loop with Pi
-
-The full Pi package includes an optional extension for goal-driven autonomous
-development. Start with the goal itself:
-
-```text
-/surgical Fix duplicate form submissions. Keep the public API.
-
-# The agent reads the project in a read-only discussion, asks material questions,
-# and shows the full draft goal, scope, non-goals, constraints and ACs.
-
-# Review that exact draft, then confirm and start in one step:
-确认，开始
-# English: confirm and start
-```
-
-The exact confirmation phrase freezes the shown revision and automatically starts
-the existing Worker loop; `/surgical confirm` then `/surgical run` is not required.
-Use the advanced command flow when you want separate steps or non-interactive
-control:
-
-```text
-/surgical discuss <goal>
-/surgical import requirements.md
-/surgical status
-/surgical confirm
-/surgical run
-/surgical stop
-/surgical discard
-```
-
-`/surgical` alone shows status and guidance. A first word that is not one of the
-reserved commands is treated as the goal, preserving the rest of the raw input, so
-`/surgical Fix   the formatting` starts discussion. In an interactive or RPC
-session, only the exact displayed draft and a plain, idle user reply of `确认，开始`
-or `confirm and start` (benign whitespace/punctuation/case only) can trigger
-automatic start. Questions, negation, extra conditions, quotes/code text, attached
-images, queued/steering input and extension-injected messages are not consent.
-A later discussion message clears the shown-confirmation marker until the latest
-full draft is displayed again; when a clarification finishes without a new draft,
-the extension automatically redisplays the full current draft before allowing
-confirmation. Unknown, stale or cross-session drafts are refused.
-
-The confirmed specification freezes scope, non-goals, constraints and multiple
-independent acceptance criteria. Worker then plans a validated Todo DAG, implements
-eligible Todos sequentially in the same Pi session, and lets the controller mark a
-Todo done only after real project checks pass. A fresh independent Verifier reviews
-the final combined source snapshot and evidence per original AC. Findings return
-directly to that Worker for an additive repair Todo, followed by fresh checks and a
-fresh review.
-
-With Pi 1.5.2+, create and commit `.surgical-dev.json` in the target repository:
-
-```json
-{
-  "checks": [["npm", "test"]]
-}
-```
-
-Use checks that actually exist in your project. Start from a clean Git repository
-root. Confirmation must come from the user boundary while idle and is bound to the
-full draft revision/digest displayed in the same session. The guided input phrase
-records `USER_INPUT:confirm-and-start`; the advanced `/surgical confirm` command
-records `USER_COMMAND:/surgical confirm`. No model tool or Worker turn can supply
-either confirmation. The extension stores its compact, revision-checked plan/memory
-state under Git metadata (`.git/surgical-dev/state.json`), outside the reviewed
-source snapshot. Snapshots cover Git-tracked plus nonignored working-tree source;
-files excluded by `.gitignore` remain outside that boundary.
-
-`PR_READY` requires every required Todo done, every original AC independently
-evidenced, configured project checks passing on the current tree, and a final
-combined independent review PASS. The extension leaves the implementation in your
-checkout. It does **not** commit, create a PR, merge, publish or deploy. It runs one
-Worker sequentially, does not run parallel Workers, and does not automatically resume
-after an interruption. Token/cost statistics are reported as `UNKNOWN` unless the Pi
-host supplies usage. Follow [Pi setup](adapters/pi/SETUP.md) for configuration,
-persistence and limits. Installing Skills alone does not activate this loop.
+Pi's lifecycle has been exercised with real Pi processes and a local deterministic
+model. That validates integration mechanics, not real-model workflow quality; a
+real-model evaluation remains open. Codex and Claude Code Skills rely on the host
+for a separate review context. See [validation](VALIDATION.md) for exact coverage.
 
 ## Further reading
 
-- [Installation and distribution](docs/distribution.md) — install one Skill or the full collection; understand host capabilities and package scope.
-- [Pi setup](adapters/pi/SETUP.md) — configure checks, start and stop the automatic loop, and understand limits and recovery.
-- [Codex setup](adapters/codex/SETUP.md) — invoke Skills, arrange independent review, and use non-interactive execution.
-- [Claude Code setup](adapters/claude/SETUP.md) — invoke Skills, set up a fresh reviewer, and distinguish `/goal` from `/loop`.
-- [Roles](roles/README.md) and [team boundaries](roles/team-boundaries.md) — who owns implementation, acceptance, discovery, and delivery.
-- [Detailed workflow](references/workflow.md) — handoffs, repair cycles, and project-level integration.
-- [Project goal](templates/project-goal.md) and [review request](templates/review-request.md) — reusable starting points for a task and its independent acceptance.
-- [Contracts and limits](contracts/README.md) — evidence records, state transitions, and execution budgets.
-- [Architecture](ARCHITECTURE.en.md) · [中文摘要](ARCHITECTURE.zh-CN.md) — the broader design and its rationale.
-- [Validation](VALIDATION.md) — completed checks, host integration coverage, and the limits of current evidence.
-- [Automation roadmap](docs/runtime-next.md) — remaining work toward unattended delivery and recovery.
+- [Installation and distribution](docs/distribution.md) — package scope, Skills CLI options and host capability tiers.
+- [Pi setup](adapters/pi/SETUP.md), [Codex setup](adapters/codex/SETUP.md) and [Claude Code setup](adapters/claude/SETUP.md) — commands, configuration and reviewer setup.
+- [Detailed workflow](references/workflow.md), [project goal](templates/project-goal.md) and [review request](templates/review-request.md) — handoffs, repair cycles, and reusable task/acceptance starting points.
+- [Contracts and limits](contracts/README.md) — evidence records, state transitions and execution budgets; [architecture](ARCHITECTURE.en.md) · [中文摘要](ARCHITECTURE.zh-CN.md) — design rationale.
+- [Validation](VALIDATION.md) — completed checks and evidence limits; [automation roadmap](docs/runtime-next.md) — remaining work toward unattended delivery and recovery.
 
 ## References
 
