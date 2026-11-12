@@ -120,6 +120,12 @@ class ContractTests(unittest.TestCase):
         task['blocker']={'reason':'test','owner':'test','resume_condition':'test'}
         self.tv.validate(task)
 
+    def test_reviewer_usage_completeness_is_a_boolean_contract_field(self):
+        review=self.pass_report(); review['reviewer_usage_complete']=True
+        self.rv.validate(review)
+        review['reviewer_usage_complete']='yes'
+        self.assertFalse(self.rv.is_valid(review))
+
     def test_integration_pass_requires_plan_and_snapshots(self):
         review=self.pass_report(); review.update(review_scope='INTEGRATION', plan_revision='plan-r1')
         self.assertFalse(self.rv.is_valid(review))

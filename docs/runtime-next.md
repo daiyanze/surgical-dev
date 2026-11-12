@@ -1,9 +1,12 @@
 # Runtime work still needed
 
 The package provides three role types, thirteen methods, goal/plan/integration
-templates and record/state specifications. The Pi adapter implements the first
-single-workstream loop: fixed goal, actual checks, fresh independent review,
-automatic repair, finite budgets and a version-bound `PR_READY` result. See
+templates and record/state specifications. The Pi adapter implements a goal-driven
+single-workstream loop: interactive/imported requirement preparation, explicit user
+confirmation, a validated Todo DAG, one persistent Worker handling Todos
+sequentially, actual checks, one independent final combined review, additive repair,
+finite cumulative budgets and a version-bound `PR_READY` result. Compact plan/memory
+state is file-backed under Git metadata and survives Pi compaction. See
 [Pi setup](../adapters/pi/SETUP.md) and [validation](../VALIDATION.md).
 
 ## Next phases
@@ -11,12 +14,14 @@ automatic repair, finite budgets and a version-bound `PR_READY` result. See
 1. **Real-model pilot:** run representative bugs and features with configured Pi
    models, including DeepSeek. Measure unattended acceptance, false acceptance,
    repair attempts, latency and cost before widening task scope.
-2. **Durable recovery:** reconcile crashed processes/locks, persist resumable work
-   and usage, and restore a run without resetting its counters or duplicating work.
+2. **Durable recovery:** reconcile crashed processes/locks and restore an interrupted
+   run without resetting its counters or duplicating work. Interruption metadata is
+   persisted, but automatic background resume is not enabled.
 3. **Authorized delivery:** create PRs and reconcile CI, then add explicitly scoped
    merge/deploy executors with observed outcomes and recovery.
-4. **Multiple workstreams:** dependency planning, isolated Worker sessions, shared
-   resource/capacity accounting and independent integrated acceptance.
+4. **Multiple workstreams:** parallel isolated Worker sessions, shared
+   resource/capacity accounting and independent multi-workstream integration. The
+   current adapter deliberately handles one Worker and one workstream sequentially.
 
 Use one workflow owner: host-native for the first capability pilot, or a future
 runtime-owned loop, never two competing planners/review loops. Reuse existing
