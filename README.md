@@ -151,11 +151,27 @@ active run. Optional advanced control: `/surgical import requirements.md`, then
 status and guidance; the [Pi setup guide](adapters/pi/SETUP.md) documents commands,
 state and safety behavior.
 
-**Product Scout** investigates what to build and evaluates outcomes. **Worker** owns
-implementation, repair, and authorized delivery within one persistent context.
-**Verifier** independently checks the current result against the goal and actual
-evidence. Most changes need only Worker and Verifier; Worker keeps ownership into
-delivery or operations. See [roles](roles/README.md) and [team boundaries](roles/team-boundaries.md).
+## 👥 Roles
+
+Surgical Dev separates three responsibilities. They are conceptual roles, not three
+agents you must create or coordinate: each role uses the relevant methods (Skills)
+for its part of the work.
+
+| Role | What it owns | When it participates |
+|---|---|---|
+| **Product Scout** | Discovers and validates user problems and worthwhile goals. Proposes outcomes before implementation and evaluates effects after delivery. Does not approve new scope. | Optional when the goal is already known; useful when deciding whether a problem is worth solving. See [Product Scout](roles/product-scout.md). |
+| **Worker** | User-facing owner for requirement clarification, specification, Todo planning and dependencies, implementation, tests, fixes and evidence. The same Worker retains context. It can also own separately authorized delivery and operations, though the current Pi automatic loop stops at `PR_READY`. | For every task. See [Worker](roles/worker.md). |
+| **Verifier** | Uses a fresh, independent context to inspect the actual code snapshot and evidence against each agreed acceptance criterion. Returns `PASS`, `CHANGES_REQUIRED` or `BLOCKED`, with actionable findings sent directly to the same Worker. Never implements or expands scope, and does not withhold diagnostic feedback. | After implementation, for independent acceptance. See [Verifier](roles/verifier.md). |
+
+You give the goal and confirm the acceptance draft; the entry Skill handles the relevant
+methods. Pi bundles one persistent Worker and a fresh reviewer; it does not
+automatically spawn three persistent agents or a Product Scout service. Most tasks
+with a known goal need only a Worker and a Verifier.
+
+For the search pagination goal above, a Product Scout is useful if you are still
+deciding whether the problem is worth solving. The Worker agrees the empty-results
+and final-page behavior with you, then implements and tests it. The Verifier checks
+both behaviors on the actual candidate and returns any findings to that same Worker.
 
 ## 📚 The thirteen methods
 
@@ -165,6 +181,7 @@ already know what you need.
 
 <details>
 <summary>All thirteen Skills</summary>
+
 | Skill | When to use it | What it produces |
 |---|---|---|
 | [surgical-dev](skills/surgical-dev/SKILL.md) | Start from a development goal | Selects the relevant responsibility and methods, then guides the work |
@@ -180,6 +197,7 @@ already know what you need.
 | [prepare-release](skills/prepare-release/SKILL.md) | Check whether a candidate is ready to release | Readiness evidence, observation and recovery plans; no release execution |
 | [release-and-observe](skills/release-and-observe/SKILL.md) | Perform an already authorized release | Execution evidence, health observations, and the actual release outcome |
 | [handle-incident](skills/handle-incident/SKILL.md) | Respond to a production incident | Triage, authorized containment, bounded repair, and recovery evidence |
+
 </details>
 
 **Independent review needs a separate context.** Run `verify-change` in a fresh
