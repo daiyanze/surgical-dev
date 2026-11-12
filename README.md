@@ -1,3 +1,5 @@
+![Surgical Dev — Goal-driven autonomous development](docs/images/banner.png)
+
 # Surgical Dev
 
 **Give your coding agent a goal, agree on success, and let it work.**
