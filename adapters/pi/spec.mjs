@@ -1,6 +1,9 @@
 import { createHash, randomUUID } from 'node:crypto';
 
 export const AC_ID = /^AC-[1-9][0-9]*$/;
+export const COMMAND_CONFIRMATION_SOURCE = 'USER_COMMAND:/surgical confirm';
+export const INPUT_CONFIRMATION_SOURCE = 'USER_INPUT:confirm-and-start';
+export const CONFIRMATION_SOURCES = new Set([COMMAND_CONFIRMATION_SOURCE, INPUT_CONFIRMATION_SOURCE]);
 export const TODO_ID = /^TODO-[A-Za-z0-9][A-Za-z0-9-]*$/;
 export const nonempty = value => typeof value === 'string' && value.trim().length > 0;
 export const strings = value => Array.isArray(value) && value.every(nonempty);
@@ -66,9 +69,10 @@ export function createDraftSpec(value, { source = 'discussion', sourceRef = null
   return spec;
 }
 
-export function confirmSpec(draft, sessionId) {
+export function confirmSpec(draft, sessionId, { source = COMMAND_CONFIRMATION_SOURCE } = {}) {
   if (!draft || draft.status !== 'DRAFT') throw new Error('Only a draft Goal Specification can be confirmed');
   if (!nonempty(sessionId)) throw new Error('A host session is required to record confirmation');
+  if (!CONFIRMATION_SOURCES.has(source)) throw new Error(`Unknown confirmation source: ${source}`);
   const payload = normalizeSpecInput(draft);
   const confirmed = {
     ...draft,
@@ -77,7 +81,7 @@ export function confirmSpec(draft, sessionId) {
     status: 'CONFIRMED',
     confirmed_at: new Date().toISOString(),
     confirmation: {
-      source: 'USER_COMMAND:/surgical confirm',
+      source,
       session_id: sessionId,
       confirmed_at: new Date().toISOString(),
       spec_digest: specPayloadDigest({ ...draft, ...payload }),
@@ -89,7 +93,7 @@ export function confirmSpec(draft, sessionId) {
 
 export function validateConfirmedSpec(spec) {
   const payload = normalizeSpecInput(spec);
-  if (spec.status !== 'CONFIRMED' || !spec.confirmation || spec.confirmation.source !== 'USER_COMMAND:/surgical confirm') {
+  if (spec.status !== 'CONFIRMED' || !spec.confirmation || !CONFIRMATION_SOURCES.has(spec.confirmation.source)) {
     throw new Error('Implementation requires a Goal Specification confirmed by the user');
   }
   if (!nonempty(spec.confirmation.session_id) || !nonempty(spec.confirmation.confirmed_at)) throw new Error('Confirmed Goal Specification is missing its confirmation record');

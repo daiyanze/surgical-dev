@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import {
-  addRepairTodo, buildWorkerContext, confirmSpec, createDraftSpec,
+  addRepairTodo, buildWorkerContext, confirmSpec, createDraftSpec, INPUT_CONFIRMATION_SOURCE,
   parseRequirementDocument, planRevision, specPayloadDigest, validateConfirmedSpec,
   validatePlanTodos,
 } from '../adapters/pi/spec.mjs';
@@ -46,6 +46,15 @@ test('draft specification cannot become confirmed without an explicit user-comma
   assert.equal(confirmed.confirmation.session_id, 'host-session');
   assert.equal(confirmed.digest, specPayloadDigest(confirmed));
   assert.equal(confirmSpec({ ...confirmed, status: 'DRAFT' }, 'host-session').status, 'CONFIRMED');
+});
+
+test('input-phrase confirmation records truthful provenance distinct from a user command', () => {
+  const confirmed = confirmSpec(createDraftSpec(sample()), 'host-session', { source: INPUT_CONFIRMATION_SOURCE });
+  assert.equal(confirmed.confirmation.source, 'USER_INPUT:confirm-and-start');
+  assert.equal(confirmed.confirmation.session_id, 'host-session');
+  assert.doesNotMatch(confirmed.confirmation.source, /USER_COMMAND/);
+  assert.equal(validateConfirmedSpec(confirmed).confirmation.source, 'USER_INPUT:confirm-and-start');
+  assert.throws(() => confirmSpec(createDraftSpec(sample()), 'host-session', { source: 'USER_COMMAND:/forged' }), /Unknown confirmation source/);
 });
 
 test('tampered or partial confirmed specifications are rejected', () => {

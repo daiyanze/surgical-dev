@@ -164,26 +164,45 @@ tested with real Pi processes and a local deterministic model; see
 ### Automate the loop with Pi
 
 The full Pi package includes an optional extension for goal-driven autonomous
-development. The normal path is **discuss → confirm → run → final acceptance**:
+development. Start with the goal itself:
 
 ```text
-# 1. Discuss requirements. This turn is read-only and must not implement.
-/surgical discuss Fix duplicate form submissions. Keep the public API.
+/surgical Fix duplicate form submissions. Keep the public API.
 
-# Or import a complete requirements document without redundant discussion.
+# The agent reads the project in a read-only discussion, asks material questions,
+# and shows the full draft goal, scope, non-goals, constraints and ACs.
+
+# Review that exact draft, then confirm and start in one step:
+确认，开始
+# English: confirm and start
+```
+
+The exact confirmation phrase freezes the shown revision and automatically starts
+the existing Worker loop; `/surgical confirm` then `/surgical run` is not required.
+Use the advanced command flow when you want separate steps or non-interactive
+control:
+
+```text
+/surgical discuss <goal>
 /surgical import requirements.md
-
-# 2. Review the structured Goal Specification, then confirm it yourself.
 /surgical status
 /surgical confirm
-
-# 3. Start planning and implementation; the Worker stays in one session.
 /surgical run
-
-# Inspect or stop at any time.
-/surgical status
 /surgical stop
+/surgical discard
 ```
+
+`/surgical` alone shows status and guidance. A first word that is not one of the
+reserved commands is treated as the goal, preserving the rest of the raw input, so
+`/surgical Fix   the formatting` starts discussion. In an interactive or RPC
+session, only the exact displayed draft and a plain, idle user reply of `确认，开始`
+or `confirm and start` (benign whitespace/punctuation/case only) can trigger
+automatic start. Questions, negation, extra conditions, quotes/code text, attached
+images, queued/steering input and extension-injected messages are not consent.
+A later discussion message clears the shown-confirmation marker until the latest
+full draft is displayed again; when a clarification finishes without a new draft,
+the extension automatically redisplays the full current draft before allowing
+confirmation. Unknown, stale or cross-session drafts are refused.
 
 The confirmed specification freezes scope, non-goals, constraints and multiple
 independent acceptance criteria. Worker then plans a validated Todo DAG, implements
@@ -202,12 +221,14 @@ With Pi 1.5.2+, create and commit `.surgical-dev.json` in the target repository:
 ```
 
 Use checks that actually exist in your project. Start from a clean Git repository
-root. `/surgical confirm` is an idle user command bound to the latest displayed draft
-revision; no model tool or Worker turn can supply that confirmation. The extension
-stores its compact, revision-checked plan/memory state under Git metadata
-(`.git/surgical-dev/state.json`), outside the reviewed source snapshot. Snapshots
-cover Git-tracked plus nonignored working-tree source; files excluded by `.gitignore`
-remain outside that boundary.
+root. Confirmation must come from the user boundary while idle and is bound to the
+full draft revision/digest displayed in the same session. The guided input phrase
+records `USER_INPUT:confirm-and-start`; the advanced `/surgical confirm` command
+records `USER_COMMAND:/surgical confirm`. No model tool or Worker turn can supply
+either confirmation. The extension stores its compact, revision-checked plan/memory
+state under Git metadata (`.git/surgical-dev/state.json`), outside the reviewed
+source snapshot. Snapshots cover Git-tracked plus nonignored working-tree source;
+files excluded by `.gitignore` remain outside that boundary.
 
 `PR_READY` requires every required Todo done, every original AC independently
 evidenced, configured project checks passing on the current tree, and a final

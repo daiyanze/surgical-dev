@@ -5,7 +5,7 @@ import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
-import { registerSurgicalLoop } from '../adapters/pi/extension.mjs';
+import { isExplicitConfirmation, registerSurgicalLoop } from '../adapters/pi/extension.mjs';
 import { loadRepositoryState, saveRepositoryState } from '../adapters/pi/persist.mjs';
 
 const reviewer = fileURLToPath(new URL('./fixtures/pi-reviewer.mjs', import.meta.url));
@@ -18,14 +18,16 @@ async function host(t, options = {}) {
   await writeFile(join(cwd, 'answer.txt'), options.answer ?? '0');
   await writeFile(join(cwd, '.surgical-dev.json'), JSON.stringify({ checks: [[process.execPath, '-e', 'process.exit(0)']], reviewerCommand: [process.execPath, reviewer], ...options.config }));
   git('add', '.'); git('commit', '-qm', 'baseline');
-  const handlers = new Map(), commands = new Map(), tools = new Map(), records = [], messages = [];
-  let busy = false, resolveIdle, resolveStarted;
+  const handlers = new Map(), commands = new Map(), tools = new Map(), records = [], messages = [], userMessages = [], dispatches = [];
+  let busy = false, resolveIdle, resolveStarted, sessionId = 'worker-session';
   let activeTools = ['read', 'bash', 'edit', 'write', 'grep', 'find', 'ls', 'surgical_spec', 'surgical_plan'];
   const started = new Promise(resolve => { resolveStarted = resolve; });
-  const idle = new Promise(resolve => { resolveIdle = resolve; });
+  let idle;
+  const resetIdle = () => { idle = new Promise(resolve => { resolveIdle = resolve; }); };
+  resetIdle();
   const ctx = {
     cwd, hasUI: false, mode: 'json', model: undefined,
-    sessionManager: { getSessionId: () => 'worker-session', getEntries: () => records, getBranch: () => records },
+    sessionManager: { getSessionId: () => sessionId, getEntries: () => records, getBranch: () => records },
     isIdle: () => !busy, hasPendingMessages: () => false,
     waitForIdle: () => busy ? idle : Promise.resolve(),
     abort: () => {}, ui: { setStatus: () => {}, notify: () => {} },
@@ -39,7 +41,17 @@ async function host(t, options = {}) {
     appendEntry: (customType, data) => records.push({ type: 'custom', customType, data: structuredClone(data) }),
     sendMessage: (message, opts) => {
       messages.push(message);
-      if (opts?.triggerTurn) { busy = true; resolveStarted(); }
+      if (opts?.triggerTurn) { busy = true; resetIdle(); resolveStarted(); }
+    },
+    sendUserMessage: (content, opts) => {
+      userMessages.push({ content, opts });
+      if (!opts?.expandPromptTemplates || typeof content !== 'string' || !content.startsWith('/')) return undefined;
+      const [name, ...parts] = content.slice(1).split(/\s+/);
+      const command = commands.get(name);
+      if (!command) return undefined;
+      const pending = Promise.resolve().then(() => command.handler(parts.join(' '), ctx));
+      dispatches.push(pending);
+      return pending;
     },
   };
   registerSurgicalLoop(pi);
@@ -47,8 +59,11 @@ async function host(t, options = {}) {
   const settle = async aborted => { await emit('agent_settled', { aborted }); busy = false; resolveIdle(); };
   t.after(async () => { await commands.get('surgical').handler('stop', ctx); resolveIdle(); });
   return {
-    cwd, ctx, records, messages, started, emit, settle, tools,
+    cwd, ctx, records, messages, userMessages, dispatches, started, emit, settle, tools,
     command: args => commands.get('surgical').handler(args, ctx),
+    input: (text, { source = 'interactive', images = [], streamingBehavior } = {}) => handlers.get('input')?.({ text, images, source, streamingBehavior }, ctx),
+    setBusy: value => { if (value && !busy) resetIdle(); busy = value; if (!value) resolveIdle(); },
+    setSessionId: value => { sessionId = value; },
     state: () => records.at(-1)?.data,
     activeTools: () => [...activeTools],
   };
@@ -75,6 +90,23 @@ async function draftOnly(h, goal, acceptance = [{ id: 'AC-1', text: goal }]) {
 }
 // A normal final assistant response is not continuable until feedback is added.
 const boundary = extra => ({ entries: [], continue: false, outcome: 'completed', context: { contextEntries: [], contextMessages: [], llmMessages: [], pendingMessages: [], canContinue: false }, ...extra });
+
+async function waitFor(predicate, timeoutMs = 3000) {
+  const started = Date.now();
+  while (!predicate()) {
+    if (Date.now() - started > timeoutMs) throw new Error('Timed out waiting for test condition');
+    await new Promise(resolve => setTimeout(resolve, 10));
+  }
+}
+
+async function finishGuidedRun(h) {
+  await waitFor(() => h.messages.some(message => message.customType === 'surgical-goal'));
+  const running = h.dispatches.at(-1);
+  assert.ok(running, 'The automatic /surgical run dispatch must be queued');
+  await h.emit('agent_before_settle', boundary());
+  await h.settle(false);
+  await running;
+}
 
 test('command stays in its original session until review repair and final settlement finish', async t => {
   const h = await host(t);
@@ -199,6 +231,244 @@ test('discussion saves only a draft; explicit user command confirmation is persi
   assert.equal(repository.confirmed_spec.confirmation.source, 'USER_COMMAND:/surgical confirm');
   assert.equal(repository.confirmed_spec.confirmation.session_id, 'worker-session');
   assert.ok(h.activeTools().includes('edit') && h.activeTools().includes('write'));
+});
+
+test('guided confirmation accepts only the exact benign allowlist and rejects questions, negation, conditions, quotes and images', () => {
+  for (const text of ['确认，开始', '确认开始', '  确认，开始。', 'confirm and start', 'Confirm and Start!']) {
+    assert.equal(isExplicitConfirmation(text), true, text);
+  }
+  for (const text of ['好', 'yes', '确认', '不确认，开始', '先别确认，开始', '确认，开始？', 'confirm and start?',
+    '确认，开始，但是先不要运行', 'confirm and start, but wait', '“确认，开始”', '`确认，开始`', 'confirm and start please', '']) {
+    assert.equal(isExplicitConfirmation(text), false, text);
+  }
+});
+
+test('bare /surgical shows guidance and an unknown first word starts read-only discussion with the full raw goal', async t => {
+  const h = await host(t);
+  await h.command('   ');
+  assert.ok(h.messages.some(message => /Start with \/surgical <goal>/.test(message.content ?? '') && /Advanced commands:/.test(message.content ?? '')));
+  assert.ok(!h.messages.some(message => message.customType === 'surgical-discussion'));
+
+  const running = h.command('Fix   the\nanswer');
+  await h.started;
+  const discussion = h.messages.find(message => message.customType === 'surgical-discussion');
+  assert.ok(discussion, 'Unknown first word must route to requirement discussion');
+  assert.match(discussion.content, /Fix   the\nanswer/, 'Internal whitespace and the full goal are preserved');
+  assert.ok(!h.activeTools().includes('edit') && !h.activeTools().includes('write') && !h.activeTools().includes('bash'));
+  await h.settle(false);
+  await running;
+  const repository = await loadRepositoryState(h.cwd);
+  assert.equal(repository.draft_spec, null);
+  assert.equal(repository.confirmed_spec, null);
+  assert.equal(repository.run, null, 'Discussion alone must not start implementation');
+});
+
+test('a shown full draft plus trusted interactive or RPC confirmation persists USER_INPUT provenance and auto-dispatches exactly one run', async t => {
+  for (const [phrase, source] of [['确认，开始', 'interactive'], ['confirm and start', 'rpc']]) {
+    const h = await host(t, { answer: '42' });
+    await draftOnly(h, `Guided ${source} goal`);
+    assert.ok(h.messages.some(message => message.customType === 'surgical-spec-draft'
+      && /Scope:/.test(message.content ?? '') && /Non-goals:/.test(message.content ?? '')
+      && /Constraints:/.test(message.content ?? '') && /Acceptance criteria:/.test(message.content ?? '')));
+    const result = await h.input(phrase, { source });
+    assert.equal(result.action, 'handled');
+    let repository = await loadRepositoryState(h.cwd);
+    assert.equal(repository.draft_spec, null);
+    assert.equal(repository.confirmed_spec.status, 'CONFIRMED');
+    assert.equal(repository.confirmed_spec.confirmation.source, 'USER_INPUT:confirm-and-start');
+    assert.equal(repository.confirmed_spec.confirmation.session_id, 'worker-session');
+    assert.equal(h.userMessages.length, 1);
+    assert.equal(h.userMessages[0].content, '/surgical run');
+    assert.equal(h.userMessages[0].opts.expandPromptTemplates, true);
+    const repeat = await h.input(phrase, { source });
+    assert.equal(repeat.action, 'handled');
+    assert.equal(h.userMessages.length, 1, 'A repeated confirmation cannot auto-run twice');
+    await finishGuidedRun(h);
+    assert.equal(h.state().status, 'PR_READY');
+    repository = await loadRepositoryState(h.cwd);
+    assert.equal(repository.confirmed_spec.confirmation.source, 'USER_INPUT:confirm-and-start');
+  }
+});
+
+test('ambiguous, conditional, negative, quoted, question and image confirmations never confirm an unseen draft', async t => {
+  const h = await host(t);
+  await draftOnly(h, 'Invalid confirmation variants');
+  const variants = ['好', 'yes', '不确认，开始', '确认，开始，但是先不要运行', '确认，开始？', 'confirm and start?',
+    '“确认，开始”', '`确认，开始`', 'confirm and start please'];
+  for (const text of variants) {
+    await h.command('status');
+    const result = await h.input(text);
+    assert.notEqual(result.action, 'handled', text);
+    assert.equal((await loadRepositoryState(h.cwd)).confirmed_spec, null, text);
+  }
+  await h.command('status');
+  const image = await h.input('确认，开始', { images: [{ type: 'image', data: 'fixture', mimeType: 'image/png' }] });
+  assert.equal(image.action, 'handled');
+  assert.equal((await loadRepositoryState(h.cwd)).confirmed_spec, null);
+  assert.equal(h.userMessages.length, 0);
+});
+
+test('ordinary confirmation chat passes through when no Surgical workflow is pending', async t => {
+  const h = await host(t);
+  const result = await h.input('confirm and start');
+  assert.equal(result.action, 'continue');
+  assert.equal((await loadRepositoryState(h.cwd)).confirmed_spec, null);
+  assert.equal(h.userMessages.length, 0);
+});
+
+test('ordinary confirmation chat passes through after only the advanced command confirmation or a completed run', async t => {
+  const confirmedOnly = await host(t);
+  await prepare(confirmedOnly, 'Advanced confirmed only');
+  let before = confirmedOnly.messages.length;
+  let result = await confirmedOnly.input('confirm and start');
+  assert.equal(result.action, 'continue');
+  assert.equal(confirmedOnly.messages.length, before, 'No failure or status message may be injected');
+  assert.equal(confirmedOnly.userMessages.length, 0);
+  assert.equal((await loadRepositoryState(confirmedOnly.cwd)).confirmed_spec.confirmation.source, 'USER_COMMAND:/surgical confirm');
+
+  const completed = await host(t, { answer: '42' });
+  const running = start(completed, 'Completed guided gate');
+  await completed.started;
+  await completed.emit('agent_before_settle', boundary());
+  await completed.settle(false);
+  await running;
+  assert.equal(completed.state().status, 'PR_READY');
+  before = completed.messages.length;
+  result = await completed.input('confirm and start');
+  assert.equal(result.action, 'continue');
+  assert.equal(completed.messages.length, before, 'A terminal run and old confirmation must not swallow ordinary chat');
+  assert.equal(completed.userMessages.length, 0);
+});
+
+test('clarification settlement redisplays the full latest draft once so trusted confirmation can auto-run', async t => {
+  const h = await host(t, { answer: '42' });
+  const running = h.command('discuss Clarification goal');
+  await h.started;
+  await h.tools.get('surgical_spec').execute('clarify-spec', {
+    goal: 'Clarification goal', scope: ['Keep the change bounded'], non_goals: ['Do not change the API'],
+    constraints: ['Keep checks green'], acceptance_criteria: [{ id: 'AC-1', text: 'The bounded change is verified' }],
+  }, undefined, undefined, h.ctx);
+  await h.settle(false);
+  await running;
+  let draftDisplays = h.messages.filter(message => message.customType === 'surgical-spec-draft').length;
+  await h.emit('agent_settled', { aborted: false });
+  assert.equal(h.messages.filter(message => message.customType === 'surgical-spec-draft').length, draftDisplays,
+    'An already displayed, matching draft is not repeated at settlement');
+
+  const clarification = await h.input('Please clarify the edge case before we proceed.');
+  assert.equal(clarification.action, 'continue');
+  await h.emit('agent_settled', { aborted: false });
+  const displayed = h.messages.filter(message => message.customType === 'surgical-spec-draft');
+  assert.equal(displayed.length, draftDisplays + 1, 'An unchanged draft is redisplayed after clarification settlement');
+  assert.match(displayed.at(-1).content, /Scope:[\s\S]*Non-goals:[\s\S]*Constraints:[\s\S]*Acceptance criteria:/);
+  assert.match(displayed.at(-1).content, /确认，开始/);
+  draftDisplays = displayed.length;
+
+  const confirmed = await h.input('确认，开始');
+  assert.equal(confirmed.action, 'handled');
+  assert.equal(h.messages.filter(message => message.customType === 'surgical-spec-draft').length, draftDisplays,
+    'Confirmation itself adds no extra model-turn draft display');
+  await finishGuidedRun(h);
+  assert.equal(h.state().status, 'PR_READY', h.state().reason);
+  assert.equal((await loadRepositoryState(h.cwd)).confirmed_spec.confirmation.source, 'USER_INPUT:confirm-and-start');
+});
+
+test('unseen, cross-session and externally replaced drafts refuse confirmation without marking them displayed', async t => {
+  const h = await host(t);
+  await draftOnly(h, 'Unseen goal');
+  await h.emit('session_start');
+  let result = await h.input('确认，开始');
+  assert.equal(result.action, 'handled');
+  assert.match(h.messages.at(-1).content, /not displayed/i);
+  assert.equal((await loadRepositoryState(h.cwd)).confirmed_spec, null);
+
+  await h.command('status');
+  h.setSessionId('other-session');
+  result = await h.input('confirm and start');
+  assert.equal(result.action, 'handled');
+  assert.match(h.messages.at(-1).content, /not displayed|session changed/i);
+  assert.equal((await loadRepositoryState(h.cwd)).confirmed_spec, null);
+  assert.equal(h.userMessages.length, 0);
+
+  const stale = await host(t);
+  await draftOnly(stale, 'First displayed goal');
+  const before = await loadRepositoryState(stale.cwd);
+  const replacement = { ...before.draft_spec, goal: 'Replaced by another session', scope: ['Replaced by another session'], digest: null };
+  replacement.acceptance_criteria = [{ id: 'AC-1', text: 'Replaced by another session' }];
+  const { specPayloadDigest } = await import('../adapters/pi/spec.mjs');
+  replacement.digest = specPayloadDigest(replacement);
+  await saveRepositoryState(stale.cwd, { ...before, draft_spec: replacement }, { expectedRevision: before.revision });
+  result = await stale.input('确认，开始');
+  assert.equal(result.action, 'handled');
+  assert.match(stale.messages.at(-1).content, /draft changed before confirmation/i);
+  assert.equal((await loadRepositoryState(stale.cwd)).confirmed_spec, null);
+  assert.equal(stale.userMessages.length, 0);
+});
+
+test('extension-injected confirmation text cannot grant consent', async t => {
+  const h = await host(t);
+  await draftOnly(h, 'Extension injection goal');
+  const result = await h.input('确认，开始', { source: 'extension' });
+  assert.equal(result.action, 'continue');
+  assert.equal((await loadRepositoryState(h.cwd)).confirmed_spec, null);
+  assert.equal(h.userMessages.length, 0);
+});
+
+test('busy or queued confirmation input cannot confirm or auto-run', async t => {
+  const h = await host(t);
+  await draftOnly(h, 'Busy confirmation goal');
+  h.setBusy(true);
+  for (const streamingBehavior of ['steer', 'followUp']) {
+    const result = await h.input('确认，开始', { streamingBehavior });
+    assert.equal(result.action, 'handled');
+    assert.equal((await loadRepositoryState(h.cwd)).confirmed_spec, null);
+    assert.equal(h.userMessages.length, 0);
+  }
+  h.setBusy(false);
+  const result = await h.input('确认，开始');
+  assert.equal(result.action, 'handled');
+  assert.equal((await loadRepositoryState(h.cwd)).confirmed_spec.confirmation.source, 'USER_INPUT:confirm-and-start');
+  await finishGuidedRun(h);
+});
+
+test('concurrent input confirmations use single-flight and dispatch at most one run', async t => {
+  const h = await host(t, { answer: '42' });
+  await draftOnly(h, 'Concurrent confirmation goal');
+  const results = await Promise.all([h.input('确认，开始'), h.input('confirm and start')]);
+  assert.deepEqual(results.map(result => result.action), ['handled', 'handled']);
+  const repository = await loadRepositoryState(h.cwd);
+  assert.equal(repository.confirmed_spec.confirmation.source, 'USER_INPUT:confirm-and-start');
+  assert.equal(h.userMessages.length, 1, 'Only one auto-run dispatch may be queued');
+  assert.ok(h.messages.some(message => /confirmation is already in progress/i.test(message.content ?? '')));
+  await finishGuidedRun(h);
+});
+
+test('concurrent command and input confirmations share one single-flight guard', async t => {
+  const h = await host(t);
+  await draftOnly(h, 'Concurrent command confirmation goal');
+  const [, result] = await Promise.all([h.command('confirm'), h.input('确认，开始')]);
+  assert.equal(result.action, 'handled');
+  const repository = await loadRepositoryState(h.cwd);
+  assert.equal(repository.confirmed_spec.confirmation.source, 'USER_COMMAND:/surgical confirm');
+  assert.equal(h.userMessages.length, 0, 'The losing input confirmation must not dispatch another run');
+  assert.ok(h.messages.some(message => /confirmation is already in progress/i.test(message.content ?? '')));
+});
+
+test('persistence failure during input confirmation never reports consent or dispatches a run', async t => {
+  const h = await host(t);
+  await draftOnly(h, 'Persistent input failure');
+  const directory = join(h.cwd, '.git', 'surgical-dev');
+  await chmod(directory, 0o500);
+  try {
+    const result = await h.input('确认，开始');
+    assert.equal(result.action, 'handled');
+    assert.match(h.messages.at(-1).content, /Confirmation failed:.*permission|Confirmation failed:.*EACCES/i);
+    const repository = await loadRepositoryState(h.cwd);
+    assert.equal(repository.confirmed_spec, null);
+    assert.equal(h.userMessages.length, 0);
+  } finally {
+    await chmod(directory, 0o700);
+  }
 });
 
 test('a confirmed multi-AC spec is planned through surgical_plan and progresses sequentially in one Worker session', async t => {
@@ -395,7 +665,7 @@ test('a persisted draft must be shown in this session before it can be confirmed
   await draftOnly(h, 'Persisted but unseen');
   await h.emit('session_start');
   await h.command('confirm');
-  assert.ok(h.messages.some(message => /draft changed before confirmation/.test(message.content ?? '')));
+  assert.ok(h.messages.some(message => /not displayed|draft changed before confirmation/.test(message.content ?? '')));
   let repository = await loadRepositoryState(h.cwd);
   assert.equal(repository.confirmed_spec, null);
   await h.command('status');

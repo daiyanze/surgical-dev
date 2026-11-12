@@ -77,7 +77,7 @@ real-model competence. They complement the project-level specifications above.
 
 | ID | Stimulus | Implemented observable result |
 |---|---|---|
-| G01 | Draft Goal Specification and runtime spec tool | Draft persists but cannot confirm; only `/surgical confirm` records USER_COMMAND consent |
+| G01 | Draft Goal Specification and runtime spec tool | Draft persists but cannot confirm; `/surgical confirm` records USER_COMMAND consent and the guided exact phrase records USER_INPUT consent |
 | G02 | Confirmed multi-Todo dependent plan | Eligible Todos progress sequentially in one Worker session |
 | G03 | Real check fails for the active Todo | Same Worker receives bounded failure evidence and repairs it |
 | G04 | All Todos done but one original AC fails | No `PR_READY`; blocked or escalated with the failing AC retained |
@@ -86,3 +86,5 @@ real-model competence. They complement the project-level specifications above.
 | G07 | Planning/check/review/turn budget exhausted | Explicit bounded stop; original Todos and findings retained |
 | G08 | Repeated turns/reads | Per-Todo prompt context and tool calls are bounded; no full-history refeed |
 | G09 | Actual Pi 1.5.2 import/confirm and two-Todo run | Planned DAG, sequential implementation, real checks, independent per-AC final PASS |
+| G10 | Actual Pi 1.5.2 `/surgical <goal>` then `确认，开始` | Read-only discussion/question, full draft, same-session user-input confirmation, automatic run, no manual confirm/run, final PR_READY |
+| G11 | Invalid confirmation text or source | Generic/conditional/question/negative/quoted/image/busy/extension-injected input cannot confirm; unseen, stale or cross-session drafts are refused; concurrent confirmations dispatch at most one run; clarification settlement redisplays the full latest draft |

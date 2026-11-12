@@ -1,9 +1,11 @@
 # Install and distribute Surgical Dev
 
 Surgical Dev distributes **portable Skills and an opt-in Pi extension**. Installing
-the Pi package registers the methods and `/surgical` command. Running `/surgical run`
-starts one Worker/check/review/repair loop. Installing individual Skills through
-the skills CLI provides instructions; the extension requires the full Pi package.
+the Pi package registers the methods and `/surgical` command. `/surgical <goal>`, then
+the exact confirmation reply after the full draft, starts one guided
+Worker/check/review/repair loop; `/surgical run` remains the advanced command path.
+Installing individual Skills through the skills CLI provides instructions; the
+extension requires the full Pi package.
 
 ## 1. Install with Pi (GitHub source)
 
@@ -14,9 +16,11 @@ pi install git:github.com/daiyanze/surgical-dev
 ```
 
 Start a fresh Pi 1.5.2+ session. Configure the target repository as described in
-[Pi setup](../adapters/pi/SETUP.md), then invoke `/surgical run <your authorized goal>`.
-`/skill:surgical-dev` remains the portable instruction-only entry point. Package
-metadata includes both `pi.skills` and `pi.extensions`; retain the complete layout.
+[Pi setup](../adapters/pi/SETUP.md), then invoke `/surgical <your authorized goal>`.
+Review the full draft and reply `确认，开始` / `confirm and start` to start, or use the
+advanced discuss/import/confirm/run commands. `/skill:surgical-dev` remains the
+portable instruction-only entry point. Package metadata includes both `pi.skills`
+and `pi.extensions`; retain the complete layout.
 
 ## 2. Install with the skills CLI (skills.sh)
 
@@ -63,7 +67,7 @@ and the broader target architecture require separate evaluation.
 | Project Skill directory | Package installation or `.agents/skills/` | `.agents/skills/` | `.claude/skills/` |
 | Independent Verifier | Extension launches a fresh read-tool Pi process on a Git snapshot | Separate reviewer subagent or session | Fresh non-fork reviewer subagent or session; explicitly supply review instructions |
 | Native automation | Extension APIs | `codex exec`, SDK continuation/resume, and subagents | `/goal`, scheduled `/loop`, and subagents |
-| Bundled Surgical Dev loop | Automatic checks, review feedback, repair, and bounded stopping through `/surgical run` | No dedicated controller; Skills guide native execution | No dedicated controller; Skills guide native execution |
+| Bundled Surgical Dev loop | Guided `/surgical <goal>` confirmation then automatic checks, review feedback, repair, and bounded stopping; `/surgical run` remains available | No dedicated controller; Skills guide native execution | No dedicated controller; Skills guide native execution |
 
 Codex and Claude Code can automate work; the absence of a bundled adapter does not
 make them manual-only hosts. Their complete Surgical Dev workflows have not been

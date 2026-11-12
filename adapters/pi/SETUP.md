@@ -77,18 +77,43 @@ one run.
 
 Start at a clean Git repository root with an existing commit. Commit the
 configuration and any prior work before starting. Submodules are not supported.
-The normal path is discuss → confirm → run → final acceptance:
+The simplest path is goal → guided discussion → exact confirmation → automatic run:
 
 ```text
-/surgical discuss Implement search pagination. Keep the API; cover empty and final pages.
-# or: /surgical import requirements.md
+/surgical Implement search pagination. Keep the API; cover empty and final pages.
 
+# The agent reads the project, asks only material questions, then shows the full
+# draft goal, scope, non-goals, constraints and ACs. No implementation has started.
+
+确认，开始
+# English: confirm and start
+```
+
+The exact phrase freezes the displayed revision and automatically dispatches the
+existing `/surgical run` path. It is accepted only from interactive or RPC user
+input while idle, in the same session where that full draft was shown, as plain text
+without images. Questions, negation, extra conditions, quotes/code text, queued or
+steering input, stale/unseen drafts and extension-injected messages cannot confirm.
+A newer discussion message clears the displayed-confirmation marker until the latest
+full draft is shown again. If a clarification finishes without a new draft, the
+extension automatically redisplays the full current draft before allowing
+confirmation; an already displayed matching draft is not repeated. The confirmation
+record uses
+`USER_INPUT:confirm-and-start`, not a fabricated user command. Repeated confirmation
+cannot start a second run.
+
+`/surgical` alone shows status and guidance. A first word that is not a reserved
+command is the goal; the rest of the raw input is preserved for discussion. Reserved
+commands remain available for the advanced flow:
+
+```text
+/surgical discuss <goal>
+/surgical import requirements.md
 /surgical status
 /surgical confirm
-
 /surgical run
-/surgical status
 /surgical stop
+/surgical discard
 ```
 
 `/surgical discuss` is requirement preparation only: built-in write tools and shell
@@ -98,18 +123,20 @@ a complete Markdown or JSON requirement document and creates the draft without a
 redundant discussion turn. The draft has goal, scope, non-goals, constraints and
 multiple independent `AC-N` criteria.
 
-`/surgical confirm` is the only confirmation path. It must run while idle and binds
-to the exact latest draft revision/digest that was displayed by `/surgical status`
-or the draft-update message. If another session replaced the draft, confirmation is
-refused until the user reviews the latest full scope again. It records the user
-command, host session and digest of the frozen specification in repository state.
-A runtime model tool cannot confirm consent; `surgical_spec` only saves a draft.
-Running `/surgical run <new goal>` does not execute an old confirmed goal: a
-non-matching goal starts requirement discussion and invalidates the old
-confirmation. `/surgical run` without a goal refuses while any draft/discussion is
-pending. New discussion/import atomically clears the previous confirmation.
+Confirmation must come from the user boundary. The advanced `/surgical confirm`
+command also works while idle and binds to the exact latest draft revision/digest
+that was displayed by `/surgical status` or the draft-update message; it records
+`USER_COMMAND:/surgical confirm`. If another session replaced the draft, confirmation
+is refused until the user reviews the latest full scope again. Both forms record the
+host session and frozen digest in repository state. A runtime model tool cannot
+confirm consent; `surgical_spec` only saves a draft. Running `/surgical run <new
+goal>` does not execute an old confirmed goal: a non-matching goal starts requirement
+discussion and invalidates the old confirmation. `/surgical run` without a goal
+refuses while any draft/discussion is pending. New discussion/import atomically
+clears the previous confirmation.
 
-After confirmation, `/surgical run` either validates a Worker `surgical_plan` Todo
+After confirmation, `/surgical run` (or the guided automatic dispatch) either
+validates a Worker `surgical_plan` Todo
 DAG (unique IDs, dependencies, acyclic graph, complete original AC coverage) or
 falls back deterministically after the bounded planning rounds. During a run the
 same narrow tool can record a technical decision, add a repair Todo, reorder pending
@@ -233,11 +260,14 @@ SURGICAL_PI_EXECUTABLE=/absolute/path/to/pi npm run test:pi-host
 ```
 
 The first suite uses real Git/subprocess fixtures and a simulated Pi event interface.
-It covers confirmation persistence, DAG/coverage validation, sequential Todo
-progression, same-Worker check repair, AC failure blocking, verifier repair/re-review,
-stale evidence, cumulative budgets and bounded context. The second uses actual Pi
-1.5.2 Worker/reviewer processes and their tools with a local deterministic model
-endpoint. It imports and confirms a two-AC document in separate user-command
-processes, then runs a planned two-Todo loop through final review without credentials
-or API spend. Neither is a real-model capability evaluation; see
-[validation](../../VALIDATION.md) for what has and has not been exercised.
+It covers guided phrase safety and single-flight confirmation, confirmation
+persistence, DAG/coverage validation, sequential Todo progression, same-Worker check
+repair, AC failure blocking, verifier repair/re-review, stale evidence, cumulative
+budgets and bounded context. The second uses actual Pi 1.5.2 Worker/reviewer processes
+and their tools with a local deterministic model endpoint. One case imports and
+confirms a two-AC document in separate user-command processes, then runs a planned
+two-Todo loop through final review. The other starts with `/surgical <goal>`, asks a
+question, shows a draft, accepts an RPC `确认，开始` reply, and reaches `PR_READY`
+through automatic dispatch without manually issuing confirm or run. Neither is a
+real-model capability evaluation; see [validation](../../VALIDATION.md) for what has
+and has not been exercised.

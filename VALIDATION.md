@@ -2,30 +2,35 @@
 
 Package: `surgical-dev` · 2026-11-12.
 Scope: portable Skills, record contracts and the opt-in Pi goal-driven single-workstream loop.
-Implementation baseline: repository branch `feat/goal-driven-autonomous-development` (review findings addressed and independently checked).
+Implementation baseline: repository branch `feat/surgical-guided-entry` on main `5acf53e` (review findings addressed and final checks repeated).
 
 ## Observed checks
 
 | Check | Result | What it establishes |
 |---|---|---|
-| `npm test` | 107 passed, 1 platform skip (macOS) | Package checks plus spec/state, loop and extension regressions using real Git and subprocesses |
+| `npm test` | 121 passed, 1 platform skip (macOS) | Package checks plus guided-entry, spec/state, loop and extension regressions using real Git and subprocesses |
 | `python3 tests/contracts_test.py` | 20 passed | Existing task, review and project-plan schema constraints |
 | `python3 scripts/sync_skill_references.py --check` | Passed | Standalone Skills match canonical Markdown references |
-| `npm run test:pi-host` with Pi 1.5.2 | 1 passed | Actual Pi import/confirm commands then a planned two-Todo Worker/final-review lifecycle with a deterministic local model |
-| Independent code review | Findings addressed | Separate Pi/DeepSeek review plus parent inspection and regression checks of the final fixes |
+| `npm run test:pi-host` with Pi 1.5.2 | 2 passed | Actual Pi guided `/surgical <goal>`/exact-input-confirmation/automatic-run lifecycle and the advanced import/confirm lifecycle, both with a deterministic local model |
+| Independent review | Findings addressed | Separate Pi/DeepSeek review, followed by parent inspection and regression checks of the fixes |
 
-The Node regression suite checks confirmation persistence and draft-only runtime
-tools; imported requirement documents; Goal Specification digest/tamper/revision
-binding; exclusive-lock state CAS with exactly one concurrent winner and visible
-persistence failure; shown-revision confirmation and observational startup without
-shared-run mutation; Todo DAG/coverage validation; multi-Todo dependency progression;
-real-check-based Todo completion; same-Worker repair; AC evidence requirements;
-evidence path:line existence, terminal-newline line bounds and Git-control-file
-rejection; malformed or partial review rejection; additive repair Todos and fresh
-re-review; transactional pending-only plan adjustments and decision notes that leave
-state unchanged on rejection; stale per-Todo evidence plus final integration evidence;
-cumulative turn/check/review budgets; bounded valid-JSON per-Todo context containing
-only current ACs and prioritizing the current failure; native compaction with one
+The Node regression suite checks guided-entry routing and exact-phrase safety;
+input provenance distinct from user-command consent; concurrent confirmation
+single-flight across input and command; unseen, stale and cross-session draft
+refusal; extension-injected message rejection; busy/queued input; ordinary-chat
+pass-through after confirmation-only or terminal-run state; clarification-settlement
+redisplay of the full latest draft; persistence failure; confirmation persistence and draft-only runtime tools; imported requirement
+documents; Goal Specification digest/tamper/revision binding; exclusive-lock state
+CAS with exactly one concurrent winner and visible persistence failure; shown-revision
+confirmation and observational startup without shared-run mutation; Todo
+DAG/coverage validation; multi-Todo dependency progression; real-check-based Todo
+completion; same-Worker repair; AC evidence requirements; evidence path:line
+existence, terminal-newline line bounds and Git-control-file rejection; malformed or
+partial review rejection; additive repair Todos and fresh re-review; transactional
+pending-only plan adjustments and decision notes that leave state unchanged on
+rejection; stale per-Todo evidence plus final integration evidence; cumulative
+turn/check/review budgets; bounded valid-JSON per-Todo context containing only
+current ACs and prioritizing the current failure; native compaction with one
 post-compaction context injection; mixed Worker/reviewer usage accounting with
 UNKNOWN aggregate totals; deadline checks before subprocess spawn; cancellation,
 locks and staging preservation.
@@ -54,11 +59,20 @@ fixture:
    call counts and one initial plan submission are asserted. The real index stays
    unchanged and the disposable worktree is removed.
 
-The model responses in this test are deterministic. This proves the actual host's
-installation, event, tool and process integration; it does not establish DeepSeek
-or any other model's engineering competence. No account credentials or paid API
-calls are used. The initially incorrect `canContinue` guard was reproduced through
-this real-host path before it was fixed.
+A second actual-host case starts with `/surgical Produce a verified two-part
+answer`. The fixture reads the repository, asks one material question, receives the
+user's answer, saves and displays a two-AC draft, and leaves source unchanged. The
+same RPC session then sends `确认，开始`; the extension records
+`USER_INPUT:confirm-and-start`, automatically dispatches the existing run path
+without a separate `/surgical confirm` or `/surgical run`, and the same session plans
+two Todos, passes real checks, receives an independent reviewer PASS and reaches
+`PR_READY`. The test asserts no pre-confirmation mutation and one automatic dispatch.
+
+The model responses in these tests are deterministic. This proves the actual host's
+installation, event, input, command-dispatch, tool and process integration; it does
+not establish DeepSeek or any other model's engineering competence. No account
+credentials or paid API calls are used. The initially incorrect `canContinue` guard
+was reproduced through this real-host path before it was fixed.
 
 ## Reproduce
 
