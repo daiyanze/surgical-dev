@@ -1,209 +1,75 @@
-# Surgical Dev：目标驱动、三种长期角色与弹性执行
+# Surgical Dev 架构（中文摘要）
 
-本文是英文架构文档的摘要，不是逐句翻译；以 [ARCHITECTURE.en.md](ARCHITECTURE.en.md) 为准。
+本文是 [ARCHITECTURE.en.md](ARCHITECTURE.en.md) 的摘要，不是逐句翻译。以英文文档为准。
 
-日期：2026-11-11
+**状态日期：** 2026-11-12。本文只描述已实现的范围。验证证据见 [VALIDATION.md](VALIDATION.md)，Pi 操作见 [Pi setup](adapters/pi/SETUP.md)。
 
-状态：目标架构已包含一个可选的 Pi 单工作流实现，可自动完成开发、检查、独立审阅和修复。多工作流调度、崩溃恢复和自动交付尚未实现；已验证范围见 [VALIDATION.md](VALIDATION.md)，使用方法见 [Pi setup](adapters/pi/SETUP.md)。主体角色文件与完整设计为英文。
+## 1. 目的
 
-## 1. 设计结论
+Surgical Dev 把开发目标变成用户确认过的验收草案，然后由一个 Worker 按计划的 Todo 实现，运行项目真实检查，经过一次全新的独立审查，并在有限次数内修复。包含两层：
 
-固定三种长期角色：**Product Scout、Worker、Verifier**。Worker 同时负责实现、授权范围内的发布、运行观察和事故处理；切换职责不要求更换角色或会话。执行实例按项目容量分配，临时 subagent 只提供有边界的辅助。流程控制器是普通代码或现有运行时能力。
+- **可移植 Skills**（`skills/*/SKILL.md`）：九个指令集，任何支持 Agent Skills 的宿主都可加载。它们指导工作，本身不执行任何强制约束。
+- **Pi 扩展**（`adapters/pi/`）：目前唯一已实现的运行时控制器。它负责确认、状态、预算、子进程、快照绑定和运行的终止状态。
 
-长期身份保留职责和经过核实的项目知识，不代表全天运行、也不代表永远使用一个越积越长的聊天。每项实现有自己的连续上下文，验收有独立上下文。
+## 2. 组件
 
-**用户给目标，团队在既定范围内自行拆分、分配与集成；一个工作流一个主刀，一个项目一个集成负责人。**
-
-| 角色 | 解决的问题 | 主要产出 | 不能越过的边界 |
-|---|---|---|---|
-| Product Scout | 什么问题值得解决，做完是否有效？ | 有来源的机会简报、优先级建议、效果评估 | 不能批准自己提出的新需求，不能因发现反馈就自动开工 |
-| Worker | 如何实现、交付并维护目标结果？ | 设计、代码、测试、PR、发布计划、执行观察和事故恢复证据 | 不能自批独立验收、跳过检查、擅自扩大范围或生产权限 |
-| Verifier | 当前变更是否真的符合要求？ | 绑定规格和代码版本的独立结论 | 不修改受审实现，不代替用户授权发布 |
-| 临时 subagent | 哪一小块可独立完成？ | 调研证据或边界明确的变更 | 不递归派活，不批准父任务，不发布，不创建长期 agent |
-
-完整英文设计见 [ARCHITECTURE.en.md](ARCHITECTURE.en.md)；Pi 与 Codex 的安装见[分发说明](docs/distribution.md)。
-
-## 自动组织项目与扩容
-
-用户只提供**目标、约束、预算和操作权限**，不需要拆分项目或选择执行者。Worker 阅读实际仓库后，选择一个 Worker 兼任集成负责人，建立最小技术计划；普通的技术拆分、任务分配、顺序调整和范围内重规划不再逐项找用户批准。业务目标含糊、改变需求、超预算、扩大权限或持续失败才升级。
-
-集成负责人负责共享契约、关键实现和整体集成，不是新增 manager agent，也不接管所有成员的完整聊天。各工作流 Worker 独立完成一项可验收成果的设计、实现、测试和返工；临时 subagent 仅为某个 Worker 做辅助任务。
-
-### 工作如何拆、如何派
-
-按可独立验收的业务能力拆分，不机械按前端／后端／测试拆分。计划记录项目验收标准、工作流目标、依赖、已验收的输入快照、共享接口版本、文件与环境资源边界、检查和预算。先稳定当前批次需要的最小公共契约，再并行，不要求一次设计完整个系统。
-
-运行时只对依赖已满足、输入版本明确、没有写入或资源冲突、容量和预算允许的工作流进行原子认领与派发。工程会话和审查会话按负载分配；新增长期 agent 仍需单独权限。缺少并行执行或隔离能力时自动串行，不把执行者不足当成让用户手动拆任务的理由。
-
-建议启用后的试点上限：2 个活跃 Worker、1 个 Verifier、全项目最多 2 个可选助手、所有角色与助手合计最多 4 个活跃执行。各上限同时成立，不因增加 Worker 就复制一份无限预算。Worker 的集成、发布和事故处理均占 Worker 名额，也计入总执行数；配置示例仍保持自动化和助手关闭。
-
-写任务使用独立工作目录，并协调共享接口、数据库、端口和预览环境。锁或租约到期不表示旧进程已经结束，重派前必须核实。审查、CI 或集成排队时减少新开工，不能只扩开发人数。相关契约变化使下游证据过期，重新规划不得重置用量和修复历史。
-
-### 整体通过不是局部 PASS 的加总
-
-每个工作流先通过自身检查与独立审查，得到 **INTEGRATION_READY**。集成负责人将已验收快照串行组装到指定候选分支／环境，运行契约、跨模块与项目端到端检查，再交独立 Verifier 判断 **Integration Passed**。只有项目全部必需验收标准被当前证据覆盖，项目才是 **PR_READY**。
-
-集成失败退回对应 Worker；跨工作流问题由集成负责人修复，但它不能批准自己参与的代码。修复后重新验证受影响部分及组合结果。单工作流可在同一快照的一次独立审查中同时覆盖两级标准，不制造重复审批。
-
-集成分支不代表主分支合并权限。跨仓库任务保存仓库—提交／制品映射、兼容性与发布顺序，不假设跨仓库原子发布。未完成的必需工作不能静默省略；部分交付需既定策略或用户授权。
-
-详见[项目契约](contracts/project-plan.md)、[目标入口](templates/project-goal.md)、[团队填写的计划](templates/project-plan.md)和[集成审查包](templates/integration-review.md)。这些是当前规范，不是已实现的自动调度器。
-
-## 2. 三条工作闭环
-
-### 产品闭环
-
-反馈／研究 → Scout 整理真实问题 → 用户或可信既有策略确定优先级与授权 → Worker＋Verifier 完成变更 → Worker 按授权交付 → Scout 评估实际效果。
-
-Scout 的简报必须区分事实与假设，包括来源、用户、问题、目标、可测试验收标准、非目标、不确定项和价值判断。Worker 必要时补可行性估计，不再另建一个详细计划团队。
-
-Scout 最后的结果可以是 **SUPPORTED / INCONCLUSIVE / REGRESSED**。没有数据就写证据不足，不能把“部署成功”解释成“用户价值已验证”。后续建议仍需独立准入，避免形成无休止的自动造需求循环。
-
-### 开发闭环
-
-明确任务 → Worker 在一个会话中阅读、计划、实现、测试和调试 → 工程检查 → Verifier 独立验收 → 有问题自动回到原 Worker 会话 → 修复并复验 → PR_READY。
-
-普通 Bug 不需要先找 Scout。没有独立并行任务时，不需要临时 subagent。只要求提交 PR 时，不需要 Worker 执行发布。
-
-Verifier 固定返回：
-
-| 结论 | 行为 |
-|---|---|
-| PASS | 当前版本必需证据充分，没有未解决阻断项 |
-| CHANGES_REQUIRED | 明确缺陷或必需保护缺失，反馈 Worker 修改 |
-| BLOCKED | 缺少必要输入、访问、环境或可判定证据，保留恢复条件 |
-
-初次审查后最多两轮修复复验。普通调试、等待 CI 和网络重试另受总预算约束；等待 CI 不能被当成修复一轮。反复失败、证据矛盾或预算耗尽则升级，不能换任务 ID 清零继续。
-
-### 运行闭环
-
-运行告警 → Worker 去重、确认版本和影响 → 在已授权的手册范围内止损 → 同一 Worker 完成有边界的代码修复 → Verifier 独立验收 → Worker 核对发布条件并交付 → 观察恢复。
-
-Worker 可以先止损，再继续修复；属于其他工作流的缺陷交给该工作流现有负责人。**CONTAINED（已控制影响）不等于永久问题已经解决**。代码、流水线和基础设施源文件的修改仍需检查与独立验收。不经过 Scout 排队处理明确故障。若故障暴露更大的产品问题，再由 Scout 提出单独机会。
-
-## 3. 明确门禁
-
-| 门禁 | 负责人／证据来源 | 通过条件 |
+| 组件 | 位置 | 职责 |
 |---|---|---|
-| Scope Ready | Worker 整理；用户／可信策略准入 | 范围、AC、非目标、操作边界和原始授权明确 |
-| Checks Passed | 工具／CI 产出，控制层核验 | 当前变更对应的必需检查真正满足策略 |
-| Review Passed | Verifier | 独立、当前版本的验收，无阻断项 |
-| Integration Passed | 独立 Verifier；集成负责人准备候选 | 项目全部 AC、实际组合快照和整体检查成立，不能只汇总局部 PASS |
-| Release Ready | Worker＋可信构建证据 | 正确制品、环境和配置，观察与恢复条件明确 |
-| Action Authorized | 用户或可信策略，由操作执行端核验 | 此时允许对此版本、目标环境执行此动作 |
-| Outcome Observed | Worker 记录技术效果，Scout 评估产品效果 | 声称的结果确实在规定检查和窗口内被观察到 |
+| Skills | `skills/` | 九个方法：入口、功能、缺陷、项目拆分、集成、有界委派、工程纪律、验收和手工学习 |
+| 角色说明 | `roles/` | Worker、Verifier 和临时助手说明。Pi 运行时读取 `roles/worker.md` 与 `roles/verifier.md` |
+| 记录契约 | `contracts/` | 任务、审查、项目计划的基础 JSON Schema，已禁用的策略问卷。Pi 循环不据此校验 |
+| 模板 | `templates/` | Markdown 目标、计划、审查请求、审查报告和经验模板 |
+| Pi 扩展 | `adapters/pi/` | 命令、目标规格、Todo DAG、检查执行、审查进程启动、状态与学习存储 |
+| 打包参考 | `skills/*/references/` | 规范 Markdown 的副本，使每个安装的 Skill 自包含；由 `scripts/sync_skill_references.py` 生成，测试检查一致性 |
 
-**Action Authorized 每个有影响的外部动作都要检查，不是最后一次总审批。**合并、tag、Release、npm 发布、部署和回滚分别受对应授权限制。
+## 3. Pi 单工作流生命周期
 
-不能把聊天 PASS 当成仓库 required check。GitHub 支持 required checks、审批、过期审批处理和检查来源限制，但还需检查真实权限、是否有 bypass，以及关键测试是否确实执行。[S5]
+1. **讨论。** `/surgical <goal>` 启动只读讨论，代理只问关键问题，并展示完整草案：目标、范围、非目标、约束和编号的验收标准（AC）。源文件不在此阶段改动。
+2. **确认。** 目标规格只能由已记录的来源确认：`USER_COMMAND:/surgical confirm` 或 `USER_INPUT:confirm-and-start`（即用户本人发送 `confirm and start` 或 `确认，开始`）。运行时工具无法替代用户同意。开始运行前会核对所显示版本的摘要。
+3. **计划。** Worker 阅读仓库，调用 `surgical_plan` 提交 Todo 依赖图。图必须无环，且每条原始 AC 恰好被覆盖一次。
+4. **实现与检查。** 一个持续的 Worker 会话实现当前 Todo。项目检查来自 `.surgical-dev.json`，以参数数组运行，不经过 shell。只有控制器能在检查通过后标记 Todo 完成。检查失败则回到同一会话修复。
+5. **审查。** 全部 Todo 完成后，控制器用临时索引捕获 Git 快照，用户的索引不变。随后在分离的 worktree 中启动一个全新的 `pi` 进程，仅提供 `read,grep,find,ls` 工具，并禁用会话、扩展、MCP、skills 和上下文文件。审查者返回逐条 AC 的 PASS、CHANGES_REQUIRED 或 BLOCKED，其中的 path:line 证据会对照快照校验。
+6. **修复。** 发现的问题以追加修复 Todo 的形式交回同一 Worker，之后重新检查并再次全新审查。修复轮数受 `max_review_repair_cycles` 限制（默认 2）。
+7. **停止。** 终止状态有 `PR_READY`、`BLOCKED`、`ESCALATED`、`CANCELLED` 和 `TIMED_OUT`。`PR_READY` 将最终证据绑定到快照，但它不是推送、PR、合并或发布。运行期间若 `.surgical-dev.json` 改变，运行以 `BLOCKED` 停止。
 
-## 4. 发布采用实际制品，不只看开发分支的绿色检查
+## 4. 控制器强制的不变量
 
-部分项目只在合并后构建发布制品，所以设计明确分开：
+- 控制器固定已确认的范围和 AC。Worker 提示禁止修改它们、删除原始 Todo、削弱检查或改动 `.surgical-dev.json`；策略摘要检查负责后一项。
+- 轮次、检查和审查预算是累计的，另有运行总时限。每次启动子进程前都会检查。
+- 同一仓库由仓库级锁防止并发运行。状态写入经过修订号校验，持久化失败会被报告，不会被忽略。
+- Worker 与审查者在不同进程、不同会话 ID 中运行。这些 ID 只是需要核实的引用，不是经过认证的身份。
+- 证据绑定版本。审查和 `PR_READY` 记录携带快照的 head 与 tree。
+- 未报告的 token 或成本总计显示为 `UNKNOWN`，不记为零。
 
-1. 核对当前 PR 的独立验收和必需检查，取得合并授权。
-2. 通过受保护路径合并，读取实际合并结果。
-3. 由可信流水线构建／检查实际发布源，记录其与受审变更的映射及制品摘要。
-4. Worker 核对该制品、目标环境、配置版本、健康检查和恢复手册。
-5. 执行获得授权的动作，读取真实执行结果并进行部署后观察。
+## 5. 学习（本地、仅供建议）
 
-Squash、rebase 或 merge queue 产生新的提交身份，不意味着所有审查必然重做，但必须有可信映射和适用检查。语义变更、映射无法核实、制品或配置漂移时不能沿用旧结论。
+学习记录保存在 `<git-common-dir>/surgical-dev/learning.json`，位于源码快照之外。每个规范化的失败签名保存标签和次数；存储前脱敏，最多保留 50 条。第二次出现时，Worker 的修复反馈会附加一行 `LEARNING (advisory, not a gate)`。`/surgical lessons` 列出最近 20 条。
 
-部署请求超时不代表部署失败。先查已有 job/action，确认实际是否完成，避免重复部署或重复发布包。未知状态必须标明未知。
+学习不能改变 AC、检查、范围、预算或审查结论，也不能阻止 `PR_READY`。存储错误只作为警告。没有经验生命周期、经验工具、晋升步骤，也不在克隆之间同步。手工方法见 [learn-from-failures](skills/learn-from-failures/SKILL.md) 和 [references/learning.md](references/learning.md)。
 
-回滚需要确认可逆性。数据库迁移、已发布包和外部副作用未必能安全逆转；没有合适手册与授权时只能停止、允许范围内止损或请求前向修复，不能机械执行 rollback。
+## 6. 宿主支持
 
-## 5. 弹性 subagent 的规则
-
-默认不启动，启用后全项目最多两个助手并发，且受总执行上限约束；不是每个 Worker 各两个。不能递归派活。只由 Worker 发起辅助任务，完整独立工作流使用同级 Worker 会话。
-
-适合独立调查、大量资料整理、接口稳定且文件范围明确的组件。紧密相连的设计、实现与测试仍留在 Worker 主循环。
-
-委派包需要：父任务与规格版本、输入快照、单一目标、可改文件／接口、完成标准、独立工作目录、资源与停止条件、回报目标。
-
-允许一个项目内多个经过依赖与冲突检查的工作流并行。各工作流保持单一实现负责人，共享目标的集成串行执行；验收不能跳过组合行为。只换 Git 分支但共用同一 checkout 不等于隔离。
-
-没有 subagent 能力时自行串行实现；没有独立验收能力则阻塞或使用明确记录的人类替代验收。不要为了弥补能力缺口偷偷创建长期 agent。
-
-## 6. 自动化范围与人工介入
-
-目标是“正常流程自动推进，异常与新授权才找你”，不是承诺所有任务无限自主完成。
-
-| 场景 | 自动处理 | 何时找你 |
-|---|---|---|
-| 范围内的审查缺陷 | 修复、检查、再次送审 | 超出范围／反复失败／预算耗尽 |
-| CI 尚在运行 | 有上限地等待并查原 job | 超时或必要证据无法取得 |
-| 临时服务故障 | 先检查副作用，再按上限重试 | 状态未知或重试耗尽 |
-| 模糊需求或业务规则改变 | 准备带版本的决策说明 | 需要范围决策 |
-| 新生产权限或高风险变更 | 停止对应动作 | 需要明确授权 |
-| 已预授权的低风险发布 | 满足所有门禁后执行并观察 | 策略不匹配、失效或平台拦截 |
-
-按项目选择 DRAFT_ONLY、DELIVER_PR、PREVIEW_ALLOWED、RELEASE_ALLOWLIST。发给你的配置示例保持 **automation_enabled: false**，不自动授予任何外部写权限。推荐首个真实试点激活到 DELIVER_PR，再验证预览环境，最后才考虑生产白名单。
-
-修复上限默认两轮，临时重试起点三次；无人值守前必须配置有限总执行预算。成本不可见时标 UNKNOWN，不能当作免费。平台审批仍然有效，角色规则不能覆盖宿主自己的审批。
-
-## 7. 运行时控制器
-
-普通代码／现有运行时负责：明确事件路由、身份绑定、版本核验、预算计数、任务锁、状态保存、去重、取消与恢复。模型只负责需求、工程、审查和运行问题的判断。
-
-共用稳定 ID，不搬运聊天全文：
-
-`opportunity_id → task_id → review_id → release_id`，必要时关联 `incident_id` 和修复任务。
-
-| 记录 | 主要状态 |
+| 宿主 | 本仓库实现的内容 |
 |---|---|
-| Opportunity | DRAFT → PROPOSED → ACCEPTED／DEFERRED／REJECTED |
-| Project | GOAL → PLANNING → EXECUTING → INTEGRATING → INTEGRATION_VERIFYING → PR_READY |
-| Workstream | BRIEF → IMPLEMENTING → CHECKING → VERIFYING → INTEGRATION_READY |
-| Release | PLANNED → PRECHECKING → READY → EXECUTING → OBSERVING → VERIFIED |
-| Incident | OPEN → TRIAGED → MITIGATING → CONTAINED → RESOLVED |
-| Outcome | PENDING → SUPPORTED／INCONCLUSIVE／REGRESSED |
+| Pi 1.5.2+ | 完整单工作流循环。已用真实 Pi 进程和确定性本地模型验证 |
+| Codex | Skills、安装指南和可选审查 agent 文件。没有控制器 |
+| Claude Code | Skills 和安装指南。没有控制器，宿主需提供全新的审查者 |
+| 其他 Agent Skills 宿主 | 仅有 Skill 格式；独立审查需由宿主自行安排 |
 
-BLOCKED、ESCALATED、CANCELLED 等保存原阶段、原因、责任人与恢复条件，不能算通过。失败、回滚等有单独记录。来源中的 role 字符串不是身份认证；执行层要绑定真实会话或账号。
+尚未评估真实模型的表现。覆盖范围与限制见 [validation](VALIDATION.md)。
 
-至少保留规格版本、原始授权、source/base/head、实际检查、审查身份、制品摘要、环境配置、操作授权和执行观察。未提交文件也可能改变实际代码，不能只核对 HEAD。
+## 7. 未实现
 
-重启先查旧进程／云任务，再查 Git／CI／部署状态；不假设事件只投递一次。重复消息不能重复开 PR、发布或部署。
+- 多 Worker 调度、并行工作流、共享资源认领和跨工作流集成验收。`decompose-project` 与 `integrate-workstreams` 只描述流程；Pi 只运行一个 Worker、一条工作流。
+- 由控制器派发的临时 subagent。`delegate-bounded-task` 只是流程说明。
+- 持久的崩溃恢复和自动续跑。中断的运行不会自动恢复；`/surgical stop` 可立即取消。
+- 推送、草稿 PR、CI 对账、合并、tag、包发布、部署和回滚。扩展代码不执行这些动作。
+- Product Scout、结果评估、事故处理，以及任何发布角色或 Skill。
+- 经验的生命周期、晋升、经验工具和跨克隆同步。
+- JSON 契约的跨记录校验器。Schema 只覆盖基础结构。
+- 真实模型评估、长时间运行，以及 Codex 或 Claude Code 的控制器。
+- 强制沙箱。审查者的只读工具列表不是操作系统沙箱。
 
-## 8. Skills 和记忆分配
+## 8. 历史与后续工作
 
-方法清单为 **14 个**，仓库已提供 canonical Skills。Pi 的单工作流入口、Todo 执行、检查与独立审查已经通过真实 Pi 进程及确定性本地模型的集成测试；这不等于在真实模型上验证过开发质量。Codex、Claude Code 的完整 Surgical Dev 流程，以及多 Worker 自动调度仍未通过运行时验证（见 [VALIDATION.md](VALIDATION.md)）：
-
-| 角色 | 方法 |
-|---|---|
-| 通用入口／Worker | surgical-dev |
-| Product Scout | discover-opportunity、evaluate-outcome |
-| Worker | decompose-project、ship-feature、fix-bug、delegate-bounded-task、integrate-workstreams、prepare-release、release-and-observe、handle-incident |
-| Worker／Verifier | engineering-discipline |
-| 跨角色：Scout／Worker／Verifier | learn-from-failures |
-| Verifier | verify-change |
-
-Worker 使用已经验收的集成候选、兼容信息和 release notes 继续准备发布；只执行任务实际授权的动作。实现、发布和事故处理共用同一责任主体，独立验收由 Verifier 完成。
-
-共享项目记录只保存当前事实与明确决策。Scout 保留用户问题及假设证据；Worker 保留本次任务的实现、checkpoint 和关联的环境、版本、发布及事故记录；Verifier 保留当前受审材料及相关发现。完整日志在外部记录中，敏感数据最小化传递。
-
-### Learning Loop：从重复问题到可验证的预防经验
-
-Pi 在 Git common-dir 下保存有限且经过脱敏的测试失败与独立审查问题，不改变工作树。相同问题出现两次时仅建议调查，不直接宣称根因一致。Worker 在有证据时提出根因、适用范围、预防规则与验证方法；只有当前任务检查通过并由独立 Verifier 验收达到 PR_READY 后，候选经验才可在后续相关任务中以少量提示形式复用。若问题再次出现，该经验被标记为 NEEDS_REVISION，而不是增加新的门禁。Product Scout 的业务假设反馈需通过手工记录，目前 Pi 不会自动采集。历史经验不扩大 Verifier 权限、不覆盖用户确认的验收边界。详见 [Learning Loop](references/learning.md)。
-
-## 9. 在 Pi 与 Codex 上如何采用
-
-通过 skills CLI 或 `pi install` 安装，见[分发说明](docs/distribution.md)、[Pi 设置](adapters/pi/SETUP.md)、[Codex 设置](adapters/codex/SETUP.md)。先验证真实的角色寻址、交接响应、执行器、状态查询与恢复、独立审查、CI 访问及发布执行能力。
-
-选择一个工作流所有者：宿主原生协作（由经验证的执行器／控制层承担机械约束），或由 Runtime 插件掌握开发与审查状态。不能让两层同时各运行一套计划和返工循环。
-
-同一台机器上的多个会话共用文件及登录状态，所以独立角色不是安全沙箱；生产凭据应放在受控流水线／独立执行环境。
-
-## 10. 试点与验收
-
-以一个明确的小目标验证串行闭环，再用具有真实独立性的目标验证最多两个工作流并行。检查用户不需要拆任务和分配人员，同时任务依赖、资源隔离与独立整体验收确实生效。
-
-实施分四步：内容及能力试点 → 自动开发／验收闭环 → 非生产交付与故障恢复 → 需求发现与窄范围生产自动化。
-
-必须实测：普通 Bug 直接进入开发、Scout 不自批需求、已知缺陷被发现且自动返工、旧 PASS 失效、缺 CI 不放行、重复事件不重复操作、部署超时先核实、不可逆变更不盲目回滚、预算耗尽升级、缺数据不声称产品成功。
-
-完整测试规格见 [acceptance-scenarios.md](tests/acceptance-scenarios.md)。这些规格不代表全部已通过；文档、运行时及 Pi 生命周期的实际验证范围见 [VALIDATION.md](VALIDATION.md)。
-
-**最终目标：用户给目标和边界，团队自己决定怎么拆、谁来做、何时并行、如何合起来交付；三种角色承担明确职责，执行实例按需要分配，实际权限和独立验收不放宽。**
-
-参考资料及检索限制见 [sources.md](references/sources.md)。
+早期目标设计包括 Product Scout、交付与事故循环，以及多 Worker 调度，它保存在 git 历史中，提交为 `5399c29`。本文不再重复该设计。后续工作见 [runtime-next.md](docs/runtime-next.md)，资料来源及限制见 [references/sources.md](references/sources.md)。

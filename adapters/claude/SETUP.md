@@ -1,6 +1,6 @@
 # Claude Code setup — Skills, independent review, and native loops
 
-Claude Code can load all fourteen Skills and automate work with native commands.
+Claude Code can load all nine Skills and automate work with native commands.
 This repository does not include a Claude Code implementation of the Pi
 check/review/repair controller. Guidance below follows official documentation
 checked on 2026-11-11; no Claude Code runtime session was tested here.

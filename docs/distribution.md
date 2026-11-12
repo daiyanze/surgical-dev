@@ -30,7 +30,7 @@ Run from the **target project** directory. Select the coding agent when asked:
 npx skills add daiyanze/surgical-dev --skill surgical-dev
 ```
 
-To install all fourteen methods, choose an agent explicitly, for example:
+To install all nine Skills, choose an agent explicitly, for example:
 
 ```bash
 npx skills add daiyanze/surgical-dev --skill '*' -a codex -y
@@ -47,7 +47,7 @@ Do not use `--all` unless you really intend to install for every supported agent
 
 The skills CLI copies or links **individual Skill directories**. The
 `skills/*/references/` files are therefore part of the distribution and are
-kept in sync with canonical role, workflow and template docs. Installing a
+kept in sync with canonical role, reference, contract and template docs. Installing a
 Skill does **not** set up other roles or automatically activate their methods.
 
 The skills.sh directory uses actual skills CLI installation data for discovery;

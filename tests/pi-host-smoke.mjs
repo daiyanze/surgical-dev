@@ -8,7 +8,7 @@ import { mkdtemp, mkdir, writeFile, readFile, rm } from 'node:fs/promises';
 import { existsSync, readFileSync } from 'node:fs';
 import { execFileSync, spawn } from 'node:child_process';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runProcess } from '../adapters/pi/process.mjs';
 import { loadRepositoryState } from '../adapters/pi/persist.mjs';
@@ -262,7 +262,7 @@ test('actual Pi 1.5.2 imports/confirms a spec and settles a planned multi-Todo r
   const env = {
     ...process.env,
     PI_CODING_AGENT_DIR: agentDir,
-    PATH: `/Users/daiyanze/.local/share/mise/installs/node/24.15.0/bin:/opt/homebrew/bin:${process.env.PATH ?? ''}`,
+    PATH: `${dirname(process.execPath)}:${process.env.PATH ?? ''}`,
   };
   const installed = await runProcess([pi, 'install', packagePath], { cwd, env, timeoutMs: 15_000 });
   assert.equal(installed.code, 0, installed.stderr);
@@ -444,7 +444,7 @@ test('actual Pi 1.5.2 guides /surgical <goal> through discussion, exact input co
   const env = {
     ...process.env,
     PI_CODING_AGENT_DIR: agentDir,
-    PATH: `/Users/daiyanze/.local/share/mise/installs/node/24.15.0/bin:/opt/homebrew/bin:${process.env.PATH ?? ''}`,
+    PATH: `${dirname(process.execPath)}:${process.env.PATH ?? ''}`,
   };
   const installed = await runProcess([pi, 'install', packagePath], { cwd, env, timeoutMs: 15_000 });
   assert.equal(installed.code, 0, installed.stderr);

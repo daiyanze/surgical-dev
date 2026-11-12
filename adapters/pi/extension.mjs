@@ -6,166 +6,39 @@ import {
   buildWorkerContext, COMMAND_CONFIRMATION_SOURCE, confirmSpec, createDraftSpec,
   INPUT_CONFIRMATION_SOURCE, parseRequirementDocument,
 } from './spec.mjs';
-import { emptyRepositoryState, loadRepositoryState, saveRepositoryState } from './persist.mjs';
-import { loadLearning, promoteLessonsForRun, proposeLesson } from './learning.mjs';
+import { loadLearning } from './learning.mjs';
+import { isExplicitConfirmation } from './confirmation.mjs';
+import { createRepositoryStore } from './repository-store.mjs';
+import { formatRunStatus, formatSpec, formatSpecStatus } from './status.mjs';
+import { PLAN_PARAMETERS, SPEC_PARAMETERS } from './tool-schemas.mjs';
 
-const tolerance = { type: 'object', additionalProperties: false };
+export { isExplicitConfirmation };
+
 const POST_COMPACTION_PREFIX = '[POST-COMPACTION CURRENT TASK CONTEXT]\n';
 const RESERVED_COMMANDS = new Set(['discuss', 'import', 'confirm', 'run', 'status', 'lessons', 'stop', 'discard']);
-const CONFIRMATION_PHRASES = new Set(['确认开始', 'confirmandstart']);
-const CONFIRMATION_SEPARATORS = /[\s,.!;:，。！；：、]/g;
-const CONFIRMATION_QUOTES = /[`"'“”‘’]/;
-
-export function isExplicitConfirmation(text) {
-  if (typeof text !== 'string') return false;
-  const value = text.trim();
-  if (!value || CONFIRMATION_QUOTES.test(value)) return false;
-  return CONFIRMATION_PHRASES.has(value.toLowerCase().replace(CONFIRMATION_SEPARATORS, ''));
-}
-
-function toolSchema(properties, required = Object.keys(properties)) {
-  return { type: 'object', properties, required, additionalProperties: false, ...tolerance };
-}
-
-const SPEC_PARAMETERS = toolSchema({
-  goal: { type: 'string', minLength: 1 },
-  scope: { type: 'array', items: { type: 'string', minLength: 1 }, minItems: 1 },
-  non_goals: { type: 'array', items: { type: 'string', minLength: 1 } },
-  constraints: { type: 'array', items: { type: 'string', minLength: 1 } },
-  acceptance_criteria: {
-    type: 'array', minItems: 1,
-    items: toolSchema({
-      id: { type: 'string', pattern: '^AC-[1-9][0-9]*$' },
-      text: { type: 'string', minLength: 1 },
-    }),
-  },
-});
-
-const TODO_SCHEMA = toolSchema({
-  id: { type: 'string' },
-  goal: { type: 'string', minLength: 1 },
-  depends_on: { type: 'array', items: { type: 'string' } },
-  ac_ids: { type: 'array', items: { type: 'string' }, minItems: 1 },
-  kind: { type: 'string', enum: ['implementation', 'repair'] },
-}, ['id', 'goal', 'depends_on', 'ac_ids']);
-
-const PLAN_PARAMETERS = toolSchema({
-  operation: { type: 'string', enum: ['initial', 'add_repair', 'reorder', 'revise_dependencies', 'decision'] },
-  todos: { type: 'array', minItems: 1, items: TODO_SCHEMA },
-  todo: TODO_SCHEMA,
-  order: { type: 'array', items: { type: 'string' }, minItems: 1 },
-  dependencies: {
-    type: 'array',
-    items: toolSchema({ id: { type: 'string' }, depends_on: { type: 'array', items: { type: 'string' } } }, ['id', 'depends_on']),
-  },
-  decision: { type: 'string', minLength: 1, maxLength: 500 },
-  todo_id: { type: 'string' },
-}, []);
-
-const LESSON_PARAMETERS = toolSchema({
-  record_id: { type: 'string', minLength: 1 },
-  root_cause: { type: 'string', minLength: 1, maxLength: 500 },
-  preventative_rule: { type: 'string', minLength: 1, maxLength: 500 },
-  scope: { type: 'string', minLength: 1, maxLength: 500 },
-  validation: { type: 'string', minLength: 1, maxLength: 500 },
-  tags: { type: 'array', minItems: 1, maxItems: 12, items: { type: 'string', minLength: 1, maxLength: 40 } },
-});
-
-function todoSummary(state) {
-  return state.todos.map(todo => `${todo.state === 'DONE' ? '[x]' : todo.state === 'IN_PROGRESS' ? '[>]' : '[ ]'} ${todo.id} ${todo.goal} (${todo.ac_ids.join(', ')})`).join('\n');
-}
 
 export function registerSurgicalLoop(pi) {
   let active, lastState, starting, discussion = false, discussionSession, toolsBeforeDiscussion;
   let draftSpec = null, confirmedSpec = null, displayedRevision = null, displayedDigest = null, displayedSessionId = null;
   let confirmationJob = null;
-  let repositoryState = emptyRepositoryState(), repositoryLoaded = false;
-  let writeChain = Promise.resolve(), persistFailure = null;
-  let pendingRunState = null, runPersistScheduled = false;
   let postCompactionContext = false;
+  const store = createRepositoryStore();
 
-  const ensureRepository = async ctx => {
-    if (repositoryLoaded) return repositoryState;
-    repositoryState = await loadRepositoryState(ctx.cwd);
-    repositoryLoaded = true;
-    return repositoryState;
-  };
-
-  const saveMutation = async (ctx, update) => {
-    const previous = repositoryState;
-    const next = structuredClone(previous);
-    const result = await update(next);
-    repositoryState = result ?? next;
-    try {
-      repositoryState = await saveRepositoryState(ctx.cwd, repositoryState, { expectedRevision: previous.revision });
-      persistFailure = null;
-      return repositoryState;
-    } catch (error) {
-      repositoryState = previous;
-      persistFailure = error;
-      throw error;
-    }
-  };
-
-  const queueWrite = operation => {
-    const pending = writeChain.then(operation);
-    writeChain = pending.catch(() => {});
-    return pending;
-  };
-
-  const mutateRepository = (ctx, update) => queueWrite(() => saveMutation(ctx, update));
-
-  const flushPersist = async () => {
-    await writeChain.catch(() => {});
-    return persistFailure;
-  };
+  const mutateRepository = (ctx, update) => store.mutate(ctx.cwd, update);
+  const flushPersist = () => store.flush();
 
   const scheduleRunPersist = (ctx, state) => {
     lastState = state;
     pi.appendEntry(STATE_ENTRY, state);
-    pendingRunState = state;
-    if (runPersistScheduled) return writeChain;
-    runPersistScheduled = true;
-    return queueWrite(async () => {
-      runPersistScheduled = false;
-      const pending = pendingRunState;
-      pendingRunState = null;
-      if (!pending) return;
-      try {
-        await saveMutation(ctx, repository => {
-          repository.run = pending;
-          return repository;
-        });
-      } catch (error) {
-        persistFailure = error;
-      }
-    });
+    return store.scheduleRun(ctx.cwd, state);
   };
 
   const reloadRepository = async ctx => {
-    repositoryState = await loadRepositoryState(ctx.cwd);
-    repositoryLoaded = true;
-    draftSpec = repositoryState.draft_spec ?? null;
-    confirmedSpec = repositoryState.confirmed_spec ?? null;
-    lastState = repositoryState.run ?? lastState;
-    return repositoryState;
-  };
-
-  const formatSpec = spec => {
-    const lines = [
-      `${spec.status} Goal Specification ${spec.goal_id} revision ${spec.revision} (${spec.digest.slice(0, 12)})`,
-      `Goal: ${spec.goal}`,
-      'Scope:',
-      ...spec.scope.map(item => `  - ${item}`),
-      'Non-goals:',
-      ...(spec.non_goals.length ? spec.non_goals.map(item => `  - ${item}`) : ['  - (none)']),
-      'Constraints:',
-      ...(spec.constraints.length ? spec.constraints.map(item => `  - ${item}`) : ['  - (none)']),
-      'Acceptance criteria:',
-      ...spec.acceptance_criteria.map(ac => `  ${ac.id}: ${ac.text}`),
-    ];
-    if (spec.status === 'DRAFT') lines.push('DRAFT: no implementation is allowed. While idle, reply with the exact phrase 确认，开始 / confirm and start or use /surgical confirm to freeze this exact revision; a model tool cannot confirm.');
-    return lines.join('\n');
+    const repository = await store.reload(ctx.cwd);
+    draftSpec = repository.draft_spec ?? null;
+    confirmedSpec = repository.confirmed_spec ?? null;
+    lastState = repository.run ?? lastState;
+    return repository;
   };
 
   const restoreDiscussionTools = () => {
@@ -228,48 +101,10 @@ export function registerSurgicalLoop(pi) {
     });
   };
 
-  const requirePersistence = async (ctx, action) => {
-    const failure = await flushPersist();
-    if (failure) {
-      if (active && !TERMINAL.has(active.state.status)) {
-        active.state.status = 'BLOCKED';
-        active.state.reason = `Persistence failed: ${failure.message}`;
-        active.state.readySnapshot = null;
-        active.readySnapshot = null;
-        active.save();
-      }
-      pi.sendMessage({ customType: 'surgical-status', display: true, content: `${action} blocked: persistence failed: ${failure.message}` });
-      return false;
-    }
-    return true;
-  };
-
-  const show = (ctx) => {
+  const show = ctx => {
     const spec = draftSpec ?? confirmedSpec;
-    const lines = [];
-    if (lastState) {
-      lines.push(`Surgical Dev: ${lastState.status}`);
-      lines.push(lastState.reason ?? (lastState.status === 'PR_READY'
-        ? `Checks and independent review passed for recorded tree ${lastState.acceptedSnapshot?.tree}. Delivery was not performed.`
-        : lastState.goal));
-      const done = lastState.todos.filter(todo => todo.state === 'DONE').length;
-      lines.push(`Todos: ${done}/${lastState.todos.length} done${lastState.activeTodoId ? `; current ${lastState.activeTodoId}` : ''}`);
-      lines.push(`Usage: turns ${lastState.turnsUsed}/${lastState.config.maxTurns}; checks ${lastState.checkAttempts}/${lastState.config.maxCheckAttempts}; reviews ${lastState.reviewAttempts}; repairs ${lastState.reviewRepairsUsed}/${lastState.config.maxReviewRepairCycles}; worker tokens ${typeof lastState.usage?.tokens === 'object' ? JSON.stringify(lastState.usage.tokens) : 'UNKNOWN'}; reviewer tokens ${typeof lastState.usage?.reviewer === 'object' ? JSON.stringify(lastState.usage.reviewer) : 'UNKNOWN'}; total ${typeof lastState.usage?.total_tokens === 'object' ? JSON.stringify(lastState.usage.total_tokens) : 'UNKNOWN'}`);
-      if (lastState.activeLessonIds?.length) lines.push(`Advisory lessons applied: ${lastState.activeLessonIds.join(', ')}`);
-      if (lastState.learningPromoted?.length) lines.push(`Lessons promoted after acceptance: ${lastState.learningPromoted.join(', ')}`);
-      if (lastState.learningWarnings?.length) lines.push(`Learning store warnings (do not affect approval): ${lastState.learningWarnings.join('; ')}`);
-    } else {
-      lines.push('No Surgical Dev run in this session.');
-    }
-    if (spec) {
-      lines.push(formatSpec(spec));
-      if (spec.status === 'CONFIRMED') lines.push('Confirmed boundaries are frozen. Use /surgical run to start the Worker loop.');
-      else lines.push('Review this full draft. Reply with 确认，开始 (or confirm and start) to confirm this exact revision and start automatically, or use /surgical confirm for the advanced command flow.');
-    } else {
-      lines.push('Start with /surgical <goal>. The agent reads the project, asks material questions and shows the full draft scope/non-goals/constraints/ACs before any implementation.');
-      lines.push('Advanced commands: /surgical discuss <goal> | import <file> | confirm | run | status | stop | discard.');
-    }
-    if (persistFailure) lines.push(`PERSISTENCE FAILURE: ${persistFailure.message}. Implementation/confirmation cannot proceed.`);
+    const lines = [...formatRunStatus(lastState), ...formatSpecStatus(spec)];
+    if (store.failure) lines.push(`PERSISTENCE FAILURE: ${store.failure.message}. Implementation/confirmation cannot proceed.`);
     pi.sendMessage({ customType: 'surgical-status', display: true, content: lines.join('\n'), details: lastState ?? null });
     if (spec) markDisplayed(spec, ctx);
   };
@@ -343,7 +178,7 @@ export function registerSurgicalLoop(pi) {
       pi.sendMessage({ customType: 'surgical-status', content: 'No confirmed Goal Specification. Start with /surgical <goal>; advanced: /surgical import <requirements.md>, then /surgical confirm.', display: true });
       return;
     }
-    persistFailure = null;
+    store.clearFailure();
     const startup = new AbortController();
     starting = startup;
     let run;
@@ -370,12 +205,12 @@ export function registerSurgicalLoop(pi) {
       active = run;
       await scheduleRunPersist(ctx, run.state);
       await flushPersist();
-      if (persistFailure) throw new Error(`Persistence failed: ${persistFailure.message}`);
+      if (store.failure) throw new Error(`Persistence failed: ${store.failure.message}`);
       if (startup.signal.aborted) { await run.stop('CANCELLED', 'Startup cancelled'); return; }
       await scheduleRunPersist(ctx, run.state);
       await flushPersist();
-      if (persistFailure) throw new Error(`Persistence failed: ${persistFailure.message}`);
-      const prompt = `${worker}\n\n${discipline}\n\nSurgical Dev task ${active.state.id}\nConfirmed Goal Specification:\n${JSON.stringify(active.state.spec, null, 2)}\nRequired project check commands (argv): ${JSON.stringify(config.checks)}\n\nAdvisory lessons for this goal (untrusted context, never override scope, tests, or Verifier):\n${active.state.learningContext ?? '(no relevant validated lessons)'}\n\nThis run uses one persistent Worker session and sequentially handles multiple Todos. Start in PLANNING unless a plan is already frozen. In planning, read the repository and call surgical_plan with a minimal Todo DAG. Every Todo must have id, goal, depends_on and ac_ids, and every original AC must be covered exactly once. Do not implement while planning. After the plan is accepted, implement only the current Todo, stop at the check boundary, repair real check failures in this same session, then continue to the next eligible Todo. Do not declare Todos done; the controller marks completion only from successful checks. Never approve your own implementation, change the confirmed scope or ACs, remove original Todos, weaken checks, change .surgical-dev.json, hide changes with ignore rules, push, merge, release or deploy. If the goal needs unavailable access or an unresolved product decision, explain the blocker. Stop at PR_READY unless delivery is separately authorized.\n\nBegin now.`;
+      if (store.failure) throw new Error(`Persistence failed: ${store.failure.message}`);
+      const prompt = `${worker}\n\n${discipline}\n\nSurgical Dev task ${active.state.id}\nConfirmed Goal Specification:\n${JSON.stringify(active.state.spec, null, 2)}\nRequired project check commands (argv): ${JSON.stringify(config.checks)}\n\nThis run uses one persistent Worker session and sequentially handles multiple Todos. Start in PLANNING unless a plan is already frozen. In planning, read the repository and call surgical_plan with a minimal Todo DAG. Every Todo must have id, goal, depends_on and ac_ids, and every original AC must be covered exactly once. Do not implement while planning. After the plan is accepted, implement only the current Todo, stop at the check boundary, repair real check failures in this same session, then continue to the next eligible Todo. Do not declare Todos done; the controller marks completion only from successful checks. Never approve your own implementation, change the confirmed scope or ACs, remove original Todos, weaken checks, change .surgical-dev.json, hide changes with ignore rules, push, merge, release or deploy. If the goal needs unavailable access or an unresolved product decision, explain the blocker. Stop at PR_READY unless delivery is separately authorized.\n\nBegin now.`;
       run.workerRunning = true;
       pi.sendMessage({ customType: 'surgical-goal', content: prompt, display: true }, { triggerTurn: true });
       await ctx.waitForIdle();
@@ -392,31 +227,15 @@ export function registerSurgicalLoop(pi) {
         if (TERMINAL.has(run.state.status)) await run.close();
         await scheduleRunPersist(ctx, run.state);
         await flushPersist();
-        if (persistFailure && run.state.status === 'PR_READY') {
+        if (store.failure && run.state.status === 'PR_READY') {
           run.state.status = 'BLOCKED';
-          run.state.reason = `Persistence failed after acceptance: ${persistFailure.message}`;
+          run.state.reason = `Persistence failed after acceptance: ${store.failure.message}`;
           run.state.readySnapshot = null;
           run.readySnapshot = null;
           await scheduleRunPersist(ctx, run.state);
           await flushPersist();
         }
-        // Promotion is intentionally after persistent PR_READY, not merely an
-        // in-memory PASS. A failed required state write must not activate advice.
-        if (!persistFailure && run.state.status === 'PR_READY') {
-          try {
-            const promoted = await promoteLessonsForRun(ctx.cwd, run.state.id);
-            run.state.learningPromoted = promoted;
-            if (promoted.length) pi.sendMessage({
-              customType: 'surgical-learning', display: true,
-              content: `Promoted validated advisory lessons: ${promoted.join(', ')}`,
-            });
-          } catch (error) {
-            const warning = `Learning store warning (acceptance unchanged): ${String(error.message).slice(0, 250)}`;
-            run.state.learningWarnings.push(warning);
-            pi.sendMessage({ customType: 'surgical-learning', display: true, content: warning });
-          }
-          lastState = structuredClone(run.state);
-        }
+        if (!store.failure && run.state.status === 'PR_READY') lastState = structuredClone(run.state);
       }
       if (starting === startup) starting = undefined;
     }
@@ -469,8 +288,8 @@ export function registerSurgicalLoop(pi) {
           }
           await scheduleRunPersist(ctx, state);
           await flushPersist();
-          if (persistFailure) {
-            const reason = `Plan persistence failed: ${persistFailure.message}`;
+          if (store.failure) {
+            const reason = `Plan persistence failed: ${store.failure.message}`;
             if (!TERMINAL.has(active.state.status)) await active.stop('BLOCKED', reason);
             else {
               active.state.status = 'BLOCKED';
@@ -493,32 +312,6 @@ export function registerSurgicalLoop(pi) {
         }
       },
     });
-
-    pi.registerTool({
-      name: 'surgical_lesson',
-      label: 'Propose a lesson from recurring evidence',
-      description: 'Propose a concrete recurring-issue lesson from an observed record ID. Candidate only; it cannot be activated until controller checks and independent review produce PR_READY.',
-      parameters: LESSON_PARAMETERS,
-      async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
-        try {
-          if (!active || TERMINAL.has(active.state.status) || active.state.status !== 'IMPLEMENTING') throw new Error('Only the implementing Worker can propose a lesson');
-          if (ctx.sessionManager.getSessionId() !== active.state.workerSessionId) throw new Error('Only the owning Worker session may submit a lesson');
-          const candidate = await proposeLesson(ctx.cwd, {
-            recordId: params.record_id, runId: active.state.id,
-            rootCause: params.root_cause, preventativeRule: params.preventative_rule,
-            scope: params.scope, validation: params.validation, tags: params.tags,
-          });
-          active.state.decisions.push({ at: new Date().toISOString(), by: 'worker', text: `Lesson candidate proposed: ${candidate.id}; not approved`, todo_id: active.state.activeTodoId });
-          active.save();
-          return {
-            content: [{ type: 'text', text: `Lesson ${candidate.id} recorded as CANDIDATE. It becomes an advisory lesson only if this run reaches PR_READY with passing current checks and a fresh independent Verifier PASS. No acceptance criteria or permissions changed.` }],
-            details: { record_id: candidate.id, status: candidate.status },
-          };
-        } catch (error) {
-          return { content: [{ type: 'text', text: `Lesson not proposed: ${error.message}` }], details: { error: error.message } };
-        }
-      },
-    });
   }
 
   pi.registerCommand('surgical', {
@@ -532,9 +325,10 @@ export function registerSurgicalLoop(pi) {
         try {
           const { records } = await loadLearning(ctx.cwd);
           const lines = records.slice(-20).map(item =>
-            `${item.id} ${item.status} (${item.occurrence_count}x): ${item.label.slice(0, 120)}`);
+            `${item.label} [${item.kind}] (${item.count}x, last seen ${item.last_seen})`);
+          const body = lines.length ? `Local Learning Loop records (latest 20):\n${lines.join('\n')}` : 'No local Learning Loop records yet.';
           pi.sendMessage({ customType: 'surgical-learning', display: true,
-            content: lines.length ? `Local Learning Loop records (latest 20):\n${lines.join('\n')}\nRecords are advisory and stay in Git metadata.` : 'No local Learning Loop records yet.',
+            content: `${body}\nRecords are advisory and stay in Git metadata.`,
           });
         } catch (error) {
           pi.sendMessage({ customType: 'surgical-learning', display: true, content: `Learning records unavailable: ${error.message}` });
@@ -732,17 +526,17 @@ export function registerSurgicalLoop(pi) {
     const result = await advanceRun(active);
     await scheduleRunPersist(ctx, active.state);
     await flushPersist();
-    if (persistFailure) {
+    if (store.failure) {
       if (TERMINAL.has(active.state.status)) {
         active.state.status = 'BLOCKED';
-        active.state.reason = `Persistence failed: ${persistFailure.message}`;
+        active.state.reason = `Persistence failed: ${store.failure.message}`;
         active.state.readySnapshot = null;
         active.readySnapshot = null;
         active.save();
         await scheduleRunPersist(ctx, active.state);
         await flushPersist();
       } else {
-        await active.stop('BLOCKED', `Persistence failed: ${persistFailure.message}`);
+        await active.stop('BLOCKED', `Persistence failed: ${store.failure.message}`);
       }
       return;
     }
@@ -782,15 +576,15 @@ export function registerSurgicalLoop(pi) {
     }
     await scheduleRunPersist(ctx, active.state);
     await flushPersist();
-    if (persistFailure && active.state.status === 'PR_READY') {
+    if (store.failure && active.state.status === 'PR_READY') {
       active.state.status = 'BLOCKED';
-      active.state.reason = `Persistence failed after acceptance: ${persistFailure.message}`;
+      active.state.reason = `Persistence failed after acceptance: ${store.failure.message}`;
       active.state.readySnapshot = null;
       active.readySnapshot = null;
       active.save();
       await scheduleRunPersist(ctx, active.state);
       await flushPersist();
-      pi.sendMessage({ customType: 'surgical-status', display: true, content: `PR_READY was not reported because persistence failed: ${persistFailure.message}` });
+      pi.sendMessage({ customType: 'surgical-status', display: true, content: `PR_READY was not reported because persistence failed: ${store.failure.message}` });
     }
     if (TERMINAL.has(active.state.status)) await active.close();
   });
@@ -798,8 +592,8 @@ export function registerSurgicalLoop(pi) {
   pi.on('session_before_compact', async (_event, ctx) => {
     if (active) await scheduleRunPersist(ctx, active.state);
     await flushPersist();
-    if (persistFailure && active && !TERMINAL.has(active.state.status)) {
-      await active.stop('BLOCKED', `Persistence failed before compaction: ${persistFailure.message}`);
+    if (store.failure && active && !TERMINAL.has(active.state.status)) {
+      await active.stop('BLOCKED', `Persistence failed before compaction: ${store.failure.message}`);
     }
     // Preserve Pi's own generated compaction summary. The file-backed plan is
     // injected as bounded current-task context once after compaction.
@@ -813,10 +607,10 @@ export function registerSurgicalLoop(pi) {
     active = undefined;
     discussion = false;
     postCompactionContext = false;
-    repositoryLoaded = false;
+    store.invalidate();
     restoreDiscussionTools();
     try {
-      const repository = await ensureRepository(ctx);
+      const repository = await store.ensure(ctx.cwd);
       draftSpec = repository.draft_spec ?? null;
       confirmedSpec = repository.confirmed_spec ?? null;
       // A persisted draft has not been shown in this session until /status or a
@@ -824,7 +618,7 @@ export function registerSurgicalLoop(pi) {
       clearDisplayed();
       lastState = repository.run ?? null;
     } catch (error) {
-      persistFailure = error;
+      store.setFailure(error);
       const entries = ctx.sessionManager.getEntries();
       lastState = entries.filter(entry => entry.type === 'custom' && entry.customType === STATE_ENTRY).at(-1)?.data;
       pi.sendMessage({ customType: 'surgical-status', display: true, content: `Surgical Dev state could not be loaded: ${error.message}` });

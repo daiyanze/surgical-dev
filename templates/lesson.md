@@ -1,6 +1,6 @@
 # Learning record: <short problem name>
 
-- **Status:** CANDIDATE / ACTIVE / NEEDS_REVISION / SUPERSEDED
+- **Status:** DRAFT / REVIEWED / REVISED / SUPERSEDED
 - **First / last observed:** YYYY-MM-DD / YYYY-MM-DD
 - **Source references:** exact issue, check run, review report or research source
 - **Occurrence signature:** <what makes these genuinely the same problem?>

@@ -43,3 +43,5 @@ capabilities; next action and only the decisions genuinely requiring the user.
 Do not create permanent agents, expand scope/budgets, change approvals or release code
 as a consequence of planning. Do not recursively fan out teams or manufacture a
 parallel task merely to fill capacity. A recorded plan is not an enforced gate.
+The Pi extension does not schedule peer Workers: its implemented path runs a Todo DAG
+sequentially in one Worker session.

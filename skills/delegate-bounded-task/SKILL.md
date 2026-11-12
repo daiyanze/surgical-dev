@@ -23,7 +23,8 @@ and real approvals, not this file, determine what can execute.
 with at most two concurrent helpers across the whole project and isolated write
 workspaces. Helpers consume the global execution budget and cannot spawn peer
 Worker teams. Complete workstreams use decompose-project instead. No recursive
-delegation, shared-interface expansion, production changes or publication.
+delegation, shared-interface expansion, production changes or publication. The Pi
+extension does not dispatch temporary subagents.
 
 ## Return
 

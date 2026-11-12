@@ -135,8 +135,8 @@ for (const name of skills) {
   });
 }
 
-test('three role types and temporary helper assets exist', () => {
-  const roles = ['product-scout', 'worker', 'verifier', 'temporary-subagent'];
+test('role charters and temporary helper asset exist', () => {
+  const roles = ['worker', 'verifier', 'temporary-subagent'];
   const charters = readdirSync(resolve(root, 'roles'))
     .filter(name => name.endsWith('.md') && !['README.md', 'team-boundaries.md'].includes(name))
     .map(name => name.slice(0, -3));
@@ -146,9 +146,27 @@ test('three role types and temporary helper assets exist', () => {
     assert.ok(existsSync(resolve(root, path)), `Missing ${path}`);
   }
   const worker = read('roles/worker.md');
-  for (const method of ['ship-feature', 'fix-bug', 'prepare-release', 'release-and-observe', 'handle-incident']) {
-    assert.ok(worker.includes(method), `Worker must own ${method}`);
+  for (const method of ['ship-feature', 'fix-bug']) {
+    assert.ok(worker.includes(method), `Worker must reference ${method}`);
   }
+  for (const removed of ['prepare-release', 'release-and-observe', 'handle-incident', 'discover-opportunity', 'product-scout']) {
+    assert.ok(!worker.includes(removed), `Worker must not own removed method ${removed}`);
+  }
+});
+
+test('removed Scout, delivery and incident assets are absent', () => {
+  assert.equal(skills.length, 9, `Expected nine Skills, found ${skills.length}`);
+  const removedSkills = ['discover-opportunity', 'evaluate-outcome', 'handle-incident', 'prepare-release', 'release-and-observe'];
+  for (const name of removedSkills) assert.ok(!existsSync(resolve(root, 'skills', name)), `Removed Skill still present: ${name}`);
+  const removedPaths = [
+    'roles/product-scout.md',
+    'workflows',
+    'templates/incident-packet.md',
+    'templates/opportunity-brief.md',
+    'templates/outcome-assessment.md',
+    'templates/release-handoff.md',
+  ];
+  for (const path of removedPaths) assert.ok(!existsSync(resolve(root, path)), `Removed path still present: ${path}`);
 });
 
 test('all local Markdown file links resolve inside the package', () => {

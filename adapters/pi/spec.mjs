@@ -363,7 +363,6 @@ export function buildWorkerContext(state, todo, limit = 12_000, diagnostic = nul
     throw new ContextBudgetError(`Mandatory current-Todo context is ${serialize(mandatory).length} chars, over the ${limit}-char maxPromptChars budget. The confirmed scope/ACs and current diagnostic are not silently truncated; raise maxPromptChars or reduce the confirmed specification.`);
   }
   const optional = {
-    advisory_learning: state.learningContext ?? null,
     recent_failures: state.recentFailures.filter(failure => failure !== currentFailure).slice(-3).map(failure => failureContext(failure)),
     todo_progress: state.todos.map(item => ({ id: item.id, state: item.state, depends_on: item.depends_on })),
     recent_decisions: state.decisions.slice(-5).map(decisionContext),

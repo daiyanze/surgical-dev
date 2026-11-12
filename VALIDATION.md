@@ -97,15 +97,7 @@ a separate temporary directory for the integration test; it does not add runtime
 dependencies to this package. The host test itself uses a temporary Git repository
 and isolated `PI_CODING_AGENT_DIR` and leaves user settings unchanged.
 
-`SHA256SUMS` covers tracked distributed files other than itself. Verify with
-`sha256sum -c SHA256SUMS` or `shasum -a 256 -c SHA256SUMS` on macOS. To regenerate,
-stage new files first, then run:
-
-```bash
-git ls-files -z ':!SHA256SUMS' | xargs -0 sha256sum > SHA256SUMS
-```
-
-CI checks that regeneration leaves the working tree unchanged.
+SHA256SUMS is not committed. CI generates it from tracked files and uploads it as a workflow artifact; verify a downloaded copy with `shasum -a 256 -c SHA256SUMS`.
 
 ## Limits and work not performed
 

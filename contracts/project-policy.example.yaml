@@ -11,17 +11,15 @@ coding_runtime: null
 workflow_owner: host_native  # Or runtime_owned, never two competing controllers.
 
 role_destinations:
-  product_scout: null
   worker: null
   verifier: null
 
 concurrency:
   max_active_projects_per_repo: 1
-  max_active_workers: 2  # Includes integration, delivery and incident executions.
+  max_active_workers: 2  # Includes integration executions.
   max_active_verifiers: 1
   max_total_active_executions: 4  # All active role/helper executions combined.
   max_active_integrations_per_target: 1
-  max_active_releases_per_environment: 1
   temporary_subagents_enabled: false
   max_active_subagents_project: 2  # Not multiplied by the Worker count.
   recursive_delegation: false
@@ -79,15 +77,6 @@ sensitive_change_classes:
   - public_api_compatibility
   - ci_or_gate_configuration
   - irreversible_release
-
-release:
-  trusted_executor_reference: null
-  environments: []
-  artifact_provenance_source: null
-  observation_checks: []
-  observation_window_seconds: null
-  recovery_runbook_reference: null
-  rollback_reversibility_verified: false
 
 approvals:
   grant_source: null

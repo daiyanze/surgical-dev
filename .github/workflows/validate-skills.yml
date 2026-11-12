@@ -22,10 +22,13 @@ jobs:
         run: python -m pip install -r tests/requirements.txt
       - name: Verify standalone Skill references
         run: python scripts/sync_skill_references.py --check
-      - name: Verify checksums are current
-        run: |
-          git ls-files -z ':!SHA256SUMS' | xargs -0 sha256sum > SHA256SUMS
-          test -z "$(git status --porcelain)" || { git status --porcelain; git diff; exit 1; }
+      - name: Generate checksums
+        run: git ls-files -z | xargs -0 sha256sum > SHA256SUMS
+      - name: Upload checksums
+        uses: actions/upload-artifact@v4
+        with:
+          name: SHA256SUMS
+          path: SHA256SUMS
       - name: Verify package tests
         run: npm test
       - name: Verify contract tests
