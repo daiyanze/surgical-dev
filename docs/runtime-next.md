@@ -2,8 +2,9 @@
 
 The package provides three role types, thirteen methods, goal/plan/integration
 templates and record/state specifications. The Pi adapter implements a goal-driven
-single-workstream loop: interactive/imported requirement preparation, explicit user
-confirmation, a validated Todo DAG, one persistent Worker handling Todos
+single-workstream loop: guided `/surgical <goal>` discussion or imported requirement
+preparation, exact user-boundary confirmation or the advanced command, a validated
+Todo DAG, one persistent Worker handling Todos
 sequentially, actual checks, one independent final combined review, additive repair,
 finite cumulative budgets and a version-bound `PR_READY` result. Compact plan/memory
 state is file-backed under Git metadata and survives Pi compaction. See

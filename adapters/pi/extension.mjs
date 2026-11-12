@@ -2,11 +2,25 @@ import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { adjustRunPlan, advanceRun, createRun, loadConfig, noteWorkerUsage, planTodos, STATE_ENTRY, TERMINAL } from './loop.mjs';
 import { runProcess } from './process.mjs';
-import { buildWorkerContext, confirmSpec, createDraftSpec, parseRequirementDocument } from './spec.mjs';
+import {
+  buildWorkerContext, COMMAND_CONFIRMATION_SOURCE, confirmSpec, createDraftSpec,
+  INPUT_CONFIRMATION_SOURCE, parseRequirementDocument,
+} from './spec.mjs';
 import { emptyRepositoryState, loadRepositoryState, saveRepositoryState } from './persist.mjs';
 
 const tolerance = { type: 'object', additionalProperties: false };
 const POST_COMPACTION_PREFIX = '[POST-COMPACTION CURRENT TASK CONTEXT]\n';
+const RESERVED_COMMANDS = new Set(['discuss', 'import', 'confirm', 'run', 'status', 'stop', 'discard']);
+const CONFIRMATION_PHRASES = new Set(['确认开始', 'confirmandstart']);
+const CONFIRMATION_SEPARATORS = /[\s,.!;:，。！；：、]/g;
+const CONFIRMATION_QUOTES = /[`"'“”‘’]/;
+
+export function isExplicitConfirmation(text) {
+  if (typeof text !== 'string') return false;
+  const value = text.trim();
+  if (!value || CONFIRMATION_QUOTES.test(value)) return false;
+  return CONFIRMATION_PHRASES.has(value.toLowerCase().replace(CONFIRMATION_SEPARATORS, ''));
+}
 
 function toolSchema(properties, required = Object.keys(properties)) {
   return { type: 'object', properties, required, additionalProperties: false, ...tolerance };
@@ -53,7 +67,8 @@ function todoSummary(state) {
 
 export function registerSurgicalLoop(pi) {
   let active, lastState, starting, discussion = false, discussionSession, toolsBeforeDiscussion;
-  let draftSpec = null, confirmedSpec = null, displayedRevision = null, displayedDigest = null;
+  let draftSpec = null, confirmedSpec = null, displayedRevision = null, displayedDigest = null, displayedSessionId = null;
+  let confirmationJob = null;
   let repositoryState = emptyRepositoryState(), repositoryLoaded = false;
   let writeChain = Promise.resolve(), persistFailure = null;
   let pendingRunState = null, runPersistScheduled = false;
@@ -139,7 +154,7 @@ export function registerSurgicalLoop(pi) {
       'Acceptance criteria:',
       ...spec.acceptance_criteria.map(ac => `  ${ac.id}: ${ac.text}`),
     ];
-    if (spec.status === 'DRAFT') lines.push('DRAFT: no implementation is allowed. Type /surgical confirm while idle to freeze this exact revision; a model tool cannot confirm.');
+    if (spec.status === 'DRAFT') lines.push('DRAFT: no implementation is allowed. While idle, reply with the exact phrase 确认，开始 / confirm and start or use /surgical confirm to freeze this exact revision; a model tool cannot confirm.');
     return lines.join('\n');
   };
 
@@ -148,6 +163,59 @@ export function registerSurgicalLoop(pi) {
       pi.setActiveTools(toolsBeforeDiscussion);
       toolsBeforeDiscussion = undefined;
     }
+  };
+
+  const markDisplayed = (spec, ctx) => {
+    displayedRevision = spec.revision;
+    displayedDigest = spec.digest;
+    displayedSessionId = ctx.sessionManager.getSessionId();
+  };
+
+  const clearDisplayed = () => {
+    displayedRevision = null;
+    displayedDigest = null;
+    displayedSessionId = null;
+  };
+
+  const confirmDisplayedDraft = (ctx, source) => {
+    if (confirmationJob) return Promise.reject(new Error('A confirmation is already in progress; wait for it to finish.'));
+    const job = (async () => {
+      if (active && !TERMINAL.has(active.state.status)) throw new Error('An implementation run is already active; confirmation cannot change its frozen scope.');
+      if (!ctx.isIdle()) throw new Error('Finish the current agent turn before confirming scope.');
+      if (!draftSpec) throw new Error('No draft Goal Specification to confirm. Use /surgical <goal>, /surgical discuss or /surgical import first.');
+      const sessionId = ctx.sessionManager.getSessionId();
+      const expectedSession = displayedSessionId;
+      const expectedRevision = displayedRevision;
+      const expectedDigest = displayedDigest;
+      if (expectedSession !== sessionId) {
+        throw new Error('The draft was not displayed in this session. Review the full latest scope with /surgical status, then confirm again.');
+      }
+      await reloadRepository(ctx);
+      if (ctx.sessionManager.getSessionId() !== sessionId || displayedSessionId !== expectedSession) {
+        throw new Error('The session changed before confirmation; review the latest full scope again.');
+      }
+      if (!draftSpec) throw new Error('No draft Goal Specification to confirm. Use /surgical <goal>, /surgical discuss or /surgical import first.');
+      if (draftSpec.revision !== expectedRevision || draftSpec.digest !== expectedDigest
+        || displayedRevision !== expectedRevision || displayedDigest !== expectedDigest) {
+        throw new Error(`The draft changed before confirmation (revision ${draftSpec.revision}). Review the full latest scope with /surgical status, then confirm again.`);
+      }
+      const confirmed = confirmSpec(draftSpec, sessionId, { source });
+      await mutateRepository(ctx, state => {
+        state.confirmed_spec = confirmed;
+        state.draft_spec = null;
+        return state;
+      });
+      confirmedSpec = confirmed;
+      draftSpec = null;
+      discussion = false;
+      markDisplayed(confirmed, ctx);
+      restoreDiscussionTools();
+      return confirmed;
+    })();
+    confirmationJob = job;
+    return job.finally(() => {
+      if (confirmationJob === job) confirmationJob = null;
+    });
   };
 
   const requirePersistence = async (ctx, action) => {
@@ -166,7 +234,7 @@ export function registerSurgicalLoop(pi) {
     return true;
   };
 
-  const show = () => {
+  const show = (ctx) => {
     const spec = draftSpec ?? confirmedSpec;
     const lines = [];
     if (lastState) {
@@ -183,15 +251,14 @@ export function registerSurgicalLoop(pi) {
     if (spec) {
       lines.push(formatSpec(spec));
       if (spec.status === 'CONFIRMED') lines.push('Confirmed boundaries are frozen. Use /surgical run to start the Worker loop.');
+      else lines.push('Review this full draft. Reply with 确认，开始 (or confirm and start) to confirm this exact revision and start automatically, or use /surgical confirm for the advanced command flow.');
     } else {
-      lines.push('Use /surgical discuss <goal> or /surgical import <requirements.md>, then /surgical confirm and /surgical run.');
+      lines.push('Start with /surgical <goal>. The agent reads the project, asks material questions and shows the full draft scope/non-goals/constraints/ACs before any implementation.');
+      lines.push('Advanced commands: /surgical discuss <goal> | import <file> | confirm | run | status | stop | discard.');
     }
     if (persistFailure) lines.push(`PERSISTENCE FAILURE: ${persistFailure.message}. Implementation/confirmation cannot proceed.`);
     pi.sendMessage({ customType: 'surgical-status', display: true, content: lines.join('\n'), details: lastState ?? null });
-    if (spec) {
-      displayedRevision = spec.revision;
-      displayedDigest = spec.digest;
-    }
+    if (spec) markDisplayed(spec, ctx);
   };
 
   const stop = async (ctx, status, reason) => {
@@ -213,6 +280,7 @@ export function registerSurgicalLoop(pi) {
     });
     draftSpec = draft;
     confirmedSpec = null;
+    clearDisplayed();
     // Persistence alone is not a user-facing display. The caller must show the
     // full draft before recording it as displayed for confirmation.
     return draft;
@@ -228,26 +296,24 @@ export function registerSurgicalLoop(pi) {
     });
     draftSpec = null;
     confirmedSpec = null;
-    displayedRevision = null;
-    displayedDigest = null;
+    clearDisplayed();
     discussion = true;
     discussionSession = ctx.sessionManager.getSessionId();
     if (pi.getActiveTools && pi.setActiveTools) {
       toolsBeforeDiscussion ??= pi.getActiveTools();
       pi.setActiveTools([...new Set(['read', 'grep', 'find', 'ls', 'surgical_spec'])]);
     }
-    const prompt = `You are preparing a Surgical Dev Goal Specification. This is DISCUSSION ONLY: do not implement, edit files, write source, run checks or claim user approval. Read the repository instructions and relevant project files with the read-only tools. Ask only questions whose answers materially change scope, constraints, non-goals or independently testable acceptance criteria. When the boundaries are clear, call surgical_spec with goal, scope, non_goals, constraints and multiple independent acceptance_criteria (AC-N ids). The tool can only save a DRAFT; it cannot confirm consent. After saving, summarize the proposed boundaries and ask the user to review them and type /surgical confirm. If material ambiguity remains, ask the user instead of inventing an answer.\n\nInitial request:\n${goal}`;
+    const prompt = `You are preparing a Surgical Dev Goal Specification. This is DISCUSSION ONLY: do not implement, edit files, write source, run checks or claim user approval. Read the repository instructions and relevant project files with the read-only tools. Ask only questions whose answers materially change scope, constraints, non-goals or independently testable acceptance criteria. When the boundaries are clear, call surgical_spec with goal, scope, non_goals, constraints and multiple independent acceptance_criteria (AC-N ids). The tool can only save a DRAFT; it cannot confirm consent. After saving, summarize the proposed boundaries and ask the user to review the exact full draft. The user can reply with the exact phrase 确认，开始 (or confirm and start) to confirm and start automatically, or use /surgical confirm for the advanced command flow. If material ambiguity remains, ask the user instead of inventing an answer.\n\nInitial request:\n${goal}`;
     discussionSession = ctx.sessionManager.getSessionId();
     pi.sendMessage({ customType: 'surgical-discussion', content: prompt, display: true }, { triggerTurn: true });
     await ctx.waitForIdle();
     if (discussion && draftSpec) {
       pi.sendMessage({
         customType: 'surgical-spec-draft', display: true,
-        content: `${formatSpec(draftSpec)}\n\nReview the latest draft, then type /surgical confirm. Implementation has not started.`,
+        content: `${formatSpec(draftSpec)}\n\nReview this full draft. Reply with 确认，开始 (or confirm and start) to confirm this exact revision and start automatically; /surgical confirm remains available. Implementation has not started.`,
         details: draftSpec,
       });
-      displayedRevision = draftSpec.revision;
-      displayedDigest = draftSpec.digest;
+      markDisplayed(draftSpec, ctx);
     }
   };
 
@@ -257,11 +323,11 @@ export function registerSurgicalLoop(pi) {
       return;
     }
     if (draftSpec || discussion) {
-      pi.sendMessage({ customType: 'surgical-status', content: 'A draft Goal Specification is pending. Review /surgical status, then /surgical confirm or /surgical discard before running.', display: true });
+      pi.sendMessage({ customType: 'surgical-status', content: 'A draft Goal Specification is pending. Review /surgical status, then confirm the shown draft or /surgical discard before running.', display: true });
       return;
     }
     if (!confirmedSpec) {
-      pi.sendMessage({ customType: 'surgical-status', content: 'No confirmed Goal Specification. Use /surgical discuss <goal> or /surgical import <requirements.md>, then /surgical confirm.', display: true });
+      pi.sendMessage({ customType: 'surgical-status', content: 'No confirmed Goal Specification. Start with /surgical <goal>; advanced: /surgical import <requirements.md>, then /surgical confirm.', display: true });
       return;
     }
     persistFailure = null;
@@ -324,7 +390,7 @@ export function registerSurgicalLoop(pi) {
       }
       if (starting === startup) starting = undefined;
     }
-    show();
+    show(ctx);
   };
 
   if (pi.registerTool) {
@@ -340,13 +406,12 @@ export function registerSurgicalLoop(pi) {
           const draft = await readDraft(ctx, params, 'discussion');
           pi.sendMessage({
             customType: 'surgical-spec-draft', display: true,
-            content: `${formatSpec(draft)}\n\nDraft only: it is not confirmed. Review this exact revision and type /surgical confirm.`,
+            content: `${formatSpec(draft)}\n\nDraft only: it is not confirmed. Review this full draft. Reply with 确认，开始 (or confirm and start) to confirm this exact revision and start automatically, or use /surgical confirm.`,
             details: draft,
           });
-          displayedRevision = draft.revision;
-          displayedDigest = draft.digest;
+          markDisplayed(draft, ctx);
           return {
-            content: [{ type: 'text', text: `${formatSpec(draft)}\n\nDraft only: it is not confirmed. The user must review this exact revision and type /surgical confirm; a model cannot provide that consent.` }],
+            content: [{ type: 'text', text: `${formatSpec(draft)}\n\nDraft only: it is not confirmed. The user must review this exact revision and confirm with the exact phrase 确认，开始 / confirm and start or /surgical confirm; a model cannot provide that consent.` }],
             details: { status: draft.status, goal_id: draft.goal_id, revision: draft.revision, digest: draft.digest },
           };
         } catch (error) {
@@ -401,17 +466,25 @@ export function registerSurgicalLoop(pi) {
   }
 
   pi.registerCommand('surgical', {
-    description: 'Discuss/confirm a goal, then run the bounded Worker/Verifier loop: discuss <goal> | import <file> | confirm | run | status | stop | discard',
+    description: 'Start with /surgical <goal>; advanced: discuss <goal> | import <file> | confirm | run | status | stop | discard',
     handler: async (args, ctx) => {
-      const [verb = 'status', ...parts] = args.trim().split(/\s+/);
-      if (!verb || verb === 'status') { show(); return; }
-      if (verb === 'stop') { await stop(ctx, 'CANCELLED', 'Stopped by user'); await flushPersist(); show(); return; }
+      const raw = args ?? '';
+      const trimmed = raw.trimStart();
+      const first = trimmed.match(/^(\S+)/)?.[1] ?? '';
+      if (!first || first === 'status') { show(ctx); return; }
+      if (!RESERVED_COMMANDS.has(first)) {
+        try { await beginDiscussion(ctx, raw.trim()); }
+        catch (error) { pi.sendMessage({ customType: 'surgical-status', content: `Discussion could not start: ${error.message}`, display: true }); }
+        return;
+      }
+      const [verb, ...parts] = trimmed.trim().split(/\s+/);
+      if (verb === 'stop') { await stop(ctx, 'CANCELLED', 'Stopped by user'); await flushPersist(); show(ctx); return; }
       if (verb === 'discard') {
         if (active && !TERMINAL.has(active.state.status)) { pi.sendMessage({ customType: 'surgical-status', content: 'Stop the active run before discarding scope.', display: true }); return; }
         try {
           await mutateRepository(ctx, state => { state.draft_spec = null; return state; });
-          discussion = false; draftSpec = null; displayedRevision = null; displayedDigest = null;
-          if (pi.setActiveTools && toolsBeforeDiscussion) { pi.setActiveTools(toolsBeforeDiscussion); toolsBeforeDiscussion = undefined; }
+          discussion = false; draftSpec = null; clearDisplayed();
+          restoreDiscussionTools();
           pi.sendMessage({ customType: 'surgical-status', content: 'Draft Goal Specification discarded. No implementation was started.', display: true });
         } catch (error) {
           pi.sendMessage({ customType: 'surgical-status', content: `Discard failed: ${error.message}`, display: true });
@@ -419,26 +492,11 @@ export function registerSurgicalLoop(pi) {
         return;
       }
       if (verb === 'confirm') {
-        if (active && !TERMINAL.has(active.state.status)) { pi.sendMessage({ customType: 'surgical-status', content: 'An implementation run is already active; confirmation cannot change its frozen scope.', display: true }); return; }
-        if (!ctx.isIdle()) { pi.sendMessage({ customType: 'surgical-status', content: 'Finish the current agent turn before confirming scope.', display: true }); return; }
-        if (!draftSpec) { pi.sendMessage({ customType: 'surgical-status', content: 'No draft Goal Specification to confirm. Use /surgical discuss or /surgical import first.', display: true }); return; }
         try {
-          await reloadRepository(ctx);
-          if (!draftSpec) throw new Error('No draft Goal Specification to confirm');
-          if (draftSpec.revision !== displayedRevision || draftSpec.digest !== displayedDigest) {
-            throw new Error(`The draft changed before confirmation (revision ${draftSpec.revision}). Review the full latest scope with /surgical status, then confirm again.`);
-          }
-          const confirmed = confirmSpec(draftSpec, ctx.sessionManager.getSessionId());
-          await mutateRepository(ctx, state => { state.confirmed_spec = confirmed; state.draft_spec = null; return state; });
-          confirmedSpec = confirmed;
-          draftSpec = null;
-          discussion = false;
-          displayedRevision = confirmed.revision;
-          displayedDigest = confirmed.digest;
-          restoreDiscussionTools();
+          const confirmed = await confirmDisplayedDraft(ctx, COMMAND_CONFIRMATION_SOURCE);
           pi.sendMessage({
             customType: 'surgical-status', display: true,
-            content: `${formatSpec(confirmed)}\n\nConfirmed and frozen. Use /surgical run to start. Confirmation source: USER_COMMAND:/surgical confirm (${confirmed.confirmation.session_id}).`,
+            content: `${formatSpec(confirmed)}\n\nConfirmed and frozen. Use /surgical run to start. Confirmation source: ${confirmed.confirmation.source} (${confirmed.confirmation.session_id}).`,
           });
         } catch (error) {
           pi.sendMessage({ customType: 'surgical-status', content: `Confirmation failed: ${error.message}`, display: true });
@@ -457,13 +515,13 @@ export function registerSurgicalLoop(pi) {
           confirmedSpec = null;
           discussion = false;
           restoreDiscussionTools();
+          clearDisplayed();
           pi.sendMessage({
             customType: 'surgical-spec-draft', display: true,
-            content: `${formatSpec(draft)}\n\nImported without a redundant discussion turn. Review this exact revision, then type /surgical confirm. No implementation has started.`,
+            content: `${formatSpec(draft)}\n\nImported without a redundant discussion turn. Review this full draft. Reply with 确认，开始 (or confirm and start) to confirm this exact revision and start automatically, or use /surgical confirm. No implementation has started.`,
             details: draft,
           });
-          displayedRevision = draft.revision;
-          displayedDigest = draft.digest;
+          markDisplayed(draft, ctx);
         } catch (error) {
           pi.sendMessage({ customType: 'surgical-status', content: `Import failed: ${error.message}`, display: true });
         }
@@ -476,7 +534,7 @@ export function registerSurgicalLoop(pi) {
         return;
       }
       if (verb !== 'run') {
-        pi.sendMessage({ customType: 'surgical-status', content: 'Usage: /surgical discuss <goal> | import <file> | confirm | run | status | stop | discard', display: true });
+        pi.sendMessage({ customType: 'surgical-status', content: 'Usage: /surgical <goal> | discuss <goal> | import <file> | confirm | run | status | stop | discard', display: true });
         return;
       }
       if (parts.length) {
@@ -484,18 +542,55 @@ export function registerSurgicalLoop(pi) {
         if (confirmedSpec && requested === confirmedSpec.goal) { await startRun(ctx); return; }
         try {
           await beginDiscussion(ctx, requested);
-          pi.sendMessage({ customType: 'surgical-status', display: true, content: 'The requested goal does not exactly match the confirmed scope, so the old confirmation is invalid. This is requirement discussion only; use /surgical confirm then /surgical run after reviewing the draft.' });
+          pi.sendMessage({ customType: 'surgical-status', display: true, content: 'The requested goal does not exactly match the confirmed scope, so the old confirmation is invalid. This is requirement discussion only; review the full draft, then confirm with 确认，开始 / confirm and start or the advanced /surgical confirm, and /surgical run.' });
         } catch (error) {
           pi.sendMessage({ customType: 'surgical-status', content: `Discussion could not start: ${error.message}`, display: true });
         }
         return;
       }
       if (draftSpec || discussion) {
-        pi.sendMessage({ customType: 'surgical-status', display: true, content: 'A draft/discussion is pending. Review /surgical status, then /surgical confirm or /surgical discard before /surgical run without a goal.' });
+        pi.sendMessage({ customType: 'surgical-status', display: true, content: 'A draft/discussion is pending. Review /surgical status, then confirm the shown draft or /surgical discard before /surgical run without a goal.' });
         return;
       }
       await startRun(ctx);
     },
+  });
+
+  pi.on('input', async (event, ctx) => {
+    const userBoundary = event.source === 'interactive' || event.source === 'rpc';
+    if (!isExplicitConfirmation(event.text)) {
+      if (userBoundary && draftSpec && displayedRevision !== null) clearDisplayed();
+      return { action: 'continue' };
+    }
+    const workflowActive = Boolean(draftSpec || discussion || starting || confirmationJob || (active && !TERMINAL.has(active.state.status)));
+    if (!workflowActive) return { action: 'continue' };
+    if (!userBoundary) return { action: 'continue' };
+    if (Array.isArray(event.images) && event.images.length) {
+      pi.sendMessage({ customType: 'surgical-status', display: true, content: 'Confirmation phrase ignored because an image was attached. Confirm the exact displayed draft with plain text only.' });
+      return { action: 'handled' };
+    }
+    if (event.streamingBehavior || !ctx.isIdle()) {
+      pi.sendMessage({ customType: 'surgical-status', display: true, content: 'Finish the current agent turn before confirming scope; queued or steering input cannot confirm.' });
+      return { action: 'handled' };
+    }
+    try {
+      const confirmed = await confirmDisplayedDraft(ctx, INPUT_CONFIRMATION_SOURCE);
+      pi.sendMessage({
+        customType: 'surgical-status', display: true,
+        content: `${formatSpec(confirmed)}\n\nConfirmed from the user's input phrase. Starting the existing Worker loop automatically. Confirmation source: ${confirmed.confirmation.source} (${confirmed.confirmation.session_id}).`,
+      });
+      try {
+        const dispatch = pi.sendUserMessage('/surgical run', { expandPromptTemplates: true });
+        if (dispatch && typeof dispatch.catch === 'function') {
+          dispatch.catch(error => pi.sendMessage({ customType: 'surgical-status', display: true, content: `Automatic run dispatch failed: ${error.message}` }));
+        }
+      } catch (error) {
+        pi.sendMessage({ customType: 'surgical-status', display: true, content: `Automatic run dispatch failed: ${error.message}` });
+      }
+    } catch (error) {
+      pi.sendMessage({ customType: 'surgical-status', display: true, content: `Confirmation failed: ${error.message}` });
+    }
+    return { action: 'handled' };
   });
 
   pi.on('before_agent_start', async (_event, ctx) => {
@@ -528,7 +623,7 @@ export function registerSurgicalLoop(pi) {
     return {
       message: {
         customType: 'surgical-discussion-context', display: false,
-        content: `[SURGICAL DEV DISCUSSION ACTIVE] Requirement preparation only. Do not implement or edit source. Read relevant project files, ask only material ambiguities, and call surgical_spec to save a DRAFT structure. The user must explicitly type /surgical confirm; a tool cannot confirm.`,
+        content: `[SURGICAL DEV DISCUSSION ACTIVE] Requirement preparation only. Do not implement or edit source. Read relevant project files, ask only material ambiguities, and call surgical_spec to save a DRAFT structure. The user must explicitly confirm with 确认，开始 / confirm and start or /surgical confirm; a tool cannot confirm.`,
       },
     };
   });
@@ -595,6 +690,20 @@ export function registerSurgicalLoop(pi) {
   });
 
   pi.on('agent_settled', async (event, ctx) => {
+    if (!event.aborted && discussion && draftSpec && (!active || TERMINAL.has(active.state.status))) {
+      const sessionId = ctx.sessionManager.getSessionId();
+      const alreadyShown = displayedSessionId === sessionId
+        && displayedRevision === draftSpec.revision
+        && displayedDigest === draftSpec.digest;
+      if (!alreadyShown) {
+        pi.sendMessage({
+          customType: 'surgical-spec-draft', display: true,
+          content: `${formatSpec(draftSpec)}\n\nReview this full latest draft. Reply with 确认，开始 (or confirm and start) to confirm this exact revision and start automatically; /surgical confirm remains available. No implementation has started.`,
+          details: draftSpec,
+        });
+        markDisplayed(draftSpec, ctx);
+      }
+    }
     if (!active) return;
     active.workerRunning = false;
     if (event.aborted) await active.stop('CANCELLED', 'Agent abort observed at settlement; no continuation dispatched');
@@ -643,8 +752,7 @@ export function registerSurgicalLoop(pi) {
       confirmedSpec = repository.confirmed_spec ?? null;
       // A persisted draft has not been shown in this session until /status or a
       // fresh display. Never turn persistence alone into confirmation consent.
-      displayedRevision = null;
-      displayedDigest = null;
+      clearDisplayed();
       lastState = repository.run ?? null;
     } catch (error) {
       persistFailure = error;
@@ -665,6 +773,6 @@ export function registerSurgicalLoop(pi) {
     }
   });
 
-  pi.on('session_before_switch', async (_event, ctx) => { await stop(ctx, 'CANCELLED', 'Session switched'); restoreDiscussionTools(); await flushPersist(); });
-  pi.on('session_shutdown', async (_event, ctx) => { await stop(ctx, 'CANCELLED', 'Pi session shut down'); restoreDiscussionTools(); await flushPersist(); });
+  pi.on('session_before_switch', async (_event, ctx) => { await stop(ctx, 'CANCELLED', 'Session switched'); restoreDiscussionTools(); clearDisplayed(); await flushPersist(); });
+  pi.on('session_shutdown', async (_event, ctx) => { await stop(ctx, 'CANCELLED', 'Pi session shut down'); restoreDiscussionTools(); clearDisplayed(); await flushPersist(); });
 }
