@@ -4,7 +4,11 @@ Use [record requirements](record-contracts.md), [project plans](project-plan.md)
 [state guards](state-transitions.md) and the [disabled policy](project-policy.example.yaml).
 The JSON schemas below cover only basic task/review shapes. They do not validate
 workstream dependencies, project integration, identity, scheduling or authority.
-No autonomous controller or complete cross-record validator is provided.
+These contracts do not provide a complete cross-record validator or a controller
+for the full multi-workstream architecture. The optional Pi extension implements
+a bounded single-workstream goal/Todo/check/independent-review/repair loop with
+its own runtime checks; see [Pi setup](../adapters/pi/SETUP.md) and
+[validation](../VALIDATION.md). The schemas alone do not enforce that loop.
 
 These are proposed JSON Schema 2020-12 shapes, not a native host API or an
 implemented state machine. Use the [task schema](task.schema.json) and
@@ -30,7 +34,8 @@ Whether the user approved anything, whether references exist, whether CI ran,
 whether check policy changed, whether actual checkout contents match a SHA,
 whether AC IDs cover the approved task without duplicates, whether review was
 independent, or whether the report is truthful. These require cross-record and
-external checks in a future host adapter or the human-controlled pilot.
+external checks by a runtime adapter or a human. Pi validates its documented
+single-workstream subset; these schemas do not establish the broader guarantees.
 
 String provenance fields are references to verify, not authenticated identities.
 No schema lets the implementer grant itself permissions. Local records are not a

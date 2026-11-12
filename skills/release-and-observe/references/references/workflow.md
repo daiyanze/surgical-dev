@@ -1,12 +1,17 @@
 # Workflow, evidence, and action boundaries
 
-This is a human/agent operating procedure, not an implemented state machine.
-Neither this file nor a schema-valid JSON record creates an authorization boundary.
+This is the operating procedure for the broader target architecture, not a claim
+that every described transition is implemented. The Pi extension enforces its
+documented single-workstream goal/Todo/check/review/repair subset; automatic
+parallel Worker scheduling, crash reconciliation and delivery are not implemented.
+See `adapters/pi/SETUP.md`, `VALIDATION.md` and `docs/runtime-next.md` in the
+full repository for implementation status. Neither this file nor a
+schema-valid JSON record creates an authorization boundary.
 
 ## Before execution
 
 Read the actual project's rules, goal, constraints, budget and permissions.
-Worker uses decompose-project to organize independent workstreams and chooses an
+Worker uses decompose-project to organize independent workstreams and chooses a
 Worker integration owner; the user does not need to split tasks or assign agents.
 Bind each stream to one continuing implementation session. Admission checks the
 dependency graph, current input contracts, write/resource conflicts and aggregate
@@ -41,7 +46,11 @@ snapshot if all project ACs were checked. No second review ceremony is required.
 BLOCKED preserves phase, reason, owner and resume condition. PR_READY is the default
 project endpoint; it is not a merge, release or deployment and is not authorization.
 
-## Automatic allocation and integration
+## Automatic allocation and integration (target architecture)
+
+The Pi extension currently plans dependent Todos for one continuing Worker and
+reviews the combined result; it does not spawn or schedule peer Workers. The
+following rules describe the wider multi-workstream design.
 
 The integration owner owns technical partitioning, shared contract versions, key
 implementation and final assembly. Other Workers own full independently testable

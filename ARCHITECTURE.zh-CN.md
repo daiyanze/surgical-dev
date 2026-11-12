@@ -167,7 +167,7 @@ BLOCKED、ESCALATED、CANCELLED 等保存原阶段、原因、责任人与恢复
 
 ## 8. Skills 和记忆分配
 
-方法清单为 **14 个**，仓库已提供 canonical Skills；尚未在真实运行时验证：
+方法清单为 **14 个**，仓库已提供 canonical Skills。Pi 的单工作流入口、Todo 执行、检查与独立审查已经通过真实 Pi 进程及确定性本地模型的集成测试；这不等于在真实模型上验证过开发质量。Codex、Claude Code 的完整 Surgical Dev 流程，以及多 Worker 自动调度仍未通过运行时验证（见 [VALIDATION.md](VALIDATION.md)）：
 
 | 角色 | 方法 |
 |---|---|
