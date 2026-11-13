@@ -72,14 +72,9 @@ be reported as absent, not simulated.
 - Clear feature or behavior change: Worker uses ship-feature directly. Keep reading,
   planning, implementation and debugging in the same conversation and coding session.
 - Clear defect: Worker uses fix-bug directly, in the same conversation and coding session.
-- Multi-outcome goal: Worker uses decompose-project to plan streams, shared contracts
-  and integration. The Pi loop runs such a plan sequentially in one Worker session; it
-  does not schedule peer Workers. Small or tightly coupled work stays in one stream.
-- Combined candidate: Worker uses integrate-workstreams only after the streams have
-  been reviewed and assembled on a pinned candidate.
-- Optional bounded work: Worker uses delegate-bounded-task only if enabled, with at
-  most two temporary subagents across the project, isolated workspaces and no
-  recursive delegation. Helpers are not peer workstream owners.
+- Multi-outcome goal: the Pi loop runs its Todos sequentially in one Worker session.
+  Parallel workstreams and temporary helper subagents are not implemented, so keep a
+  coupled change in one plan and run unrelated outcomes separately.
 - Acceptance: a genuinely separate Verifier uses verify-change. Never switch persona
   to approve your own work. Missing independent review is BLOCKED; a documented human
   alternative is allowed. PASS does not authorize delivery.
@@ -94,8 +89,8 @@ check evidence, then request independent review. CHANGES_REQUIRED returns to the
 original Worker session automatically when a verified handoff exists. Permit at
 most two repair/reverify cycles after initial review; preserve total budgets across
 Todos, new IDs and restarts. BLOCKED retains owner, reason, prior phase and resume
-condition. A stream's accepted result is INTEGRATION_READY, not project completion.
-Project PR_READY needs current project checks and independent Integration Passed.
+condition. PR_READY needs current project checks and a fresh independent PASS on the
+final snapshot.
 Stop at PR_READY. Delivery (commit, push, pull request, merge, publish or deploy) is
 outside this Skill and needs its own explicit grant. In-scope technical replanning is
 automatic; new scope, authority or budget requires a decision. Unsupported runtime
@@ -103,6 +98,6 @@ operations must not be presented as executed.
 
 ## Return
 
-Actual project or workstream state and responsible role; plan, task and review IDs;
+Actual project or Todo state and responsible role; plan, task and review IDs;
 current scope, source and check evidence; verdict or its absence; unresolved risks and
 next authorized action. Never invent agent runs, approvals, telemetry or product impact.

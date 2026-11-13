@@ -2,23 +2,23 @@
 
 本文是 [ARCHITECTURE.en.md](ARCHITECTURE.en.md) 的摘要，不是逐句翻译。以英文文档为准。
 
-**状态日期：** 2026-11-12。本文只描述已实现的范围。验证证据见 [VALIDATION.md](VALIDATION.md)，Pi 操作见 [Pi setup](adapters/pi/SETUP.md)。
+**状态日期：** 2026-11-13。本文只描述已实现的范围。验证证据见 [VALIDATION.md](VALIDATION.md)，Pi 操作见 [Pi setup](adapters/pi/SETUP.md)。
 
 ## 1. 目的
 
 Surgical Dev 把开发目标变成用户确认过的验收草案，然后由一个 Worker 按计划的 Todo 实现，运行项目真实检查，经过一次全新的独立审查，并在有限次数内修复。包含两层：
 
-- **可移植 Skills**（`skills/*/SKILL.md`）：九个指令集，任何支持 Agent Skills 的宿主都可加载。它们指导工作，本身不执行任何强制约束。
+- **可移植 Skills**（`skills/*/SKILL.md`）：六个指令集，任何支持 Agent Skills 的宿主都可加载。它们指导工作，本身不执行任何强制约束。
 - **Pi 扩展**（`adapters/pi/`）：目前唯一已实现的运行时控制器。它负责确认、状态、预算、子进程、快照绑定和运行的终止状态。
 
 ## 2. 组件
 
 | 组件 | 位置 | 职责 |
 |---|---|---|
-| Skills | `skills/` | 九个方法：入口、功能、缺陷、项目拆分、集成、有界委派、工程纪律、验收和手工学习 |
-| 角色说明 | `roles/` | Worker、Verifier 和临时助手说明。Pi 运行时读取 `roles/worker.md` 与 `roles/verifier.md` |
-| 记录契约 | `contracts/` | 任务、审查、项目计划的基础 JSON Schema，已禁用的策略问卷。Pi 循环不据此校验 |
-| 模板 | `templates/` | Markdown 目标、计划、审查请求、审查报告和经验模板 |
+| Skills | `skills/` | 六个方法：入口、功能、缺陷、工程纪律、验收和手工学习 |
+| 角色说明 | `roles/` | Worker 和 Verifier。Pi 运行时读取 `roles/worker.md` 与 `roles/verifier.md` |
+| 记录契约 | `contracts/` | 任务和审查的基础 JSON Schema 与状态规则。Pi 循环不据此校验 |
+| 模板 | `templates/` | Markdown 目标、工作项、审查请求、审查报告和经验模板 |
 | Pi 扩展 | `adapters/pi/` | 命令、目标规格、Todo DAG、检查执行、审查进程启动、状态与学习存储 |
 | 打包参考 | `skills/*/references/` | 规范 Markdown 的副本，使每个安装的 Skill 自包含；由 `scripts/sync_skill_references.py` 生成，测试检查一致性 |
 
@@ -60,8 +60,8 @@ Surgical Dev 把开发目标变成用户确认过的验收草案，然后由一�
 
 ## 7. 未实现
 
-- 多 Worker 调度、并行工作流、共享资源认领和跨工作流集成验收。`decompose-project` 与 `integrate-workstreams` 只描述流程；Pi 只运行一个 Worker、一条工作流。
-- 由控制器派发的临时 subagent。`delegate-bounded-task` 只是流程说明。
+- 多 Worker 调度、并行工作流、共享资源认领和跨工作流集成验收。Pi 只运行一个 Worker 的一串 Todo。
+- 由控制器派发的临时 subagent。
 - 持久的崩溃恢复和自动续跑。中断的运行不会自动恢复；`/surgical stop` 可立即取消。
 - 推送、草稿 PR、CI 对账、合并、tag、包发布、部署和回滚。扩展代码不执行这些动作。
 - Product Scout、结果评估、事故处理，以及任何发布角色或 Skill。

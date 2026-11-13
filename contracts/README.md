@@ -1,22 +1,19 @@
-# Task, review and project contracts
+# Task and review contracts
 
-Use [record requirements](record-contracts.md), [project plans](project-plan.md),
-[state guards](state-transitions.md) and the [disabled policy](project-policy.example.yaml).
+Use [record requirements](record-contracts.md) and [state guards](state-transitions.md).
 The JSON schemas below cover only basic task/review shapes. They do not validate
-workstream dependencies, project integration, identity, scheduling or authority.
-These contracts do not provide a complete cross-record validator or a controller
-for the full multi-workstream architecture. The optional Pi extension implements
-a bounded single-workstream goal/Todo/check/independent-review/repair loop with
-its own runtime checks; see [Pi setup](../adapters/pi/SETUP.md) and
-[validation](../VALIDATION.md). The schemas alone do not enforce that loop.
+identity, scheduling or authority, and they are not a cross-record validator.
+The optional Pi extension implements a bounded single-workstream
+goal/Todo/check/independent-review/repair loop with its own runtime checks; see
+[Pi setup](../adapters/pi/SETUP.md) and [validation](../VALIDATION.md). The schemas
+alone do not enforce that loop.
 
 These are proposed JSON Schema 2020-12 shapes, not a native host API or an
 implemented state machine. Use the [task schema](task.schema.json) and
 [review schema](review.schema.json) with a compatible validator if desired.
 The Markdown [handoffs](../templates) remain usable without JSON tooling.
 
-[Project setup](project-policy.example.yaml) is a questionnaire. Empty permissions and
-null values confer no authority. Fill them from the actual project and user.
+Empty permissions and null values confer no authority.
 
 Examples are an [unapproved brief](../examples/task.brief.json) and a
 [blocked review](../examples/review.blocked.json); neither is a successful run.
@@ -40,20 +37,3 @@ single-workstream subset; these schemas do not establish the broader guarantees.
 String provenance fields are references to verify, not authenticated identities.
 No schema lets the implementer grant itself permissions. Local records are not a
 security boundary. See [workflow rules](../references/workflow.md).
-
-## Default limits
-
-`project-policy.example.yaml` is the only source for these numbers. The table below
-only describes them; tests keep the two in sync. Temporary helpers are disabled by
-default (`temporary_subagents_enabled: false`). All limits apply together.
-
-| Policy key | Default | Meaning |
-|---|---|---|
-| `max_active_projects_per_repo` | 1 | Active projects per repository |
-| `max_active_workers` | 2 | All active Worker executions, including integration |
-| `max_active_verifiers` | 1 | Active Verifier executions |
-| `max_total_active_executions` | 4 | All active role and helper executions combined |
-| `max_active_integrations_per_target` | 1 | Active integrations per shared target |
-| `max_active_subagents_project` | 2 | Active temporary subagents across the project, not multiplied by Worker count |
-| `max_review_repair_cycles` | 2 | Fix-and-reverify cycles per review target |
-| `max_transient_retries` | 3 | Retries after transient failures |

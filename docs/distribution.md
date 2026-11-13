@@ -30,7 +30,7 @@ Run from the **target project** directory. Select the coding agent when asked:
 npx skills add daiyanze/surgical-dev --skill surgical-dev
 ```
 
-To install all nine Skills, choose an agent explicitly, for example:
+To install all six Skills, choose an agent explicitly, for example:
 
 ```bash
 npx skills add daiyanze/surgical-dev --skill '*' -a codex -y
@@ -74,8 +74,8 @@ make them manual-only hosts. Their complete Surgical Dev workflows have not been
 runtime-tested here. Follow their setup guides for official sources and limitations.
 
 The current Pi loop has one Worker. Hosts supporting parallel execution still
-need an isolated workspace for each editing stream and must respect the caps in
-[default limits](../contracts/README.md#default-limits); otherwise work serially.
+need an isolated workspace for each editing stream. Parallel scheduling is not
+implemented here, so otherwise work serially.
 A host without a separate reviewer needs an external review context before it can
 satisfy independent acceptance. Check an unlisted host against these capabilities
 before claiming automation support.

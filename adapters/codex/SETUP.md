@@ -17,7 +17,7 @@ From the target project:
 npx skills add daiyanze/surgical-dev --skill '*' -a codex -y
 ```
 
-This copies the nine Skills, with their bundled references, into
+This copies the six Skills, with their bundled references, into
 `.agents/skills/` (the repository-level Codex skills directory). Add `-g` for the
 user-level `~/.agents/skills/`. Restart Codex if a Skill does not appear.
 
@@ -81,10 +81,8 @@ Unattended work needs the required tools and permissions already available.
 ## Parallel streams
 
 Codex can run subagents in parallel (`agents.max_concurrent_threads_per_session`).
-Give each editing stream its own checkout or worktree; otherwise stay serial,
-as the policy default requires. Keep
-`temporary_subagents_enabled: false` unless you have set up isolation and accept
-that helpers share the parent's permissions.
+Give each editing stream its own checkout or worktree; otherwise stay serial.
+This package does not schedule parallel streams or temporary helpers.
 
 ## Not provided
 

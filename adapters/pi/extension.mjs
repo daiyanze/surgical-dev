@@ -33,6 +33,20 @@ export function registerSurgicalLoop(pi) {
     return store.scheduleRun(ctx.cwd, state);
   };
 
+  // A run whose state could not be persisted must never stay PR_READY or keep running.
+  // save() routes through onChange, which schedules the persisted write.
+  const blockOnPersistenceFailure = async (target, reason) => {
+    if (TERMINAL.has(target.state.status)) {
+      target.state.status = 'BLOCKED';
+      target.state.reason = reason;
+      target.state.readySnapshot = null;
+      target.save();
+    } else {
+      await target.stop('BLOCKED', reason);
+    }
+    await flushPersist();
+  };
+
   const reloadRepository = async ctx => {
     const repository = await store.reload(ctx.cwd);
     draftSpec = repository.draft_spec ?? null;
@@ -228,12 +242,7 @@ export function registerSurgicalLoop(pi) {
         await scheduleRunPersist(ctx, run.state);
         await flushPersist();
         if (store.failure && run.state.status === 'PR_READY') {
-          run.state.status = 'BLOCKED';
-          run.state.reason = `Persistence failed after acceptance: ${store.failure.message}`;
-          run.state.readySnapshot = null;
-          run.readySnapshot = null;
-          await scheduleRunPersist(ctx, run.state);
-          await flushPersist();
+          await blockOnPersistenceFailure(run, `Persistence failed after acceptance: ${store.failure.message}`);
         }
         if (!store.failure && run.state.status === 'PR_READY') lastState = structuredClone(run.state);
       }
@@ -290,14 +299,7 @@ export function registerSurgicalLoop(pi) {
           await flushPersist();
           if (store.failure) {
             const reason = `Plan persistence failed: ${store.failure.message}`;
-            if (!TERMINAL.has(active.state.status)) await active.stop('BLOCKED', reason);
-            else {
-              active.state.status = 'BLOCKED';
-              active.state.reason = reason;
-              active.state.readySnapshot = null;
-              active.readySnapshot = null;
-              active.save();
-            }
+            await blockOnPersistenceFailure(active, reason);
             return { content: [{ type: 'text', text: `Plan not accepted; run BLOCKED: ${reason}` }], details: { error: reason, blocked: true } };
           }
           const message = operation === 'initial'
@@ -494,7 +496,6 @@ export function registerSurgicalLoop(pi) {
   pi.on('turn_start', async (_event, ctx) => {
     if (!active || TERMINAL.has(active.state.status)) return;
     active.state.turnsUsed++;
-    active.state.usage.workerTurns = active.state.turnsUsed;
     active.save();
     if (active.state.turnsUsed > active.state.config.maxTurns) await stop(ctx, 'ESCALATED', 'Worker turn budget exhausted');
   });
@@ -527,17 +528,7 @@ export function registerSurgicalLoop(pi) {
     await scheduleRunPersist(ctx, active.state);
     await flushPersist();
     if (store.failure) {
-      if (TERMINAL.has(active.state.status)) {
-        active.state.status = 'BLOCKED';
-        active.state.reason = `Persistence failed: ${store.failure.message}`;
-        active.state.readySnapshot = null;
-        active.readySnapshot = null;
-        active.save();
-        await scheduleRunPersist(ctx, active.state);
-        await flushPersist();
-      } else {
-        await active.stop('BLOCKED', `Persistence failed: ${store.failure.message}`);
-      }
+      await blockOnPersistenceFailure(active, `Persistence failed: ${store.failure.message}`);
       return;
     }
     if (result.action === 'continue') {
@@ -570,20 +561,14 @@ export function registerSurgicalLoop(pi) {
     if (!active) return;
     active.workerRunning = false;
     if (event.aborted) await active.stop('CANCELLED', 'Agent abort observed at settlement; no continuation dispatched');
-    else if (active.readySnapshot && !TERMINAL.has(active.state.status)) {
+    else if (active.state.readySnapshot && !TERMINAL.has(active.state.status)) {
       try { await active.finish(); }
       catch (error) { await active.stop('BLOCKED', error.message); }
     }
     await scheduleRunPersist(ctx, active.state);
     await flushPersist();
     if (store.failure && active.state.status === 'PR_READY') {
-      active.state.status = 'BLOCKED';
-      active.state.reason = `Persistence failed after acceptance: ${store.failure.message}`;
-      active.state.readySnapshot = null;
-      active.readySnapshot = null;
-      active.save();
-      await scheduleRunPersist(ctx, active.state);
-      await flushPersist();
+      await blockOnPersistenceFailure(active, `Persistence failed after acceptance: ${store.failure.message}`);
       pi.sendMessage({ customType: 'surgical-status', display: true, content: `PR_READY was not reported because persistence failed: ${store.failure.message}` });
     }
     if (TERMINAL.has(active.state.status)) await active.close();

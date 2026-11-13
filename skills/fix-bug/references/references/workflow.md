@@ -1,18 +1,18 @@
 # Workflow, evidence, and action boundaries
 
-This is the operating procedure for the target architecture, not a claim that
-every described transition is implemented. The Pi extension enforces its
-documented single-workstream goal/Todo/check/review/repair subset; automatic
-parallel Worker scheduling, crash reconciliation and delivery are not implemented.
-See `adapters/pi/SETUP.md`, `VALIDATION.md` and `docs/runtime-next.md` in the full
-repository for implementation status. Neither this file nor a schema-valid JSON
-record creates an authorization boundary.
+This is the operating procedure, not a claim that every described transition is
+implemented. The Pi extension enforces its documented single-workstream
+goal/Todo/check/review/repair subset; parallel Worker scheduling, crash
+reconciliation and delivery are not implemented. See `adapters/pi/SETUP.md`,
+`VALIDATION.md` and `docs/runtime-next.md` in the full repository for implementation
+status. Neither this file nor a schema-valid JSON record creates an authorization
+boundary.
 
 ## Before execution
 
 Read the actual project's rules, goal, constraints, budget and permissions. Worker
-turns the goal into Todos or workstreams; the user does not need to split tasks or
-assign agents. Do not overwrite existing local changes to get a clean checkout.
+turns the goal into Todos; the user does not need to split tasks or assign agents.
+Do not overwrite existing local changes to get a clean checkout.
 
 An explicit low-risk task request may authorize its stated scope. For ambiguous,
 new, high-risk, or public-behavior changes, obtain approval for a versioned brief.
@@ -27,41 +27,20 @@ operations, required checks, and relevant contracts.
 | Scope Ready | Bounded objective, testable AC, original authorization and permitted actions | Worker prepares; user confirms when needed |
 | Checks Passed | Actual required check results for the submitted change | Tools/CI, independently inspected |
 | Review Passed | Independent Verifier report for the current scope and code | Verifier |
-| Integration Passed | Project ACs, accepted stream versions, actual combined snapshot and whole-project checks. Pi: one final combined review of the single Worker's change | Independent Verifier; integration owner prepares evidence |
 | Action Authorized | Specific authorization for each action and target (merge, tag, publish, deploy, rollback, delete, permission change) | User or trusted existing policy |
 
-Use BRIEF -> IMPLEMENTING -> CHECKING -> VERIFYING for each stream, then
-INTEGRATION_READY on current independent PASS. The project proceeds through
-PLANNING -> EXECUTING -> INTEGRATING -> INTEGRATION_VERIFYING -> PR_READY.
-For a single stream, the same independent review may cover both levels on the same
-snapshot if all project ACs were checked. No second review ceremony is required.
-BLOCKED preserves phase, reason, owner and resume condition. PR_READY is the default
-project endpoint; it is not a merge, release or deployment and is not authorization.
+A work item moves BRIEF -> IMPLEMENTING -> CHECKING -> VERIFYING. A current independent
+PASS on the final snapshot leads to PR_READY. BLOCKED preserves phase, reason, owner
+and resume condition. PR_READY is the default endpoint; it is not a merge, release or
+deployment and is not authorization.
 
-## Automatic allocation and integration (target architecture)
+## Parallel work (not implemented)
 
-The Pi extension currently plans dependent Todos for one continuing Worker and
-reviews the combined result; it does not spawn or schedule peer Workers. The
-following rules describe the wider multi-workstream design.
-
-The integration owner owns technical partitioning, shared contract versions, key
-implementation and final assembly. Other Workers own full independently testable
-streams, not frontend/backend/test fragments. The controller uses available real
-sessions, isolated workspaces, dependency evidence, atomic claims and project/global
-budgets to schedule; it does not invent business requirements or approve itself.
-Ordinary in-scope assignment and replanning are automatic. Material scope changes,
-new authority, budget increases or persistent failure require a decision.
-
-Use integrate-workstreams to assemble accepted results serially for each shared
-integration target and run contract/integration/end-to-end checks. Local PASS
-results never sum to project acceptance. Route failed integration to responsible
-Workers, then refresh affected stream and combined evidence. Missing required
-scope prevents project PR_READY; partial delivery requires an existing policy or
-user decision. Preparing an integration branch is not permission to merge main.
-
-Pin dependency inputs and revalidate downstream work after relevant changes. A
-claim/lease expiry is not proof an old process stopped: reconcile before reuse.
-Backpressure on full review/integration queues reduces new implementation dispatch.
+Parallel Workers, shared-resource claims and multi-workstream integration are not
+implemented. The Pi loop runs its Todos sequentially in one Worker session. A future
+design must pin dependency inputs, reconcile leases before reuse, and keep independent
+acceptance of the combined result. A helper's or a stream's PASS never stands in for
+acceptance of the whole change.
 
 ## Engineering discipline
 
@@ -74,8 +53,8 @@ and integrated review; skip unnecessary ceremony for trivial changes.
 ## Implementation and checks
 
 Keep reading, planning, coding, tests, and debugging for a feature in one coding
-session. Load only the method needed for the task. Delegate only separable work.
-A missing optional temporary subagent does not prevent Worker from doing the work itself.
+session. Load only the method needed for the task. Do separable work in that same
+session; helper subagents are not implemented.
 
 Run only approved checks discovered in the actual repository. When pushing and
 opening draft PRs are authorized, a draft PR may precede PR-based CI. Do not
@@ -104,10 +83,10 @@ BLOCKED means required evidence, access, or context cannot be evaluated. Style
 preferences are non-blocking unless they violate an explicitly required rule.
 
 After the initial review, allow at most two fix-and-reverify cycles per review target
-(stream or integrated candidate), within a finite project-wide execution budget.
-Count a cycle when Worker applies review fixes and resubmits. Ordinary
-check/debug retries have their own authorized execution budget. Repeated failure,
-contradictory evidence, or exhaustion of either budget requires human escalation.
+(the candidate), within a finite execution budget. Count a cycle when Worker applies
+review fixes and resubmits. Ordinary check/debug retries have their own authorized
+execution budget. Repeated failure, contradictory evidence, or exhaustion of either
+budget requires human escalation.
 
 ## Snapshot freshness
 
@@ -127,7 +106,7 @@ Save short checkpoints with verified facts, important decisions, failed attempts
 code references, and next step. Keep bulk logs outside permanent memory.
 After interruption, check whether the original execution is still running before
 starting another. Unknown execution state is BLOCKED, not permission to redispatch.
-Reject stale temporary subagent results and duplicate review requests without a valid reason.
+Reject stale review results and duplicate review requests without a valid reason.
 
 Role instructions, local records, and hooks are not a sandbox. Use real repository
 protections, minimal credentials, safe execution environments, and user approvals.

@@ -21,10 +21,9 @@ and real approvals, not this file, determine what can execute.
 
 **Approval:** Do not “fix” a problem by changing product rules, deleting tests, relaxing thresholds, or altering security configuration without approval.
 
-Integration findings return to the responsible stream Worker; cross-stream
-findings go to the Worker integration owner. Preserve original scope and aggregate
-budgets. Recheck both the repaired component and affected combined behavior; local
-success alone cannot clear a project integration finding.
+Review findings return to the same Worker. Preserve original scope and aggregate
+budgets. Recheck the repaired component and the combined change; a local fix alone
+cannot clear a review finding on the whole change.
 
 ## Return
 

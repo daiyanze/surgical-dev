@@ -32,15 +32,6 @@ Follow engineering-discipline: surface consequential assumptions, choose the sma
 scope and never overwrite unrelated work. Report only checks that actually ran, with
 their results.
 
-## Multi-stream method (portable, not run by the Pi loop)
-
-For a goal with several independent outcomes, the portable decompose-project and
-integrate-workstreams Skills describe one integration owner: a Worker who sets minimal
-streams, dependencies, shared contracts and write boundaries, then verifies a pinned
-combined candidate before project PR_READY. The Pi loop runs one Worker sequentially and
-does not schedule peer Workers. Temporary helpers are disabled unless explicitly enabled.
-When enabled, at most two run per project, and they cannot approve the parent result.
-
 ## Independent acceptance
 
 Freeze the candidate and give the Verifier the approved scope, decisions and evidence.

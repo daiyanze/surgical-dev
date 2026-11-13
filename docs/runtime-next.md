@@ -1,7 +1,7 @@
 # Runtime work still needed
 
-The package provides nine Skills, two roles (Worker and Verifier) plus an optional
-temporary helper charter, goal/plan/integration templates and record/state specifications. The Pi adapter implements a goal-driven
+The package provides six Skills, two roles (Worker and Verifier), goal and work-item
+templates, and record/state specifications. The Pi adapter implements a goal-driven
 single-workstream loop: guided `/surgical <goal>` discussion or imported requirement
 preparation, exact user-boundary confirmation or the advanced command, a validated
 Todo DAG, one persistent Worker handling Todos
@@ -51,5 +51,5 @@ Required controller behavior for the broader architecture:
 Reuse host primitives first; add no generic workflow server without a demonstrated
 need. The single-stream adapter covers only its documented subset. Multi-project
 authority, restart reconciliation, parallel scheduling and external actions above
-remain implementation requirements. Validate the [acceptance scenarios](../tests/acceptance-scenarios.md)
-for each newly enabled capability; structural tests alone cannot establish them.
+remain implementation requirements. Add acceptance scenarios for each newly enabled
+capability; structural tests alone cannot establish them.
