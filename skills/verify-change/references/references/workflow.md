@@ -138,5 +138,4 @@ single-stream check/review/repair loop. Durable restart reconciliation, parallel
 scheduling and external action authorization remain future controller work;
 portable Skills alone do not implement those capabilities.
 
-Further design detail: `ARCHITECTURE.en.md`, `contracts/record-contracts.md` and
-`contracts/state-transitions.md` in the full repository.
+Further design detail: `ARCHITECTURE.en.md` in the full repository.

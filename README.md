@@ -247,7 +247,7 @@ for a separate review context. See [validation](VALIDATION.md) for exact coverag
 - [Installation and distribution](docs/distribution.md) — package scope, Skills CLI options and host capability tiers.
 - [Pi setup](adapters/pi/SETUP.md), [Codex setup](adapters/codex/SETUP.md) and [Claude Code setup](adapters/claude/SETUP.md) — commands, configuration and reviewer setup.
 - [Detailed workflow](references/workflow.md) and [review request](templates/review-request.md) — handoffs, repair cycles, and reusable task/acceptance starting points.
-- [Contracts and limits](contracts/README.md) — evidence records, state transitions and execution budgets.
+- [Contracts and limits](contracts/README.md) — the review-report schema and what it cannot check.
 - [Architecture](ARCHITECTURE.en.md) · [中文摘要](ARCHITECTURE.zh-CN.md) — implemented scope and not-yet-implemented work.
 - [Validation](VALIDATION.md) — completed checks and evidence limits; [remaining runtime work](docs/runtime-next.md) — parallel work, delivery and recovery.
 

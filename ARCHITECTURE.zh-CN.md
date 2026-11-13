@@ -17,7 +17,7 @@ Surgical Dev 把开发目标变成用户确认过的验收草案，然后由一�
 |---|---|---|
 | Skills | `skills/` | 六个方法：入口、功能、缺陷、工程纪律、验收和手工学习 |
 | 角色说明 | `roles/` | Worker 和 Verifier。Pi 运行时读取 `roles/worker.md` 与 `roles/verifier.md` |
-| 记录契约 | `contracts/` | 审查报告的基础 JSON Schema 与状态规则。Pi 循环运行时不据此校验，测试会用它校验实际产出的审查记录 |
+| 记录契约 | `contracts/` | 审查报告的基础 JSON Schema。Pi 循环运行时不据此校验，测试会用它校验实际产出的审查记录 |
 | 模板 | `templates/` | Markdown 目标、工作项、审查请求、审查报告和经验模板 |
 | Pi 扩展 | `adapters/pi/` | 命令、目标规格、Todo DAG、检查执行、审查进程启动、状态与学习存储 |
 | 打包参考 | `skills/*/references/` | 规范 Markdown 的副本，使每个安装的 Skill 自包含；由 `scripts/sync-skill-references.mjs` 生成，测试检查一致性 |
