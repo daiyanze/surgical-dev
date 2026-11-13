@@ -28,8 +28,6 @@
     "examples",
     "adapters",
     "docs",
-    "tests",
-    "scripts",
     "ARCHITECTURE.en.md",
     "ARCHITECTURE.zh-CN.md"
   ],
