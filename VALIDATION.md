@@ -11,7 +11,7 @@ any change; these numbers are not a standing claim about later commits.
 | Check | Result | What it establishes |
 |---|---|---|
 | `npm test` (Node 24.22.2) | 127 passed, 0 failed, 0 skipped | Package checks plus guided-entry, spec/state, loop and extension regressions using real Git and subprocesses |
-| `python3 scripts/sync_skill_references.py --check` | Passed | Standalone Skills match canonical Markdown references |
+| `npm run sync:check` | Passed | Standalone Skills match canonical Markdown references |
 | `npm run test:pi-host` with Pi 1.5.2 (Node 24.22.2) | 2 passed | Actual Pi guided `/surgical <goal>`/exact-input-confirmation/automatic-run lifecycle and the advanced import/confirm lifecycle, both with a deterministic local model |
 | Independent review | Findings addressed | Separate Pi/DeepSeek review, followed by parent inspection and regression checks of the fixes |
 
@@ -79,7 +79,7 @@ was reproduced through this real-host path before it was fixed.
 
 ```bash
 npm test
-python3 scripts/sync_skill_references.py --check
+npm run sync:check
 
 # Pi 1.5.2+ is required for the actual-host check. Verified on Node 24;
 # Node 22.13 fails with a Pi bundle error, and Pi declares >=22.19.0 (22.19+ not run here):

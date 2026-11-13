@@ -87,7 +87,7 @@ maintainers can create a **Git tag and GitHub Release** after testing the
 contents and reviewing the release:
 
 ```bash
-python3 scripts/sync_skill_references.py --check
+npm run sync:check
 npm test
 git diff --exit-code
 # After approval, choose a release tag:
@@ -107,7 +107,7 @@ Canonical source docs live under `roles/`, `references/`, `contracts/`
 and `templates/`. After changing them:
 
 ```bash
-python3 scripts/sync_skill_references.py
+npm run sync
 npm test
 ```
 
