@@ -215,6 +215,33 @@ test('installation and status alone start no agent run', async t => {
   assert.equal(h.ctx.isIdle(), true);
 });
 
+test('run is refused, with no Worker started, when scope is unconfirmed, a draft is pending, or the agent is busy', async t => {
+  const started = h => h.messages.some(message => message.customType === 'surgical-goal') || h.records.length > 0;
+  const last = h => h.messages.at(-1).content;
+
+  const none = await host(t);
+  await none.emit('session_start');
+  await none.command('run');
+  assert.match(last(none), /No confirmed Goal Specification/);
+  assert.equal(started(none), false);
+
+  const pending = await host(t);
+  await pending.emit('session_start');
+  await draftOnly(pending, 'Put 42 in answer.txt');
+  await pending.command('run');
+  assert.match(last(pending), /draft\/discussion is pending/);
+  assert.equal(started(pending), false);
+
+  const busy = await host(t);
+  await busy.emit('session_start');
+  await prepare(busy, 'Put 42 in answer.txt');
+  busy.setBusy(true);
+  await busy.command('run');
+  assert.match(last(busy), /already active/);
+  assert.equal(busy.messages.some(message => message.customType === 'surgical-goal'), false);
+  busy.setBusy(false);
+});
+
 test('stop during command preflight prevents starting the Worker', async t => {
   const h = await host(t);
   let incorrectlyStarted = false;

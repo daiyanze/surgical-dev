@@ -2,18 +2,20 @@
 
 Package: `surgical-dev` · 2026-11-13.
 Scope: portable Skills, record contracts and the opt-in Pi goal-driven single-workstream loop.
-Results below were run on 2026-11-13 against the working tree on top of HEAD
-`c375094`, with uncommitted changes. Re-run the commands in **Reproduce** after
-any change; these numbers are not a standing claim about later commits.
+Local results below were run on 2026-11-13 on Node 22.13 against the working tree on
+top of `main` at `585b9a2`, with uncommitted changes. The `test:pi-host` row comes from
+CI on `585b9a2` (GitHub Actions, Node 24, Pi 1.5.2, ubuntu-latest and macos-latest),
+not from a local run. Re-run the commands in **Reproduce** after any change; these
+numbers are not a standing claim about later commits.
 
 ## Observed checks
 
 | Check | Result | What it establishes |
 |---|---|---|
-| `npm test` | 129 passed, 0 failed, 0 skipped | Package checks plus guided-entry, spec/state, loop and extension regressions using real Git and subprocesses |
+| `npm test` | 130 passed, 0 failed, 0 skipped (CI on `585b9a2`: 129 passed on both OSes, before the tests added since) | Package checks plus guided-entry, spec/state, loop and extension regressions using real Git and subprocesses |
 | `npm run sync:check` | Passed | Standalone Skills match canonical Markdown references |
-| `npm run test:pi-host` with Pi 1.5.2 (Node 24.22.2) | 2 passed | Actual Pi guided `/surgical <goal>`/exact-input-confirmation/automatic-run lifecycle and the advanced import/confirm lifecycle, both with a deterministic local model |
-| Independent review | Findings addressed | Separate Pi/DeepSeek review, followed by parent inspection and regression checks of the fixes |
+| `npm run test:pi-host` with Pi 1.5.2 (CI, Node 24, `585b9a2`) | 2 passed on ubuntu-latest and macos-latest | Actual Pi guided `/surgical <goal>`/exact-input-confirmation/automatic-run lifecycle and the advanced import/confirm lifecycle, both with a deterministic local model |
+| Independent review | Findings addressed (earlier change set only) | Separate Pi/DeepSeek review of an earlier change set, followed by parent inspection and regression checks. Not repeated for the module split or review-schema changes since |
 
 The Node regression suite checks guided-entry routing and exact-phrase safety;
 input provenance distinct from user-command consent; concurrent confirmation
