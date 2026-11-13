@@ -26,7 +26,7 @@ do not equate an unchanged HEAD with unchanged source.
 `review_id`, task/scope/snapshot/check-policy identifiers, verified Verifier session
 binding, attempt and repair-cycle number, prior-finding references, observed checks,
 AC-by-AC PASS/FAIL/UNKNOWN, verdict, findings, remaining risks, report location.
-Schema-valid task/review records alone do not validate these project-level guards.
+A schema-valid review record alone does not validate these project-level guards.
 Every blocker includes ID, location, evidence, impact and clearance condition.
 A model-supplied reviewer name is not identity verification. A well-formed PASS
 must still be substantively supported by current evidence.

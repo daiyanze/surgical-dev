@@ -9,6 +9,7 @@ import { adjustRunPlan, createRun, advanceRun, parseReviewerOutput, planTodos, v
 import { learningPath } from '../adapters/pi/learning.mjs';
 import { confirmSpec, createDraftSpec } from '../adapters/pi/spec.mjs';
 import { captureSnapshot, runProcess } from '../adapters/pi/process.mjs';
+import { validateReview } from './review-schema.mjs';
 
 const fixture = fileURLToPath(new URL('./fixtures/pi-reviewer.mjs', import.meta.url));
 const git = (cwd, ...args) => execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
@@ -659,4 +660,16 @@ test('a learning write that fails (store locked) is a bounded warning and never 
   assert.equal((await advanceRun(run)).action, 'ready');
   await run.finish();
   assert.equal(run.state.status, 'PR_READY');
+});
+
+test('review records the loop produces satisfy contracts/review.schema.json', async t => {
+  for (const [verdict, answer] of [['PASS', '42'], ['CHANGES_REQUIRED', '41']]) {
+    const cwd = await repository(t, answer);
+    const run = await createRun({ cwd, spec: oneSpec('Put 42 in answer.txt'), config: config(), workerSessionId: 'schema-worker' });
+    t.after(() => run.close());
+    await advanceRun(run);
+    const { review } = run.state;
+    assert.equal(review.verdict, verdict);
+    assert.equal(validateReview(review), true, `${verdict}: ${JSON.stringify(validateReview.errors)}`);
+  }
 });

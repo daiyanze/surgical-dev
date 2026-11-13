@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, resolve, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { validateReview } from './review-schema.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const skills = readdirSync(resolve(root, 'skills'), { withFileTypes: true })
@@ -170,9 +171,7 @@ test('schemas parse and declare JSON Schema 2020-12', () => {
     .filter(name => name.endsWith('.schema.json'))
     .sort()
     .map(name => `contracts/${name}`);
-  for (const name of ['task.schema.json', 'review.schema.json']) {
-    assert.ok(schemaPaths.includes(`contracts/${name}`), `Missing contracts/${name}`);
-  }
+  assert.ok(schemaPaths.includes('contracts/review.schema.json'), 'Missing contracts/review.schema.json');
   for (const path of schemaPaths) {
     assert.ok(existsSync(resolve(root, path)), `Missing ${path}`);
     const schema = json(path);
@@ -183,13 +182,9 @@ test('schemas parse and declare JSON Schema 2020-12', () => {
   }
 });
 
-test('examples are explicitly non-authorizing and initially blocked or brief', () => {
-  const task = json('examples/task.brief.json');
+test('example review is explicitly blocked and valid against the schema', () => {
   const review = json('examples/review.blocked.json');
-  assert.equal(task.status, 'BRIEF');
-  assert.equal(task.approval_source, null);
-  assert.deepEqual(task.allowed_actions, []);
-  assert.equal(task.fix_cycles_used, 0);
+  assert.equal(validateReview(review), true, JSON.stringify(validateReview.errors));
   assert.equal(review.verdict, 'BLOCKED');
   assert.equal(review.reviewer_session_ref, null);
 });

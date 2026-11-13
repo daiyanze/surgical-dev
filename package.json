@@ -2,7 +2,7 @@
   "name": "surgical-dev",
   "version": "0.3.0-content",
   "private": true,
-  "description": "Goal-driven software methods with an opt-in Pi development, verification and repair loop.",
+  "description": "Goal-driven software methods as portable Agent Skills, with an automatic development, verification and repair loop for Pi only.",
   "type": "module",
   "keywords": [
     "pi-package",
@@ -28,13 +28,16 @@
     "examples",
     "adapters",
     "docs",
-    "tests",
-    "scripts",
     "ARCHITECTURE.en.md",
     "ARCHITECTURE.zh-CN.md"
   ],
   "scripts": {
     "test": "node --test tests/*.test.mjs",
+    "sync": "node scripts/sync-skill-references.mjs",
+    "sync:check": "node scripts/sync-skill-references.mjs --check",
     "test:pi-host": "node --test tests/pi-host-smoke.mjs"
+  },
+  "devDependencies": {
+    "ajv": "^8.20.0"
   }
 }

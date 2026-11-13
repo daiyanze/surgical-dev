@@ -273,6 +273,7 @@ The other methods and Codex adapter retain their existing semantics. No permanen
 manager agent, background scheduler or recursive team is created by installation.
 
 ```bash
+npm ci
 npm test
 SURGICAL_PI_EXECUTABLE=/absolute/path/to/pi npm run test:pi-host
 ```

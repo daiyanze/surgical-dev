@@ -19,8 +19,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - name: Install dev dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Verify standalone Skill references
-        run: python3 scripts/sync_skill_references.py --check
+        run: npm run sync:check
       - name: Generate checksums
         if: runner.os == 'Linux'
         run: git ls-files -z | xargs -0 sha256sum > SHA256SUMS
