@@ -1,6 +1,6 @@
 # Pi setup — goal-driven autonomous development
 
-The package exposes nine Skills and one opt-in extension. The extension runs a
+The package exposes six Skills and one opt-in extension. The extension runs a
 goal-driven single-workstream loop: requirement discussion/import → explicit user
 confirmation → Todo planning → one persistent Worker → actual checks → independent
 final Verifier → additive repair. The Worker session owns implementation throughout.
@@ -8,7 +8,7 @@ Success is `PR_READY` for the confirmed specification and current source tree.
 
 ## Install
 
-Requirements: Pi **1.5.2+**, Node **22.19+**, Git, and Linux or macOS. The integration
+Requirements: Pi **1.5.2+**, Node **24** (the verified version; Pi 1.5.2 declares `>=22.19.0`, and Node 22.13 fails), Git, and Linux or macOS. The integration
 suite is exercised on Linux. Windows process-tree cancellation is not supported by
 this pilot. Authenticate a model through Pi's normal setup first.
 
@@ -263,8 +263,7 @@ Worker and reviewer usage are aggregated per assistant/model call. Any relevant
 message with missing or zero reported usage, or missing cost, makes the aggregate
 total `UNKNOWN`; measured subtotals remain visible, and unknown cost is never
 presented as zero. Its bounds are turns, checks, planning/review repairs and time,
-cumulative across Todos. The general multi-stream project-policy example remains
-disabled. Parallel Workers, automatic PR creation, merge, publication, deployment
+cumulative across Todos. Parallel Workers, automatic PR creation, merge, publication, deployment
 and crash recovery remain outside this adapter.
 
 ## Portable Skills and verification

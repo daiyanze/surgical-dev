@@ -1,10 +1,6 @@
 # Independent review request
 Event / correlation / review attempt:
-Task / project / scope revision:
-Review level: workstream / project_integration:
-Plan revision / workstream ID / integration owner:
-Accepted dependency snapshots and contract versions:
-For project review: included stream snapshots, combined candidate and project ACs:
+Task / scope revision:
 Approved scope snapshot and original authority:
 Repository / PR / base / head / actual source snapshot:
 Required-check policy and trusted evidence:

@@ -9,30 +9,29 @@ permissions:
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Install Python test dependencies
-        run: python -m pip install -r tests/requirements.txt
       - name: Verify standalone Skill references
-        run: python scripts/sync_skill_references.py --check
+        run: python3 scripts/sync_skill_references.py --check
       - name: Generate checksums
+        if: runner.os == 'Linux'
         run: git ls-files -z | xargs -0 sha256sum > SHA256SUMS
       - name: Upload checksums
+        if: runner.os == 'Linux'
         uses: actions/upload-artifact@v4
         with:
           name: SHA256SUMS
           path: SHA256SUMS
       - name: Verify package tests
         run: npm test
-      - name: Verify contract tests
-        run: python tests/contracts_test.py
       - name: Install pinned Pi host for integration check
         run: npm install --prefix "$RUNNER_TEMP/surgical-pi" --ignore-scripts --no-audit --no-fund @earendil-works/pi-coding-agent@1.5.2
       - name: Verify actual Pi lifecycle with a local model fixture

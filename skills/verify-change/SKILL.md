@@ -21,13 +21,8 @@ and real approvals, not this file, determine what can execute.
 
 **Approval:** Do not implement fixes, expand permissions, or approve merging on the user's behalf. Stop when new access or sensitive data is required.
 
-Determine the review level first. A workstream PASS only supports INTEGRATION_READY.
-For whole-project acceptance use the
-[integration packet](references/templates/integration-review.md): verify the actual
-combined snapshot, included stream versions and all project ACs. Never combine
-local PASS reports into Integration Passed without evaluating integration evidence.
-The integration owner cannot self-approve code it wrote. One same-snapshot review
-may cover both levels for a single-stream project.
+Judge the whole change on one snapshot: every acceptance criterion, with evidence
+from that snapshot. The author of the change cannot self-approve it.
 
 ## Return
 

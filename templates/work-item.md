@@ -1,9 +1,5 @@
 # Work item
-Task / project / scope revision:
-Plan ID / revision / workstream ID:
-Integration owner / mapped project ACs:
-Dependencies and pinned accepted input snapshots:
-Shared contract versions and owners:
+Task / scope revision:
 Origin: direct request / confirmed goal:
 Original scope authority and applicable policy:
 Objective:
@@ -14,10 +10,9 @@ Repository and base/head/pinned source snapshot:
 Required check commands and policy revision:
 Allowed actions and delivery target:
 Worker runtime/session reference:
-Helper allowance, write ownership and shared-resource claims:
 Overall budget; transient retries; review repair cycles used:
 Evidence references:
 Current state / blocker / resume condition:
-Next permitted action / stream INTEGRATION_READY vs project PR_READY:
+Next permitted action:
 
 Source, scope or permission changes do not silently inherit old review or grants.

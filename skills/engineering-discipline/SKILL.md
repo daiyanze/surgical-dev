@@ -26,7 +26,7 @@ Preserve necessary compatibility, security and error handling.
 Trace each changed file to an acceptance criterion, required dependency or
 cleanup introduced by this change. Match local conventions. Do not reformat
 adjacent files, refactor unrelated modules or delete old dead code. Keep shared
-workstream contracts under a clear owner and revalidate their consumers.
+interfaces under a clear owner and revalidate their consumers.
 
 ## Goal-driven execution
 
@@ -34,7 +34,7 @@ Translate the task into observable success criteria and actual checks. For bugs,
 prefer reproducing the failure before fixing it where feasible. For refactors,
 verify behavior before and after. Implement, test, inspect failures and repair
 within the authorized budget. Worker self-checks; Verifier independently
-reviews the current snapshot. Combined changes still require integration review.
+reviews the current snapshot.
 
 ## Review guidance
 

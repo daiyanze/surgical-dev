@@ -1,22 +1,18 @@
 # Validation report
 
-Package: `surgical-dev` · 2026-11-12.
+Package: `surgical-dev` · 2026-11-13.
 Scope: portable Skills, record contracts and the opt-in Pi goal-driven single-workstream loop.
-Historical test snapshot: guided-entry implementation on branch
-`feat/surgical-guided-entry` based on main `5acf53e` (review findings addressed
-and checks repeated at that time). The results below are evidence for that
-snapshot, not a continuously updated claim about the current HEAD. Re-run the
-commands in **Reproduce** after changes; the Learning Loop's later coverage is
-not included in these historical totals.
+Results below were run on 2026-11-13 against the working tree on top of HEAD
+`c375094`, with uncommitted changes. Re-run the commands in **Reproduce** after
+any change; these numbers are not a standing claim about later commits.
 
 ## Observed checks
 
 | Check | Result | What it establishes |
 |---|---|---|
-| `npm test` | 121 passed, 1 platform skip (macOS) | Package checks plus guided-entry, spec/state, loop and extension regressions using real Git and subprocesses |
-| `python3 tests/contracts_test.py` | 20 passed | Existing task, review and project-plan schema constraints |
+| `npm test` (Node 24.22.2) | 127 passed, 0 failed, 0 skipped | Package checks plus guided-entry, spec/state, loop and extension regressions using real Git and subprocesses |
 | `python3 scripts/sync_skill_references.py --check` | Passed | Standalone Skills match canonical Markdown references |
-| `npm run test:pi-host` with Pi 1.5.2 | 2 passed | Actual Pi guided `/surgical <goal>`/exact-input-confirmation/automatic-run lifecycle and the advanced import/confirm lifecycle, both with a deterministic local model |
+| `npm run test:pi-host` with Pi 1.5.2 (Node 24.22.2) | 2 passed | Actual Pi guided `/surgical <goal>`/exact-input-confirmation/automatic-run lifecycle and the advanced import/confirm lifecycle, both with a deterministic local model |
 | Independent review | Findings addressed | Separate Pi/DeepSeek review, followed by parent inspection and regression checks of the fixes |
 
 The Node regression suite checks guided-entry routing and exact-phrase safety;
@@ -84,11 +80,9 @@ was reproduced through this real-host path before it was fixed.
 ```bash
 npm test
 python3 scripts/sync_skill_references.py --check
-python3 -m venv .venv
-.venv/bin/python -m pip install -r tests/requirements.txt
-.venv/bin/python tests/contracts_test.py
 
-# Pi 1.5.2+ and Node 22.19+ are required for the actual-host check:
+# Pi 1.5.2+ is required for the actual-host check. Verified on Node 24;
+# Node 22.13 fails with a Pi bundle error, and Pi declares >=22.19.0 (22.19+ not run here):
 SURGICAL_PI_EXECUTABLE=/absolute/path/to/pi npm run test:pi-host
 ```
 
@@ -117,5 +111,4 @@ SHA256SUMS is not committed. CI generates it from tracked files and uploads it a
 - Local package installation was exercised; installation from a published Git tag,
   remote Git installation and a production release were not part of this check.
 
-The general project-policy example remains disabled/DRAFT_ONLY. Remaining work is
-tracked in [runtime-next.md](docs/runtime-next.md).
+Remaining work is tracked in [runtime-next.md](docs/runtime-next.md).

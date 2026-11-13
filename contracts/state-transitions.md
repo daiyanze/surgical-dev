@@ -4,22 +4,7 @@ This table describes future guards; it is not an implemented state machine.
 An execution condition BLOCKED/ESCALATED/CANCELLED/TIMED_OUT preserves the prior
 stage. Only observed, authorized events can resume or advance it.
 
-## Project
-
-GOAL -> PLANNING -> EXECUTING -> INTEGRATING -> INTEGRATION_VERIFYING -> PR_READY.
-User scope/authority admission precedes execution. Worker automatically supplies
-technical partitions and assignments under that scope. PLANNING admission checks
-an acyclic dependency graph, accepted input versions, conflicts and budget.
-
-Project PR_READY requires required streams INTEGRATION_READY, a current combined
-candidate, actual project-level checks and independent Integration Passed. A failed
-integration returns affected work to its Worker without resetting project usage.
-Scope changes require applicable admission; routine in-scope technical replanning
-only records a new plan revision and invalidates affected downstream evidence.
-One stream may use the same review for local and integrated ACs on an identical
-snapshot; independent acceptance cannot be bypassed by selecting serial mode.
-
-## Work item / workstream
+## Work item
 
 | From | Event / guard | To / effect |
 |---|---|---|
@@ -34,7 +19,7 @@ snapshot; independent acceptance cannot be bypassed by selecting serial mode.
 | VERIFYING | Repair limit exhausted or repeated unresolved failure | ESCALATED condition |
 | Any active stage | Accepted scope changes | BRIEF; new revision, preserve history and budget accounting |
 | INTEGRATION_READY | Relevant source/check-policy/baseline/dependency changes | Reopen affected checks/review; invalidate downstream acceptance |
-| Project PR_READY | Required checks and independent Integration Passed current | Record PR_READY; it is not an action grant |
+| PR_READY | Required checks and an independent final PASS current | Record PR_READY; it is not an action grant |
 
 Increment a repair cycle when review-driven fixes are made and resubmitted, not
 for a pending-CI wait or duplicate review message. Persist the increment atomically.

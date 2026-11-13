@@ -24,62 +24,10 @@ test('current operating docs contain no version-transition guide links', () => {
   }
 });
 
-test('project organization is owned by Worker rather than the user', () => {
-  const role = read('roles/worker.md');
-  assert.match(role, /integration owner/i);
-  assert.match(role, /decompose-project/);
-  assert.match(role, /integrate-workstreams/);
-  const brief = read('templates/project-goal.md');
-  for (const word of ['Goal:', 'Constraints:', 'Budget:', 'Permissions:']) assert.ok(brief.includes(word));
-  assert.match(brief, /Do not ask me to split tasks or assign agents/);
-});
-
-test('parallel workstreams and auxiliary subagents have distinct contracts', () => {
-  const policy = read('contracts/project-policy.example.yaml');
-  for (const field of ['max_active_workers', 'max_active_verifiers', 'max_active_subagents_project', 'max_total_active_executions', 'max_active_integrations_per_target', 'serial_fallback']) assert.ok(policy.includes(field + ':'), field);
-  assert.match(policy, /automation_enabled: false/);
-  assert.match(policy, /profile: DRAFT_ONLY/);
-  assert.match(policy, /create_persistent_agents: false/);
-  assert.match(read('contracts/project-plan.md'), /dependency.*snapshot|snapshot.*dependency/i);
-  assert.match(read('contracts/project-plan.md'), /acyclic/i);
-  assert.match(read('contracts/project-plan.md'), /lease/i);
-});
-
-test('project readiness requires independent integration acceptance', () => {
+test('project readiness requires an independent final PASS', () => {
   const workflow = read('references/workflow.md');
-  assert.match(workflow, /Integration Passed/);
-  assert.match(workflow, /INTEGRATION_READY/);
   assert.match(workflow, /PR_READY/);
-  assert.match(read('roles/verifier.md'), /integration/i);
-  assert.match(read('roles/worker.md'), /integration/i);
-  const packet = read('templates/integration-review.md');
-  for (const word of ['Plan revision:', 'Workstream snapshots:', 'Integrated snapshot:', 'Project acceptance criteria:', 'Independent reviewer:']) assert.ok(packet.includes(word), word);
-});
-
-test('project plan example has explicit dependencies, boundaries and no authority', () => {
-  const plan = json('examples/project.plan.json');
-  assert.equal(plan.authorization_ref, null);
-  assert.equal(plan.status, 'DRAFT');
-  assert.equal(plan.integration_owner_ref, null);
-  assert.equal(plan.workstreams.length, 3);
-  const ids = new Set(plan.workstreams.map(w => w.workstream_id));
-  assert.equal(ids.size, plan.workstreams.length);
-  for (const w of plan.workstreams) {
-    assert.equal(w.assignee_execution_ref, null);
-    assert.ok(w.write_paths.length > 0);
-    assert.ok(w.acceptance_criteria.length > 0);
-    assert.ok(w.depends_on.every(d => ids.has(d) && d !== w.workstream_id));
-  }
-  const visited = new Set();
-  const active = new Set();
-  const visit = id => {
-    assert.ok(!active.has(id), 'Dependency cycle');
-    if (visited.has(id)) return;
-    active.add(id);
-    plan.workstreams.find(w => w.workstream_id === id).depends_on.forEach(visit);
-    active.delete(id); visited.add(id);
-  };
-  ids.forEach(visit);
+  assert.match(workflow, /independent Verifier/i);
 });
 
 function files(dir = root) {
@@ -135,8 +83,8 @@ for (const name of skills) {
   });
 }
 
-test('role charters and temporary helper asset exist', () => {
-  const roles = ['worker', 'verifier', 'temporary-subagent'];
+test('role charters exist', () => {
+  const roles = ['worker', 'verifier'];
   const charters = readdirSync(resolve(root, 'roles'))
     .filter(name => name.endsWith('.md') && !['README.md', 'team-boundaries.md'].includes(name))
     .map(name => name.slice(0, -3));
@@ -154,17 +102,33 @@ test('role charters and temporary helper asset exist', () => {
   }
 });
 
-test('removed Scout, delivery and incident assets are absent', () => {
-  assert.equal(skills.length, 9, `Expected nine Skills, found ${skills.length}`);
-  const removedSkills = ['discover-opportunity', 'evaluate-outcome', 'handle-incident', 'prepare-release', 'release-and-observe'];
+test('removed Scout, delivery, incident and unimplemented multi-workstream assets are absent', () => {
+  assert.equal(skills.length, 6, `Expected six Skills, found ${skills.length}`);
+  const removedSkills = [
+    'discover-opportunity', 'evaluate-outcome', 'handle-incident', 'prepare-release', 'release-and-observe',
+    'decompose-project', 'integrate-workstreams', 'delegate-bounded-task',
+  ];
   for (const name of removedSkills) assert.ok(!existsSync(resolve(root, 'skills', name)), `Removed Skill still present: ${name}`);
   const removedPaths = [
     'roles/product-scout.md',
+    'roles/temporary-subagent.md',
     'workflows',
     'templates/incident-packet.md',
     'templates/opportunity-brief.md',
     'templates/outcome-assessment.md',
     'templates/release-handoff.md',
+    'templates/integration-review.md',
+    'templates/project-plan.md',
+    'templates/subagent-handoff.md',
+    'contracts/project-plan.md',
+    'contracts/project-plan.schema.json',
+    'examples/project.plan.json',
+    'skills/verify-change/references/templates/integration-review.md',
+    'contracts/project-policy.example.yaml',
+    'templates/project-goal.md',
+    'tests/acceptance-scenarios.md',
+    'tests/contracts_test.py',
+    'tests/requirements.txt',
   ];
   for (const path of removedPaths) assert.ok(!existsSync(resolve(root, path)), `Removed path still present: ${path}`);
 });
@@ -206,7 +170,7 @@ test('schemas parse and declare JSON Schema 2020-12', () => {
     .filter(name => name.endsWith('.schema.json'))
     .sort()
     .map(name => `contracts/${name}`);
-  for (const name of ['task.schema.json', 'review.schema.json', 'project-plan.schema.json']) {
+  for (const name of ['task.schema.json', 'review.schema.json']) {
     assert.ok(schemaPaths.includes(`contracts/${name}`), `Missing contracts/${name}`);
   }
   for (const path of schemaPaths) {
@@ -230,36 +194,18 @@ test('examples are explicitly non-authorizing and initially blocked or brief', (
   assert.equal(review.reviewer_session_ref, null);
 });
 
-test('default limits table matches policy example', () => {
-  const limits = Object.fromEntries([...read('contracts/project-policy.example.yaml').matchAll(/^\s+(max_[a-z_]+):\s*(\d+)/gm)].map(match => [match[1], match[2]]));
-  assert.ok(Object.keys(limits).length > 0, 'No max_* limits found in policy example');
-  const rows = read('contracts/README.md').split('\n')
-    .filter(line => line.trim().startsWith('|'))
-    .map(line => line.split('|').map(cell => cell.trim()));
-  for (const [key, value] of Object.entries(limits)) {
-    const row = rows.find(cells => cells[1] === `\`${key}\``);
-    assert.ok(row, `contracts/README.md: missing table row for ${key}`);
-    assert.equal(row[2], value, `contracts/README.md: wrong default for ${key}`);
-  }
-});
-
 test('Karpathy-inspired engineering discipline covers four actionable habits', () => {
   const skill = read('skills/engineering-discipline/SKILL.md');
   for (const heading of ['Think before coding', 'Simplicity first', 'Surgical changes', 'Goal-driven execution']) {
     assert.ok(skill.includes(heading), heading);
   }
   assert.match(read('skills/surgical-dev/SKILL.md'), /engineering-discipline/);
-  assert.match(read('roles/worker.md'), /smallest solution/);
-  assert.match(read('roles/verifier.md'), /unrelated changes/);
-  assert.match(read('references/workflow.md'), /reproducing a bug/);
 });
 
 test('core invariants remain explicit', () => {
   assert.match(read('skills/surgical-dev/SKILL.md'), /BLOCKED/);
   assert.match(read('skills/surgical-dev/SKILL.md'), /same conversation/);
   assert.match(read('roles/verifier.md'), /CHANGES_REQUIRED/);
-  assert.match(read('references/workflow.md'), /two fix-and-reverify cycles/);
-  assert.match(read('references/workflow.md'), /dirty|untracked/);
   assert.match(read('references/workflow.md'), /not.*authorization/i);
 });
 

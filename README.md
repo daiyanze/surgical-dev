@@ -35,7 +35,7 @@ candidate. Findings go back to the Worker that understands the change.
 Pi runs the complete guided loop. You still supply two things: a repository whose
 checks work, and one explicit confirmation of the full acceptance draft.
 
-**Requirements:** Pi **1.5.2+**, Node **22.19+**, Git, and Linux or macOS. Authenticate
+**Requirements:** Pi **1.5.2+**, Node **24** (verified; Pi declares 22.19+), Git, and Linux or macOS. Authenticate
 a model through Pi's normal setup first. Details: [Pi setup](adapters/pi/SETUP.md).
 
 ### 1. Install the full package
@@ -44,7 +44,7 @@ a model through Pi's normal setup first. Details: [Pi setup](adapters/pi/SETUP.m
 pi install git:github.com/daiyanze/surgical-dev
 ```
 
-This installs the nine Skills and the `/surgical` extension. Installing the Skills
+This installs the six Skills and the `/surgical` extension. Installing the Skills
 alone does **not** activate the automatic loop.
 
 ### 2. Configure the repository
@@ -105,10 +105,10 @@ in this repository.
 Run from your project directory:
 
 ```bash
-# Codex: all nine Skills
+# Codex: all six Skills
 npx skills add daiyanze/surgical-dev --skill '*' -a codex -y
 
-# Claude Code: all nine Skills
+# Claude Code: all six Skills
 npx skills add daiyanze/surgical-dev --skill '*' -a claude-code -y
 ```
 
@@ -193,7 +193,7 @@ LEARNING (advisory, not a gate): this failure has occurred 2 times in this repos
 - **Other hosts:** the manual [learn-from-failures](skills/learn-from-failures/SKILL.md)
   Skill covers observations Pi does not see. Details: [learning reference](references/learning.md).
 
-## 📚 The nine Skills
+## 📚 The six Skills
 
 Start with **`surgical-dev`** for everyday work. It selects the relevant methods, so
 you do not need to learn a sequence; request a specific Skill when you already know
@@ -204,9 +204,6 @@ what you need.
 | [surgical-dev](skills/surgical-dev/SKILL.md) | Start from a development goal | Selects the relevant method, then guides the work |
 | [ship-feature](skills/ship-feature/SKILL.md) | Add a feature or change behavior | Acceptance criteria, focused implementation, tests, and a review handoff |
 | [fix-bug](skills/fix-bug/SKILL.md) | Investigate and repair a defect | Reproduction evidence, a supported cause, a minimal fix, and regression checks |
-| [decompose-project](skills/decompose-project/SKILL.md) | Organize a goal with several outcomes | Testable workstreams, dependencies, interface boundaries, and integration ownership |
-| [integrate-workstreams](skills/integrate-workstreams/SKILL.md) | Combine accepted workstreams | An integrated candidate, whole-project checks, and independent acceptance |
-| [delegate-bounded-task](skills/delegate-bounded-task/SKILL.md) | Hand off an independent question or isolated subtask | A bounded helper assignment and usable findings; requires enabled delegation |
 | [engineering-discipline](skills/engineering-discipline/SKILL.md) | Keep any coding task focused | Explicit assumptions, simple design, scoped edits, and observable checks |
 | [verify-change](skills/verify-change/SKILL.md) | Independently assess a candidate | `PASS`, `CHANGES_REQUIRED`, or `BLOCKED`, with evidence and actionable findings |
 | [learn-from-failures](skills/learn-from-failures/SKILL.md) | Review recurring failures by hand | A manual signature review and a prevention note; no automatic gate |
@@ -243,10 +240,10 @@ for a separate review context. See [validation](VALIDATION.md) for exact coverag
 
 - [Installation and distribution](docs/distribution.md) — package scope, Skills CLI options and host capability tiers.
 - [Pi setup](adapters/pi/SETUP.md), [Codex setup](adapters/codex/SETUP.md) and [Claude Code setup](adapters/claude/SETUP.md) — commands, configuration and reviewer setup.
-- [Detailed workflow](references/workflow.md), [project goal](templates/project-goal.md) and [review request](templates/review-request.md) — handoffs, repair cycles, and reusable task/acceptance starting points.
+- [Detailed workflow](references/workflow.md) and [review request](templates/review-request.md) — handoffs, repair cycles, and reusable task/acceptance starting points.
 - [Contracts and limits](contracts/README.md) — evidence records, state transitions and execution budgets.
 - [Architecture](ARCHITECTURE.en.md) · [中文摘要](ARCHITECTURE.zh-CN.md) — implemented scope and not-yet-implemented work.
-- [Validation](VALIDATION.md) — completed checks and evidence limits; [remaining runtime work](docs/runtime-next.md) — multi-workstream, delivery and recovery.
+- [Validation](VALIDATION.md) — completed checks and evidence limits; [remaining runtime work](docs/runtime-next.md) — parallel work, delivery and recovery.
 
 ## References
 
