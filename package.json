@@ -38,5 +38,8 @@
     "sync": "node scripts/sync-skill-references.mjs",
     "sync:check": "node scripts/sync-skill-references.mjs --check",
     "test:pi-host": "node --test tests/pi-host-smoke.mjs"
+  },
+  "devDependencies": {
+    "ajv": "^8.20.0"
   }
 }

@@ -87,6 +87,7 @@ maintainers can create a **Git tag and GitHub Release** after testing the
 contents and reviewing the release:
 
 ```bash
+npm ci
 npm run sync:check
 npm test
 git diff --exit-code
