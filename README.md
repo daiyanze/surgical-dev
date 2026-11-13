@@ -13,6 +13,12 @@ The methods are portable Agent Skills. The bundled **enforced automatic loop** i
 currently implemented for **Pi only**: discussion and confirmation, Todo execution,
 checks, independent review, repair, and bounded stopping.
 
+> **What you get on each host.** On **Pi** you get the full automatic loop described
+> below. On **Codex, Claude Code and other Agent Skills hosts** you get the written
+> methods (Skills, templates, a reviewer role) only: the host does not enforce
+> confirmation, budgets or review, and you start the independent review yourself.
+> See [Supported agent runtimes](#-supported-agent-runtimes).
+
 ## 🎯 The problem it solves
 
 Coding agents can generate a plausible change and still leave you with a fragile
