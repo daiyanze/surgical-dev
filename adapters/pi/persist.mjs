@@ -82,9 +82,3 @@ export async function saveRepositoryState(cwd, state, { expectedRevision } = {})
     await rm(lockPath, { force: true }).catch(() => {});
   }
 }
-
-export async function updateRepositoryState(cwd, update) {
-  const state = await loadRepositoryState(cwd);
-  const next = await update(structuredClone(state)) ?? state;
-  return saveRepositoryState(cwd, next, { expectedRevision: state.revision });
-}

@@ -228,12 +228,27 @@ test('a changed candidate at final settlement invalidates the review', async t =
   assert.match(run.state.reason, /snapshot changed/);
 });
 
-test('large diffs reach the reviewer without exceeding per-argument OS limits', async t => {
+test('a patch above the byte cap is replaced by the changed-file list instead of blocking the run', async t => {
   const cwd = await repository(t, '42');
-  const run = await createRun({ cwd, spec: oneSpec('Keep answer correct'), config: config(), workerSessionId: 'large-diff' });
+  const run = await createRun({ cwd, spec: oneSpec('Keep answer correct; report-diff'), config: config(), workerSessionId: 'large-diff' });
   t.after(() => run.close());
-  await writeFile(join(cwd, 'large.txt'), 'source context\n'.repeat(15_000));
+  await writeFile(join(cwd, 'large.txt'), 'source context\n'.repeat(700_000));
   assert.equal((await advanceRun(run)).action, 'ready');
+  assert.ok(run.state.review.remaining_risks.includes('diff-has-large=true'));
+  const length = Number(run.state.review.remaining_risks[0].split('=')[1]);
+  assert.ok(length < 1000, `Reviewer context must be the file list, got ${length} chars`);
+});
+
+test('a patch below the byte cap is bounded to the character limit with an explicit marker', async t => {
+  const cwd = await repository(t, '42');
+  const run = await createRun({ cwd, spec: oneSpec('Keep answer correct; report-diff'), config: config(), workerSessionId: 'mid-diff' });
+  t.after(() => run.close());
+  await writeFile(join(cwd, 'large.txt'), 'source context\n'.repeat(100_000));
+  assert.equal((await advanceRun(run)).action, 'ready');
+  const length = Number(run.state.review.remaining_risks[0].split('=')[1]);
+  assert.ok(length <= 200_000, `Patch must be bounded, got ${length} chars`);
+  assert.ok(length > 100_000, 'Patch below the byte cap must still be included');
+  assert.ok(run.state.review.remaining_risks.includes('diff-truncated=true'), 'Truncation must be marked for the reviewer');
 });
 
 test('cancellation during final snapshot capture cannot resurrect readiness', async t => {
@@ -273,7 +288,7 @@ test('cancellation retains repository ownership until the Worker settles', async
   await next.close();
 });
 
-test('cancellation stops background descendants that ignore SIGTERM', { skip: process.platform !== 'linux' }, async t => {
+test('cancellation stops background descendants that ignore SIGTERM', async t => {
   const directory = await mkdtemp(join(tmpdir(), 'surgical-child-test-'));
   t.after(() => rm(directory, { recursive: true, force: true }));
   const pidFile = join(directory, 'pid');
@@ -290,8 +305,10 @@ test('cancellation stops background descendants that ignore SIGTERM', { skip: pr
   t.after(() => { try { process.kill(pid, 'SIGKILL'); } catch {} });
   controller.abort();
   assert.equal((await running).aborted, true);
-  const status = await readFile(`/proc/${pid}/stat`, 'utf8').catch(() => '');
-  assert.ok(!status || status.split(' ')[2] === 'Z', 'No active descendant may survive cancellation');
+  // Portable liveness probe (Linux and macOS): signal 0 throws once the process is gone.
+  const alive = () => { try { process.kill(pid, 0); return true; } catch { return false; } };
+  for (let i = 0; i < 100 && alive(); i++) await new Promise(resolve => setTimeout(resolve, 10));
+  assert.equal(alive(), false, 'No descendant may survive cancellation');
 });
 
 test('multi-Todo dependency progression stays in one Worker session and is settled by real checks', async t => {

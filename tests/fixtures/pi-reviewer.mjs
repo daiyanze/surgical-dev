@@ -41,6 +41,7 @@ const report = {
   blocked_reason: null,
 };
 if (mode.includes('duplicate-notes')) report.remaining_risks = ['one risk', 'one risk'];
+if (mode.includes('report-diff')) report.remaining_risks = [`diff-length=${request.diff.length}`, `diff-has-large=${request.diff.includes('large.txt')}`, `diff-truncated=${request.diff.includes('...[truncated')}`];
 if (mode.includes('blocked-review')) { report.verdict = 'BLOCKED'; report.blocked_reason = 'Missing reproducible evidence'; }
 console.log(JSON.stringify({ type: 'tool_execution_end', toolCallId: 'read-1', toolName: 'read', result: { content: [{ type: 'text', text: source }] }, isError: false }));
 if (mode.includes('reviewer-usage-mixed')) console.log(JSON.stringify({ type: 'message_end', message: { role: 'assistant', content: [{ type: 'text', text: 'intermediate' }], stopReason: 'stop' } }));

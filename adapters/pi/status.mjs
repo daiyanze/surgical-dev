@@ -25,7 +25,7 @@ export function formatRunStatus(state) {
   const lines = [
     `Surgical Dev: ${state.status}`,
     state.reason ?? (state.status === 'PR_READY'
-      ? `Checks and independent review passed for recorded tree ${state.acceptedSnapshot?.tree}. Delivery was not performed.`
+      ? `Checks and independent review passed for recorded tree ${state.readySnapshot?.tree}. Delivery was not performed.`
       : state.goal),
     `Todos: ${done}/${state.todos.length} done${state.activeTodoId ? `; current ${state.activeTodoId}` : ''}`,
     `Usage: turns ${state.turnsUsed}/${state.config.maxTurns}; checks ${state.checkAttempts}/${state.config.maxCheckAttempts}; reviews ${state.reviewAttempts}; repairs ${state.reviewRepairsUsed}/${state.config.maxReviewRepairCycles}; worker tokens ${jsonOrUnknown(state.usage?.tokens)}; reviewer tokens ${jsonOrUnknown(state.usage?.reviewer)}; total ${jsonOrUnknown(state.usage?.total_tokens)}`,

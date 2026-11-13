@@ -7,7 +7,7 @@ import { captureSnapshot, git, runProcess, withReviewWorktree } from './process.
 import { learningHint, loadLearning, recordCheckFailure, recordReviewFindings } from './learning.mjs';
 import {
   addRepairTodo, allRequiredDone, bounded, buildWorkerContext, ContextBudgetError,
-  defaultTodos, digest, nextEligibleTodo, nonempty, planRevision, strings, uniqueStrings,
+  defaultTodos, digest, exactKeys, nextEligibleTodo, nonempty, planRevision, strings, uniqueStrings,
   validateConfirmedSpec, validateExistingTodos, validatePlanTodos,
 } from './spec.mjs';
 
@@ -18,8 +18,6 @@ const defaults = {
   maxPromptChars: 12_000, timeoutSeconds: 1800, checkTimeoutSeconds: 120,
   reviewTimeoutSeconds: 180, reviewerCommand: ['pi'],
 };
-const exactKeys = (value, keys) => value && typeof value === 'object' && !Array.isArray(value)
-  && Object.keys(value).length === keys.length && keys.every(key => Object.hasOwn(value, key));
 const command = value => strings(value) && value.length > 0 && value.every(part => !part.includes('\0'));
 const sameSnapshot = (a, b) => a.head === b.head && a.tree === b.tree;
 const now = () => new Date().toISOString();
@@ -52,11 +50,6 @@ export async function loadConfig(cwd) {
   return { config: validateConfig(JSON.parse(raw)), policyDigest: digest(raw) };
 }
 
-function normalizePlanForRun(todos, spec) {
-  const normalized = validatePlanTodos(todos, spec);
-  return normalized;
-}
-
 function selectedTodo(state, { prompt = false } = {}) {
   const current = state.activeTodoId
     ? state.todos.find(todo => todo.id === state.activeTodoId && todo.state !== 'DONE')
@@ -78,7 +71,7 @@ export function planTodos(run, candidate) {
   const { state } = run;
   if (TERMINAL.has(state.status)) throw new Error('The run has already stopped');
   if (state.status !== 'PLANNING') throw new Error('A Todo plan can only be submitted during planning');
-  const todos = normalizePlanForRun(candidate, state.spec);
+  const todos = validatePlanTodos(candidate, state.spec);
   state.todos = todos;
   state.planRevision = planRevision(todos);
   state.status = 'IMPLEMENTING';
@@ -181,7 +174,7 @@ export async function createRun({ cwd, goal, spec, todos, config, workerSessionI
   await lock.writeFile(JSON.stringify({ taskId: id, pid: process.pid, hostname: hostname(), sessionId: workerSessionId }));
   await lock.close();
   const abortController = new AbortController();
-  const initialTodos = todos ? normalizePlanForRun(todos, spec) : (spec.acceptance_criteria.length === 1 ? defaultTodos(spec) : []);
+  const initialTodos = todos ? validatePlanTodos(todos, spec) :(spec.acceptance_criteria.length === 1 ? defaultTodos(spec) : []);
   const state = {
     schemaVersion: 2, id, cwd, goal, workerSessionId, baseSha: base.head,
     scopeRevision: digest(JSON.stringify({ spec: spec.digest, checks: config.checks })),
@@ -194,13 +187,13 @@ export async function createRun({ cwd, goal, spec, todos, config, workerSessionI
     decisions: [], recentFailures: [], evidenceSeq: 0,
     learningWarnings,
     usage: {
-      workerTurns: 0, promptRounds: 0, checks: 0, reviews: 0,
-      calls: { workerAssistant: 0, workerToolCalls: 0, checks: 0, reviews: 0, reviewer: 0 },
+      promptRounds: 0,
+      calls: { workerAssistant: 0, workerToolCalls: 0, reviewer: 0 },
       tokens: 'UNKNOWN', reviewer: 'UNKNOWN', total_tokens: 'UNKNOWN',
       worker_usage_complete: true, reviewer_usage_complete: false,
       worker_cost_complete: true, reviewer_cost_complete: false,
     },
-    costVisibility: 'UNKNOWN', interruption: null,
+    interruption: null,
   };
   if (initialTodos.length) {
     const first = selectedTodo(state);
@@ -209,7 +202,7 @@ export async function createRun({ cwd, goal, spec, todos, config, workerSessionI
   }
   let closed = false, timer;
   const run = {
-    state, abortController, busy: false, workerRunning: false, readySnapshot: null,
+    state, abortController, busy: false, workerRunning: false,
     save() { onChange(structuredClone(state)); },
     async close() {
       if (closed || run.busy || run.workerRunning) return;
@@ -240,7 +233,6 @@ export async function createRun({ cwd, goal, spec, todos, config, workerSessionI
         if (!gate.ok) { await run.stop('BLOCKED', gate.reason); return; }
         state.status = 'PR_READY';
         state.reason = null;
-        state.acceptedSnapshot = latest;
         run.save();
       } catch (error) {
         if (!TERMINAL.has(state.status)) await run.stop('BLOCKED', error.message);
@@ -453,12 +445,24 @@ function compactCheck(check) {
   };
 }
 
+const DIFF_BYTES = 8 * 1024 * 1024;
+const DIFF_CHARS = 200_000;
+
+// Bounded reviewer context: the full patch when it fits, otherwise the changed-file list.
+async function reviewDiff(cwd, base, tree, signal) {
+  const patch = await runProcess(['git', '-c', 'core.hooksPath=/dev/null', 'diff', '--no-ext-diff', '--no-textconv', base, tree], { cwd, signal, maxBytes: DIFF_BYTES });
+  if (patch.aborted || patch.timedOut || (patch.code !== 0 && !patch.overflow)) throw new Error(`Git diff failed: ${patch.stderr || 'interrupted'}`);
+  if (!patch.overflow) return bounded(patch.stdout, DIFF_CHARS);
+  const stat = await git(cwd, ['diff', '--no-ext-diff', '--no-textconv', '--stat', base, tree], { signal });
+  return `Patch omitted: larger than ${DIFF_BYTES} bytes. Changed files; read the sources directly:\n${bounded(stat, DIFF_CHARS)}`;
+}
+
 async function reviewSnapshot(run, snapshot) {
   const { state, abortController } = run;
   const signal = abortController.signal;
   return withReviewWorktree(state.cwd, snapshot, state.id, async ({ checkout, commit }) => {
     const sessionId = randomUUID();
-    const diff = await git(state.cwd, ['diff', '--no-ext-diff', '--no-textconv', state.baseSha, snapshot.tree], { signal });
+    const diff = await reviewDiff(state.cwd, state.baseSha, snapshot.tree, signal);
     const instructions = await readFile(new URL('../../roles/verifier.md', import.meta.url), 'utf8');
     const request = {
       task_id: state.id,
@@ -548,13 +552,7 @@ function feedback(run, todo, instruction, extra = {}, diagnostic = null) {
   const header = `${instruction}\n\nCurrent Todo context (bounded; read files as needed):\n`;
   const budget = state.config.maxPromptChars - header.length;
   if (budget < 1) throw new ContextBudgetError(`The Worker feedback instruction is ${header.length} chars, over the ${state.config.maxPromptChars}-char maxPromptChars budget. Required feedback is not silently truncated; raise maxPromptChars.`);
-  let context;
-  try {
-    context = buildWorkerContext(state, todo, budget, diagnostic);
-  } catch (error) {
-    if (error instanceof ContextBudgetError) throw error;
-    throw error;
-  }
+  const context = buildWorkerContext(state, todo, budget, diagnostic);
   state.usage.promptRounds++;
   state.awaitingImplementation = false;
   run.save();
@@ -634,13 +632,10 @@ export async function advanceRun(run) {
     markStaleEvidence(state, snapshot.tree);
     state.status = 'CHECKING';
     state.checkAttempts++;
-    state.usage.checks++;
-    state.usage.calls.checks = state.usage.checks;
     state.checks = [];
     state.finalChecks = [];
     state.finalCheckTree = null;
     state.readySnapshot = null;
-    run.readySnapshot = null;
     run.save();
     for (const [index, argv] of state.config.checks.entries()) {
       if (Date.now() >= state.deadlineAt) return await stop('TIMED_OUT', 'Total run deadline exceeded before the next check');
@@ -689,8 +684,6 @@ export async function advanceRun(run) {
     }
     state.status = 'VERIFYING';
     state.reviewAttempts++;
-    state.usage.reviews++;
-    state.usage.calls.reviews = state.usage.reviews;
     run.save();
     if (Date.now() >= state.deadlineAt) return await stop('TIMED_OUT', 'Total run deadline exceeded before independent review');
     state.review = await reviewSnapshot(run, snapshot);
@@ -723,7 +716,6 @@ export async function advanceRun(run) {
       });
     }
     state.readySnapshot = snapshot;
-    run.readySnapshot = snapshot;
     run.save();
     return { action: 'ready' }; // Pi's settled event confirms this was not aborted.
   } catch (error) {
